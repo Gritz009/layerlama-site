@@ -141,6 +141,18 @@
                     <div class="card-credit">Design by <a href="https://makerworld.com/en/models/search?searchKeyword=TomoDesigns" target="_blank">TomoDesigns</a> via MakerWorld</div>
                 </div>
             </div>
+
+            <div class="gallery-card" data-category="functional" onclick="openLightbox('deskorganizer')">
+                <div class="card-image">
+                    <span class="card-tag">Functional</span>
+                    <img src="Images/Portfolio/Desk_Organizer/Thumbnail.png" alt="Modular Desk Organizer">
+                </div>
+                <div class="card-body">
+                    <div class="card-title">Modular Desk Organizer</div>
+                    <div class="card-meta">PLA &bull; Bambu A1</div>
+                    <div class="card-credit">Design by <a href="https://makerworld.com/en/models/search?searchKeyword=Meyui" target="_blank">Meyui</a> via MakerWorld</div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -173,7 +185,8 @@
         // Lightbox
         const projects = {
             planter: { title: 'Polygon Planter', credit: 'Design by h3li0 via MakerWorld', images: ['Images/Portfolio/Planter/thumbnail.png','Images/Portfolio/Planter/2.png','Images/Portfolio/Planter/3.png','Images/Portfolio/Planter/4.png','Images/Portfolio/Planter/5.png'] },
-            happypot: { title: 'Happy Pot', credit: 'Design by TomoDesigns via MakerWorld', images: ['Images/Portfolio/HappyPot/Thumbnail.jpg','Images/Portfolio/HappyPot/P1.jpg','Images/Portfolio/HappyPot/P2.jpg','Images/Portfolio/HappyPot/P3.jpg','Images/Portfolio/HappyPot/Gif.gif'] }
+            happypot: { title: 'Happy Pot', credit: 'Design by TomoDesigns via MakerWorld', images: ['Images/Portfolio/HappyPot/Thumbnail.jpg','Images/Portfolio/HappyPot/P1.jpg','Images/Portfolio/HappyPot/P2.jpg','Images/Portfolio/HappyPot/P3.jpg','Images/Portfolio/HappyPot/Gif.gif'] },
+            deskorganizer: { title: 'Modular Desk Organizer', credit: 'Design by Meyui via MakerWorld', images: ['Images/Portfolio/Desk_Organizer/Thumbnail.png','Images/Portfolio/Desk_Organizer/2.png','Images/Portfolio/Desk_Organizer/3.png','Images/Portfolio/Desk_Organizer/4.png','Images/Portfolio/Desk_Organizer/5.png','Images/Portfolio/Desk_Organizer/6.png','Images/Portfolio/Desk_Organizer/7.png','Images/Portfolio/Desk_Organizer/8.png'] }
         };
         let currentProject = null, currentIdx = 0;
         function openLightbox(k) { currentProject = projects[k]; if (!currentProject) return; currentIdx = 0; buildThumbs(); updateLightbox(); document.getElementById('lightbox').classList.add('active'); document.body.style.overflow = 'hidden'; }
