@@ -215,6 +215,21 @@
         .card-body { padding: 1.25rem 1.5rem 1.5rem; }
         .card-title { font-family: var(--font-display); font-weight: 700; font-size: 1.15rem; margin-bottom: 0.4rem; }
         .card-meta { font-size: 0.8rem; color: var(--text-muted); display: flex; gap: 1rem; transition: color var(--tr); }
+        .card-credit { font-size: 0.72rem; color: var(--text-muted); margin-top: 0.5rem; opacity: 0.7; transition: color var(--tr); }
+        .card-credit a { color: var(--orange); text-decoration: none; transition: opacity 0.3s; }
+        .card-credit a:hover { opacity: 0.8; text-decoration: underline; }
+
+        /* ═══════ LIGHTBOX ═══════ */
+        .lightbox-overlay { display: none; position: fixed; inset: 0; z-index: 10000; background: rgba(0,0,0,0.92); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); align-items: center; justify-content: center; flex-direction: column; }
+        .lightbox-overlay.active { display: flex; }
+        .lightbox-close { position: absolute; top: 1.5rem; right: 2rem; background: none; border: none; color: #fff; font-size: 2rem; cursor: pointer; opacity: 0.7; transition: opacity 0.3s; z-index: 10001; }
+        .lightbox-close:hover { opacity: 1; }
+        .lightbox-img { max-width: 90vw; max-height: 75vh; border-radius: 8px; object-fit: contain; transition: opacity 0.3s; }
+        .lightbox-nav { display: flex; gap: 1rem; margin-top: 1.5rem; align-items: center; }
+        .lightbox-nav button { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: #fff; width: 44px; height: 44px; border-radius: 50%; font-size: 1.2rem; cursor: pointer; transition: all 0.3s; display: flex; align-items: center; justify-content: center; }
+        .lightbox-nav button:hover { background: var(--orange); border-color: var(--orange); }
+        .lightbox-counter { color: rgba(255,255,255,0.6); font-size: 0.85rem; margin: 0 1rem; }
+        .lightbox-info { color: rgba(255,255,255,0.5); font-size: 0.8rem; margin-top: 0.75rem; }
 
         /* ═══════ PROCESS ═══════ */
         #about { background: var(--bg-surface); }
@@ -234,7 +249,7 @@
 
         /* ═══════ SERVICES ═══════ */
         #services { background: var(--bg); }
-        .services-grid { max-width: 1000px; margin: 0 auto; display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem; }
+        .services-grid { max-width: 1100px; margin: 0 auto; display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
         .service-card { padding: 2.5rem; border: 1px solid var(--border); border-radius: 12px; background: var(--bg-card); transition: all 0.3s; position: relative; overflow: hidden; }
         .service-card::before { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 3px; background: var(--accent-gradient); opacity: 0; transition: opacity 0.3s; }
         .service-card:hover { border-color: var(--card-border-hover); background: var(--bg-surface); }
@@ -360,10 +375,10 @@
     <div class="section-divider"></div>
 
     <div class="stats">
-        <div class="stat reveal"><div class="stat-number" data-count="150">0</div><div class="stat-label">Projects Completed</div></div>
-        <div class="stat reveal"><div class="stat-number" data-count="12">0</div><div class="stat-label">Materials Used</div></div>
-        <div class="stat reveal"><div class="stat-number">0.1mm</div><div class="stat-label">Layer Precision</div></div>
-        <div class="stat reveal"><div class="stat-number" data-count="100">0</div><div class="stat-label">% Satisfaction</div></div>
+        <div class="stat reveal"><div class="stat-number" data-count="300">0</div><div class="stat-label">Prints Completed</div></div>
+        <div class="stat reveal"><div class="stat-number" data-count="5">0</div><div class="stat-label">Printers in Fleet</div></div>
+        <div class="stat reveal"><div class="stat-number" data-count="6">0</div><div class="stat-label">Materials Offered</div></div>
+        <div class="stat reveal"><div class="stat-number">0.05mm</div><div class="stat-label">Min Layer Height</div></div>
     </div>
 
     <div class="section-divider"></div>
@@ -378,12 +393,25 @@
             <button class="filter-btn" data-filter="prototypes">Prototypes</button>
         </div>
         <div class="gallery-grid">
-            <div class="gallery-card reveal" data-category="functional"><div class="card-image"><span class="card-tag">Functional</span><div class="placeholder-icon">&#9881;</div></div><div class="card-body"><div class="card-title">Custom Gear Assembly</div><div class="card-meta"><span>PLA+ &bull; 0.12mm</span><span>24h print</span></div></div></div>
-            <div class="gallery-card reveal" data-category="artistic"><div class="card-image"><span class="card-tag">Artistic</span><div class="placeholder-icon">&#9733;</div></div><div class="card-body"><div class="card-title">Organic Sculpture Series</div><div class="card-meta"><span>Silk PLA &bull; 0.16mm</span><span>18h print</span></div></div></div>
-            <div class="gallery-card reveal" data-category="miniatures"><div class="card-image"><span class="card-tag">Miniatures</span><div class="placeholder-icon">&#9812;</div></div><div class="card-body"><div class="card-title">Fantasy Character Set</div><div class="card-meta"><span>Resin &bull; 0.05mm</span><span>6h print</span></div></div></div>
-            <div class="gallery-card reveal" data-category="prototypes"><div class="card-image"><span class="card-tag">Prototype</span><div class="placeholder-icon">&#9883;</div></div><div class="card-body"><div class="card-title">Product Enclosure v3</div><div class="card-meta"><span>PETG &bull; 0.2mm</span><span>12h print</span></div></div></div>
-            <div class="gallery-card reveal" data-category="artistic"><div class="card-image"><span class="card-tag">Artistic</span><div class="placeholder-icon">&#10047;</div></div><div class="card-body"><div class="card-title">Geometric Vase Collection</div><div class="card-meta"><span>Gradient PLA &bull; 0.2mm</span><span>8h print</span></div></div></div>
-            <div class="gallery-card reveal" data-category="functional"><div class="card-image"><span class="card-tag">Functional</span><div class="placeholder-icon">&#9878;</div></div><div class="card-body"><div class="card-title">Modular Tool Organizer</div><div class="card-meta"><span>ABS &bull; 0.2mm</span><span>16h print</span></div></div></div>
+            <!-- REAL PROJECT: Polygon Planter -->
+            <div class="gallery-card reveal" data-category="artistic" onclick="openLightbox('planter')">
+                <div class="card-image">
+                    <span class="card-tag">Artistic & Functional</span>
+                    <img src="Images/Portfolio/Planter/thumbnail.png" alt="Polygon Planter" style="width:100%;height:100%;object-fit:cover;position:relative;z-index:1;">
+                </div>
+                <div class="card-body">
+                    <div class="card-title">Polygon Planter</div>
+                    <div class="card-meta"><span>PLA &bull; Bambu A1</span></div>
+                    <div class="card-credit">Design by <a href="https://makerworld.com/en/models/search?searchKeyword=h3li0" target="_blank">h3li0</a> via MakerWorld</div>
+                </div>
+            </div>
+
+            <!-- Placeholder cards — will be replaced as you add projects -->
+            <div class="gallery-card reveal" data-category="functional"><div class="card-image"><span class="card-tag">Functional</span><div class="placeholder-icon">&#9881;</div></div><div class="card-body"><div class="card-title">Coming Soon</div><div class="card-meta"><span>More projects loading...</span></div><div class="card-credit">Upload your next project</div></div></div>
+            <div class="gallery-card reveal" data-category="miniatures"><div class="card-image"><span class="card-tag">Miniatures</span><div class="placeholder-icon">&#9812;</div></div><div class="card-body"><div class="card-title">Coming Soon</div><div class="card-meta"><span>More projects loading...</span></div><div class="card-credit">Upload your next project</div></div></div>
+            <div class="gallery-card reveal" data-category="prototypes"><div class="card-image"><span class="card-tag">Prototype</span><div class="placeholder-icon">&#9883;</div></div><div class="card-body"><div class="card-title">Coming Soon</div><div class="card-meta"><span>More projects loading...</span></div><div class="card-credit">Upload your next project</div></div></div>
+            <div class="gallery-card reveal" data-category="artistic"><div class="card-image"><span class="card-tag">Artistic</span><div class="placeholder-icon">&#10047;</div></div><div class="card-body"><div class="card-title">Coming Soon</div><div class="card-meta"><span>More projects loading...</span></div><div class="card-credit">Upload your next project</div></div></div>
+            <div class="gallery-card reveal" data-category="functional"><div class="card-image"><span class="card-tag">Educational</span><div class="placeholder-icon">&#127891;</div></div><div class="card-body"><div class="card-title">Coming Soon</div><div class="card-meta"><span>More projects loading...</span></div><div class="card-credit">Upload your next project</div></div></div>
         </div>
     </section>
 
@@ -403,24 +431,26 @@
     <section id="services">
         <div class="section-header reveal"><span class="section-label">Services</span><h2 class="section-title">What I Offer</h2><p class="section-desc">From one-off prints to small production runs, Layer Lama has you covered.</p></div>
         <div class="services-grid">
-            <div class="service-card reveal"><div class="service-icon">&#128230;</div><div class="service-title">Custom Prints</div><div class="service-desc">Send your STL/3MF file and choose your material, color, and finish. Fast turnaround on single prints or batches.</div></div>
-            <div class="service-card reveal"><div class="service-icon">&#128736;</div><div class="service-title">Prototyping</div><div class="service-desc">Rapid iteration on product enclosures, mechanical parts, and custom fittings. Design feedback included.</div></div>
-            <div class="service-card reveal"><div class="service-icon">&#127912;</div><div class="service-title">Art & Décor</div><div class="service-desc">Sculptural pieces, vases, lithophanes, and decorative objects. Unique gifts and home accents printed to order.</div></div>
-            <div class="service-card reveal"><div class="service-icon">&#128187;</div><div class="service-title">Design Assistance</div><div class="service-desc">Need a model created from scratch? I can design print-ready 3D models from sketches, photos, or descriptions.</div></div>
+            <div class="service-card reveal"><div class="service-icon">&#128230;</div><div class="service-title">Custom Prints</div><div class="service-desc">Send your STL or 3MF file and choose your material, color, and finish. Fast turnaround on single prints or batches using our fleet of Bambu Lab and Creality printers.</div></div>
+            <div class="service-card reveal"><div class="service-icon">&#128736;</div><div class="service-title">Prototyping</div><div class="service-desc">Rapid iteration on product enclosures, mechanical parts, and custom fittings. PLA-CF and ASA available for engineering-grade strength. Design feedback included.</div></div>
+            <div class="service-card reveal"><div class="service-icon">&#127912;</div><div class="service-title">Art & Décor</div><div class="service-desc">Sculptural pieces, vases, lithophanes, and decorative objects. Unique gifts and home accents printed to order in a variety of colors and finishes.</div></div>
+            <div class="service-card reveal"><div class="service-icon">&#128187;</div><div class="service-title">Design + Print</div><div class="service-desc">Don't have a 3D model? No problem. We can design print-ready models from sketches, photos, or descriptions — and bring them to life.</div></div>
+            <div class="service-card reveal"><div class="service-icon">&#9812;</div><div class="service-title">Miniatures & Gaming</div><div class="service-desc">High-detail resin prints for tabletop gaming, D&D characters, terrain pieces, and collectible miniatures at 0.05mm layer resolution.</div></div>
+            <div class="service-card reveal"><div class="service-icon">&#127891;</div><div class="service-title">Workshops & Education</div><div class="service-desc">Introduction to the world of 3D printing. Hands-on demos, printer walkthroughs, and workshops for beginners, schools, and businesses looking to explore additive manufacturing.</div></div>
         </div>
     </section>
 
     <div class="section-divider"></div>
 
     <section id="setup">
-        <div class="section-header reveal"><span class="section-label">Setup</span><h2 class="section-title">The Workshop</h2><p class="section-desc">Professional-grade equipment for consistent, high-quality results.</p></div>
+        <div class="section-header reveal"><span class="section-label">Setup</span><h2 class="section-title">The Fleet</h2><p class="section-desc">5 printers, 6 materials, and the precision to match any project requirement.</p></div>
         <div class="specs-grid">
-            <div class="spec-card reveal"><div class="spec-icon">&#128424;</div><div><div class="spec-name">FDM Printer</div><div class="spec-detail">PLA, PETG, ABS, TPU, Silk</div></div></div>
-            <div class="spec-card reveal"><div class="spec-icon">&#128300;</div><div><div class="spec-name">Resin Printer</div><div class="spec-detail">High-detail miniatures & jewelry</div></div></div>
-            <div class="spec-card reveal"><div class="spec-icon">&#128207;</div><div><div class="spec-name">Build Volume</div><div class="spec-detail">Up to 300×300×400mm (FDM)</div></div></div>
-            <div class="spec-card reveal"><div class="spec-icon">&#9889;</div><div><div class="spec-name">Layer Resolution</div><div class="spec-detail">0.05mm – 0.3mm configurable</div></div></div>
-            <div class="spec-card reveal"><div class="spec-icon">&#127912;</div><div><div class="spec-name">Post-Processing</div><div class="spec-detail">Sanding, priming, painting, coating</div></div></div>
-            <div class="spec-card reveal"><div class="spec-icon">&#128640;</div><div><div class="spec-name">Turnaround</div><div class="spec-detail">2–7 days typical delivery</div></div></div>
+            <div class="spec-card reveal"><div class="spec-icon">&#128424;</div><div><div class="spec-name">Bambu Lab P1S</div><div class="spec-detail">256×256×256mm · Multi-color · High speed</div></div></div>
+            <div class="spec-card reveal"><div class="spec-icon">&#128424;</div><div><div class="spec-name">Bambu Lab A1</div><div class="spec-detail">256×256×256mm · AMS multi-material</div></div></div>
+            <div class="spec-card reveal"><div class="spec-icon">&#128424;</div><div><div class="spec-name">Bambu Lab A1 Mini</div><div class="spec-detail">180×180×180mm · Compact precision</div></div></div>
+            <div class="spec-card reveal"><div class="spec-icon">&#128424;</div><div><div class="spec-name">Creality Ender 3</div><div class="spec-detail">220×220×250mm · Reliable workhorse</div></div></div>
+            <div class="spec-card reveal"><div class="spec-icon">&#128300;</div><div><div class="spec-name">Creality LD-002H</div><div class="spec-detail">Resin · 0.05mm ultra-detail · Miniatures</div></div></div>
+            <div class="spec-card reveal"><div class="spec-icon">&#9889;</div><div><div class="spec-name">Materials</div><div class="spec-detail">PLA · PETG · ABS · ASA · PLA-CF · Resin</div></div></div>
         </div>
     </section>
 
@@ -436,7 +466,7 @@
                     <div class="form-group"><label>Name</label><input type="text" name="name" placeholder="Your name" required></div>
                     <div class="form-group"><label>Email</label><input type="email" name="email" placeholder="you@email.com" required></div>
                 </div>
-                <div class="form-group"><label>Project Type</label><select name="project-type"><option>Custom Print (I have a file)</option><option>Design + Print (from scratch)</option><option>Prototype / Iteration</option><option>Art & Décor</option><option>Other</option></select></div>
+                <div class="form-group"><label>Project Type</label><select name="project-type"><option>Custom Print (I have a file)</option><option>Design + Print (from scratch)</option><option>Prototype / Iteration</option><option>Art & Décor</option><option>Miniatures & Gaming</option><option>Workshop / Education</option><option>Other</option></select></div>
                 <div class="form-group"><label>Project Details</label><textarea name="details" placeholder="Describe your project, material preferences, quantity, deadline..."></textarea></div>
                 <button type="submit" class="form-submit">Send Message</button>
             </form>
@@ -470,7 +500,7 @@
         document.querySelectorAll('.nav-links a').forEach(l => l.addEventListener('click', () => document.getElementById('navLinks').classList.remove('open')));
         const obs = new IntersectionObserver((entries) => { entries.forEach((e, i) => { if (e.isIntersecting) { setTimeout(() => e.target.classList.add('visible'), i * 80); obs.unobserve(e.target); } }); }, { threshold: 0.1 });
         document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
-        const cObs = new IntersectionObserver((entries) => { entries.forEach(entry => { if (entry.isIntersecting) { const el = entry.target, target = parseInt(el.dataset.count); let cur = 0; const inc = Math.ceil(target / 40); const isSat = el.closest('.stat').querySelector('.stat-label').textContent.includes('Satisfaction'); const t = setInterval(() => { cur += inc; if (cur >= target) { cur = target; clearInterval(t); } el.textContent = cur + (isSat ? '%' : '+'); }, 30); cObs.unobserve(el); } }); }, { threshold: 0.5 });
+        const cObs = new IntersectionObserver((entries) => { entries.forEach(entry => { if (entry.isIntersecting) { const el = entry.target, target = parseInt(el.dataset.count); let cur = 0; const inc = Math.ceil(target / 40); const t = setInterval(() => { cur += inc; if (cur >= target) { cur = target; clearInterval(t); } el.textContent = cur + '+'; }, 30); cObs.unobserve(el); } }); }, { threshold: 0.5 });
         document.querySelectorAll('.stat-number[data-count]').forEach(c => cObs.observe(c));
         document.querySelectorAll('.filter-btn').forEach(btn => { btn.addEventListener('click', () => { document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active')); btn.classList.add('active'); const f = btn.dataset.filter; document.querySelectorAll('.gallery-card').forEach(card => { if (f === 'all' || card.dataset.category === f) { card.style.display = ''; requestAnimationFrame(() => card.style.opacity = '1'); } else { card.style.opacity = '0'; setTimeout(() => card.style.display = 'none', 300); } }); }); });
         function handleSubmit(e) {
@@ -493,6 +523,82 @@
                 setTimeout(() => { btn.textContent = 'Send Message'; btn.style.background = ''; btn.disabled = false; }, 3000);
             });
         }
+    </script>
+    <!-- ═══════ LIGHTBOX ═══════ -->
+    <div class="lightbox-overlay" id="lightbox">
+        <button class="lightbox-close" onclick="closeLightbox()">&times;</button>
+        <img class="lightbox-img" id="lightboxImg" src="" alt="">
+        <div class="lightbox-nav">
+            <button onclick="prevImg()">&#8249;</button>
+            <span class="lightbox-counter" id="lightboxCounter"></span>
+            <button onclick="nextImg()">&#8250;</button>
+        </div>
+        <div class="lightbox-info" id="lightboxInfo"></div>
+    </div>
+
+    <script>
+        // Lightbox project data — add new projects here
+        const projects = {
+            planter: {
+                title: 'Polygon Planter',
+                credit: 'Design by h3li0 via MakerWorld',
+                images: [
+                    'Images/Portfolio/Planter/thumbnail.png',
+                    'Images/Portfolio/Planter/2.png',
+                    'Images/Portfolio/Planter/3.png',
+                    'Images/Portfolio/Planter/4.png',
+                    'Images/Portfolio/Planter/5.png'
+                ]
+            }
+        };
+
+        let currentProject = null;
+        let currentIdx = 0;
+
+        function openLightbox(projectKey) {
+            currentProject = projects[projectKey];
+            if (!currentProject) return;
+            currentIdx = 0;
+            updateLightbox();
+            document.getElementById('lightbox').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeLightbox() {
+            document.getElementById('lightbox').classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        function updateLightbox() {
+            document.getElementById('lightboxImg').src = currentProject.images[currentIdx];
+            document.getElementById('lightboxCounter').textContent = (currentIdx + 1) + ' / ' + currentProject.images.length;
+            document.getElementById('lightboxInfo').textContent = currentProject.title + ' — ' + currentProject.credit;
+        }
+
+        function nextImg() {
+            if (!currentProject) return;
+            currentIdx = (currentIdx + 1) % currentProject.images.length;
+            updateLightbox();
+        }
+
+        function prevImg() {
+            if (!currentProject) return;
+            currentIdx = (currentIdx - 1 + currentProject.images.length) % currentProject.images.length;
+            updateLightbox();
+        }
+
+        // Close on overlay click
+        document.getElementById('lightbox').addEventListener('click', (e) => {
+            if (e.target === document.getElementById('lightbox')) closeLightbox();
+        });
+
+        // Keyboard nav
+        document.addEventListener('keydown', (e) => {
+            if (!document.getElementById('lightbox').classList.contains('active')) return;
+            if (e.key === 'Escape') closeLightbox();
+            if (e.key === 'ArrowRight') nextImg();
+            if (e.key === 'ArrowLeft') prevImg();
+        });
     </script>
 </body>
 </html>
