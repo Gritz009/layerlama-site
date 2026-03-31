@@ -203,11 +203,9 @@
         .filter-btn:hover, .filter-btn.active { background: linear-gradient(135deg, var(--orange), var(--orange-deep)); color: #fff; border-color: transparent; box-shadow: 0 4px 16px var(--orange-glow); }
         .gallery-grid { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 1.5rem; }
         .gallery-card { background: var(--bg-card); border-radius: 12px; overflow: hidden; border: 1px solid var(--border); transition: all 0.4s ease; cursor: pointer; position: relative; }
-        .gallery-card::before { content: ''; position: absolute; inset: -1px; border-radius: 13px; background: var(--accent-gradient); opacity: 0; transition: opacity 0.4s; z-index: -1; }
-        .gallery-card:hover { transform: translateY(-6px); border-color: transparent; box-shadow: 0 24px 64px var(--card-shadow); }
-        .gallery-card:hover::before { opacity: 1; }
+        .gallery-card:hover { transform: translateY(-6px); border-color: var(--orange); box-shadow: 0 24px 64px var(--card-shadow), 0 0 30px rgba(232,129,43,0.08); }
         [data-theme="light"] .gallery-card { box-shadow: 0 3px 12px rgba(0,0,0,0.07), 0 0 0 1px rgba(0,0,0,0.03); }
-        [data-theme="light"] .gallery-card:hover { box-shadow: 0 28px 60px rgba(80,50,15,0.18); }
+        [data-theme="light"] .gallery-card:hover { box-shadow: 0 28px 60px rgba(80,50,15,0.18), 0 0 30px rgba(190,94,8,0.06); }
         .card-image { width: 100%; aspect-ratio: 4/3; background: var(--bg-surface); display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; transition: background var(--tr); }
         .card-image .placeholder-icon { font-size: 3rem; opacity: 0.15; }
         .card-image::after { content: ''; position: absolute; inset: 0; background: linear-gradient(to top, var(--bg-card), transparent 50%); transition: background var(--tr); }
