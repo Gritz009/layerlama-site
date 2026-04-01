@@ -34,7 +34,7 @@
             --nav-bg: rgba(6, 6, 6, 0.82);
             --hero-glow: rgba(232, 129, 43, 0.1);
             --card-shadow: rgba(0, 0, 0, 0.5);
-            --noise-opacity: 0.035;
+            --noise-opacity: 0.012;
             --toggle-bg: #252525;
             --toggle-knob: #EDEDED;
             --section-alt-bg: #0C0C0C;
@@ -65,7 +65,7 @@
             --nav-bg: rgba(245, 242, 238, 0.92);
             --hero-glow: rgba(190, 94, 8, 0.1);
             --card-shadow: rgba(60, 45, 20, 0.12);
-            --noise-opacity: 0.018;
+            --noise-opacity: 0.008;
             --toggle-bg: #BFB6A8;
             --toggle-knob: #0E0D0B;
             --section-alt-bg: #DDD6CA;
@@ -95,7 +95,7 @@
         body::before {
             content: '';
             position: fixed; inset: 0;
-            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.5' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
             opacity: var(--noise-opacity);
             pointer-events: none; z-index: 9999;
             transition: opacity var(--tr);
@@ -148,8 +148,8 @@
 
         /* ═══════ HERO ═══════ */
         .hero { min-height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 8rem 2rem 4rem; position: relative; overflow: hidden; }
-        .hero::before { content: ''; position: absolute; top: -20%; left: 50%; transform: translateX(-50%); width: 900px; height: 900px; background: radial-gradient(circle at 40% 40%, var(--glow-primary) 0%, transparent 50%), radial-gradient(circle at 65% 60%, var(--glow-secondary) 0%, transparent 45%); pointer-events: none; }
-        .hero::after { content: ''; position: absolute; bottom: -10%; left: 20%; width: 500px; height: 500px; background: radial-gradient(circle, var(--glow-secondary) 0%, transparent 60%); pointer-events: none; opacity: 0.7; }
+        .hero::before { content: ''; position: absolute; top: -20%; left: 50%; transform: translateX(-50%); width: 900px; height: 900px; background: radial-gradient(circle at 50% 50%, var(--glow-primary) 0%, transparent 55%); pointer-events: none; }
+        .hero::after { content: ''; position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); width: 600px; height: 400px; background: radial-gradient(ellipse at 50% 100%, var(--glow-secondary) 0%, transparent 70%); pointer-events: none; opacity: 0.5; }
         .hero-badge { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1.2rem; border: 1px solid var(--border); border-radius: 100px; font-size: 0.8rem; color: var(--orange); margin-bottom: 2.5rem; letter-spacing: 0.08em; text-transform: uppercase; font-weight: 600; animation: fadeInUp 0.8s ease both; transition: border-color var(--tr); background: linear-gradient(135deg, transparent, rgba(232,129,43,0.03)); }
         .hero-badge::before { content: ''; width: 7px; height: 7px; border-radius: 50%; background: var(--orange-hot); box-shadow: 0 0 8px var(--orange-glow); animation: pulse 2s infinite; }
         @keyframes pulse { 0%, 100% { opacity: 1; box-shadow: 0 0 8px var(--orange-glow); } 50% { opacity: 0.4; box-shadow: 0 0 2px var(--orange-glow); } }
