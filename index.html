@@ -575,15 +575,8 @@
             jsonData.submitted = now.toISOString().split('T')[0];
             jsonData.project_type = jsonData['project-type'] || '';
 
-            // Send to Make.com DataStore webhook
-            const dsPromise = fetch('https://hook.eu1.make.com/qucwbm8paf8ah22nvltvncndo394hejm', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(jsonData)
-            }).catch(() => {});
-
-            // Send to Make.com Notion webhook
-            const notionPromise = fetch('https://hook.eu1.make.com/789kdmqfxja9duoxg6jriftercn99o9t', {
+            // Send to Make.com Pipeline webhook (DataStore + Notion)
+            const makePromise = fetch('https://hook.eu1.make.com/o9uyydyap6hut416e8ek3800m7nyqusj', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(jsonData)
@@ -596,7 +589,7 @@
                 body: new URLSearchParams(formData).toString()
             }).catch(() => {});
 
-            Promise.all([dsPromise, notionPromise, netlifyPromise]).then(() => {
+            Promise.all([makePromise, netlifyPromise]).then(() => {
                 btn.textContent = 'Sent! \u2713';
                 btn.style.background = 'linear-gradient(135deg, #2E7D32, #1B5E20)';
                 setTimeout(() => { btn.textContent = 'Send Message'; btn.style.background = ''; btn.disabled = false; form.reset(); }, 3000);
