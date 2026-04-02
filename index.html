@@ -569,27 +569,21 @@
             const jsonData = {};
             formData.forEach((v, k) => jsonData[k] = v);
 
-            const now = new Date();
-            const requestId = now.getFullYear().toString() + String(now.getMonth()+1).padStart(2,'0') + String(now.getDate()).padStart(2,'0') + '-' + String(now.getHours()).padStart(2,'0') + String(now.getMinutes()).padStart(2,'0') + String(now.getSeconds()).padStart(2,'0');
-            jsonData.request_id = requestId;
-            jsonData.submitted = now.toISOString().split('T')[0];
-            jsonData.project_type = jsonData['project-type'] || '';
-
-            // Send to Make.com Pipeline webhook (DataStore + Notion)
-            const makePromise = fetch('https://hook.eu1.make.com/o9uyydyap6hut416e8ek3800m7nyqusj', {
+            // Send to Netlify Function → Notion
+            const notionPromise = fetch('/.netlify/functions/submit-commission', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(jsonData)
             }).catch(() => {});
 
-            // Also send to Netlify forms (backup)
+            // Also send to Netlify Forms (backup + email notification)
             const netlifyPromise = fetch('/', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                 body: new URLSearchParams(formData).toString()
             }).catch(() => {});
 
-            Promise.all([makePromise, netlifyPromise]).then(() => {
+            Promise.all([notionPromise, netlifyPromise]).then(() => {
                 btn.textContent = 'Sent! \u2713';
                 btn.style.background = 'linear-gradient(135deg, #2E7D32, #1B5E20)';
                 setTimeout(() => { btn.textContent = 'Send Message'; btn.style.background = ''; btn.disabled = false; form.reset(); }, 3000);
