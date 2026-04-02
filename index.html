@@ -564,16 +564,31 @@
             const btn = form.querySelector('.form-submit');
             btn.textContent = 'Sending...';
             btn.disabled = true;
-            fetch('/', {
+
+            const formData = new FormData(form);
+            const jsonData = {};
+            formData.forEach((v, k) => jsonData[k] = v);
+
+            // Send to Make.com webhook (database)
+            const makePromise = fetch('https://hook.eu1.make.com/qucwbm8paf8ah22nvltvncndo394hejm', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(jsonData)
+            }).catch(() => {});
+
+            // Also send to Netlify forms (backup + email notification)
+            const netlifyPromise = fetch('/', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: new URLSearchParams(new FormData(form)).toString()
-            }).then(() => {
+                body: new URLSearchParams(formData).toString()
+            }).catch(() => {});
+
+            Promise.all([makePromise, netlifyPromise]).then(() => {
                 btn.textContent = 'Sent! \u2713';
                 btn.style.background = 'linear-gradient(135deg, #2E7D32, #1B5E20)';
                 setTimeout(() => { btn.textContent = 'Send Message'; btn.style.background = ''; btn.disabled = false; form.reset(); }, 3000);
             }).catch(() => {
-                btn.textContent = 'Error — try again';
+                btn.textContent = 'Error \u2014 try again';
                 btn.style.background = 'linear-gradient(135deg, #C62828, #B71C1C)';
                 setTimeout(() => { btn.textContent = 'Send Message'; btn.style.background = ''; btn.disabled = false; }, 3000);
             });

@@ -1,0 +1,17 @@
+{
+    "name": "Layer Lama Commission Manager",
+    "short_name": "Layer Lama",
+    "description": "Manage 3D printing commission requests",
+    "start_url": "/admin.html",
+    "display": "standalone",
+    "background_color": "#060606",
+    "theme_color": "#060606",
+    "orientation": "any",
+    "icons": [
+        {
+            "src": "Images/Portfolio/../../images/logo-color.png",
+            "sizes": "192x192",
+            "type": "image/png"
+        }
+    ]
+}
