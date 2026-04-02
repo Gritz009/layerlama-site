@@ -287,6 +287,11 @@
             renderList();
         }
 
+        // Register service worker for PWA install
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw.js').catch(() => {});
+        }
+
         // Auto-refresh every 2 minutes
         loadRecords();
         setInterval(loadRecords, 120000);
