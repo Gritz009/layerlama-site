@@ -747,7 +747,23 @@
             filePrompt.querySelector('span:first-of-type').textContent = selectedFiles.length > 0 ? selectedFiles.length + ' file(s) selected — click to add more' : 'Click to browse or drag & drop files here';
         }
 
-        function handleSubmit(e) {
+        async function uploadToCloudinary(file) {
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('upload_preset', 'layerlama_unsigned');
+            formData.append('folder', 'layerlama/commissions');
+            const res = await fetch('https://api.cloudinary.com/v1_1/dbq6puxi5/auto/upload', {
+                method: 'POST',
+                body: formData
+            });
+            const data = await res.json();
+            if (data.secure_url) {
+                return { name: file.name, url: data.secure_url, size: file.size, type: file.type || 'file' };
+            }
+            throw new Error('Upload failed: ' + (data.error?.message || 'unknown'));
+        }
+
+        async function handleSubmit(e) {
             e.preventDefault();
             const form = e.target;
             const btn = form.querySelector('.form-submit');
@@ -758,42 +774,49 @@
             const jsonData = {};
             formData.forEach((v, k) => { if (k !== 'attachments') jsonData[k] = v; });
 
-            // Convert files to base64 for Cloudinary upload
-            const filePromises = selectedFiles.map(f => new Promise((resolve) => {
-                const reader = new FileReader();
-                reader.onload = () => resolve({ name: f.name, size: f.size, type: f.type, data: reader.result });
-                reader.onerror = () => resolve({ name: f.name, size: f.size, type: f.type, data: null });
-                reader.readAsDataURL(f);
-            }));
+            try {
+                // Upload files directly to Cloudinary from browser
+                const uploadedFiles = [];
+                if (selectedFiles.length > 0) {
+                    btn.textContent = 'Uploading files (0/' + selectedFiles.length + ')...';
+                    for (let i = 0; i < selectedFiles.length; i++) {
+                        btn.textContent = 'Uploading files (' + (i + 1) + '/' + selectedFiles.length + ')...';
+                        try {
+                            const result = await uploadToCloudinary(selectedFiles[i]);
+                            uploadedFiles.push(result);
+                        } catch (err) {
+                            console.error('Upload failed for', selectedFiles[i].name, err);
+                        }
+                    }
+                }
 
-            Promise.all(filePromises).then(fileData => {
-                // Send files as base64 data for Cloudinary upload
-                jsonData.files = fileData.filter(f => f.data);
-                jsonData.attachment_names = fileData.map(f => f.name + ' (' + (f.size / 1024).toFixed(0) + 'KB)').join(', ');
+                // Send form data + Cloudinary URLs to Netlify Function → Notion
+                jsonData.uploadedFiles = uploadedFiles;
+                jsonData.attachment_names = selectedFiles.map(f => f.name + ' (' + (f.size / 1024).toFixed(0) + 'KB)').join(', ');
                 jsonData.attachment_count = selectedFiles.length;
 
-                // Update button for upload progress
-                if (selectedFiles.length > 0) btn.textContent = 'Uploading files...';
+                btn.textContent = 'Saving to Notion...';
 
-                // Send to Netlify Function → Cloudinary + Notion
-                const notionPromise = fetch('/.netlify/functions/submit-commission', {
+                const res = await fetch('/.netlify/functions/submit-commission', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(jsonData)
-                }).catch(() => {});
+                });
 
-                notionPromise.then(() => {
+                if (res.ok) {
                     btn.textContent = 'Sent! \u2713';
                     btn.style.background = 'linear-gradient(135deg, #2E7D32, #1B5E20)';
                     selectedFiles = [];
                     renderFileList();
                     setTimeout(() => { btn.textContent = 'Send Message'; btn.style.background = ''; btn.disabled = false; form.reset(); }, 3000);
-                }).catch(() => {
-                    btn.textContent = 'Error \u2014 try again';
-                    btn.style.background = 'linear-gradient(135deg, #C62828, #B71C1C)';
-                    setTimeout(() => { btn.textContent = 'Send Message'; btn.style.background = ''; btn.disabled = false; }, 3000);
-                });
-            });
+                } else {
+                    throw new Error('Failed');
+                }
+            } catch (err) {
+                btn.textContent = 'Error \u2014 try again';
+                btn.style.background = 'linear-gradient(135deg, #C62828, #B71C1C)';
+                setTimeout(() => { btn.textContent = 'Send Message'; btn.style.background = ''; btn.disabled = false; }, 3000);
+            }
         }
     </script>
     <!-- ═══════ LIGHTBOX ═══════ -->

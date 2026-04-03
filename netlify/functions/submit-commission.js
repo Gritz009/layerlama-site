@@ -18,9 +18,6 @@ exports.handler = async (event) => {
     const data = JSON.parse(event.body);
     const NOTION_TOKEN = process.env.NOTION_TOKEN;
     const NOTION_DB_ID = process.env.NOTION_DB_ID;
-    const CLOUD_NAME = process.env.CLOUDINARY_CLOUD_NAME;
-    const CLOUD_KEY = process.env.CLOUDINARY_API_KEY;
-    const CLOUD_SECRET = process.env.CLOUDINARY_API_SECRET;
 
     if (!NOTION_TOKEN || !NOTION_DB_ID) {
       return { statusCode: 500, headers, body: JSON.stringify({ error: 'Server config missing' }) };
@@ -44,62 +41,20 @@ exports.handler = async (event) => {
     const email = data.email || '';
     const details = data.details || '';
     const referenceLinks = data['reference-links'] || '';
+    const uploadedFiles = data.uploadedFiles || [];
+    const attachmentNames = data.attachment_names || '';
+    const attachmentCount = data.attachment_count || 0;
     const now = new Date();
     const requestId = 'LL-' + now.toISOString().replace(/[-:T]/g, '').substring(0, 8) + '-' + now.toISOString().replace(/[-:T]/g, '').substring(8, 12);
     const submitted = now.toISOString().split('T')[0];
 
-    // Upload files to Cloudinary if credentials exist and files are provided
-    const uploadedFiles = [];
-    const files = data.files || [];
-
-    if (CLOUD_NAME && CLOUD_KEY && CLOUD_SECRET && files.length > 0) {
-      for (const file of files) {
-        try {
-          // file.data is a base64 data URL like "data:image/png;base64,..."
-          const timestamp = Math.floor(Date.now() / 1000);
-          const folder = 'layerlama/commissions/' + requestId;
-
-          // Generate signature for Cloudinary upload
-          const crypto = require('crypto');
-          const signStr = 'folder=' + folder + '&timestamp=' + timestamp + CLOUD_SECRET;
-          const signature = crypto.createHash('sha1').update(signStr).digest('hex');
-
-          const formBody = new URLSearchParams();
-          formBody.append('file', file.data);
-          formBody.append('api_key', CLOUD_KEY);
-          formBody.append('timestamp', timestamp.toString());
-          formBody.append('folder', folder);
-          formBody.append('signature', signature);
-          formBody.append('resource_type', 'auto');
-
-          const uploadRes = await fetch(
-            'https://api.cloudinary.com/v1_1/' + CLOUD_NAME + '/auto/upload',
-            { method: 'POST', body: formBody }
-          );
-
-          const uploadData = await uploadRes.json();
-
-          if (uploadData.secure_url) {
-            uploadedFiles.push({
-              name: file.name,
-              url: uploadData.secure_url,
-              size: file.size,
-              type: file.type || 'file'
-            });
-          }
-        } catch (uploadErr) {
-          console.error('Cloudinary upload error for', file.name, ':', uploadErr.message);
-        }
-      }
-    }
-
-    // Build notes
+    // Build notes summary
     const notesParts = [];
     if (referenceLinks.trim()) notesParts.push('Reference Links:\n' + referenceLinks.trim());
     if (uploadedFiles.length > 0) {
       notesParts.push('Uploaded Files (' + uploadedFiles.length + '):\n' + uploadedFiles.map(f => f.name + ': ' + f.url).join('\n'));
-    } else if (data.attachment_names) {
-      notesParts.push('Attachments: ' + data.attachment_names);
+    } else if (attachmentNames) {
+      notesParts.push('Attachments: ' + attachmentNames);
     }
     const notes = notesParts.join('\n\n');
 
@@ -132,10 +87,9 @@ exports.handler = async (event) => {
       children.push({ object: 'block', type: 'heading_2', heading_2: { rich_text: [{ type: 'text', text: { content: '📁 Uploaded Files' } }] } });
 
       for (const file of uploadedFiles) {
-        const isImage = file.type.startsWith('image/') || /\.(jpg|jpeg|png|gif|webp|svg)$/i.test(file.name);
+        const isImage = (file.type && file.type.startsWith('image/')) || /\.(jpg|jpeg|png|gif|webp|svg)$/i.test(file.name);
 
         if (isImage) {
-          // Show images directly in Notion
           children.push({
             object: 'block', type: 'image',
             image: { type: 'external', external: { url: file.url } }
@@ -208,7 +162,6 @@ exports.handler = async (event) => {
       });
     } catch (emailErr) {
       console.error('Auto-reply webhook error:', emailErr.message);
-      // Don't fail the whole request if email fails
     }
 
     return {
