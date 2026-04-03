@@ -38,6 +38,7 @@
         .gallery-page { padding: 8rem 2rem 4rem; max-width: 1200px; margin: 0 auto; }
         .gallery-page h1 { font-family: var(--font-display); font-size: 2.5rem; font-weight: 800; margin-bottom: 0.5rem; }
         .gallery-page p { color: var(--text-muted); margin-bottom: 2rem; }
+        .gallery-note { color: var(--orange); font-size: 0.82rem; font-weight: 500; margin-top: -1.2rem; margin-bottom: 1.5rem; opacity: 0.85; }
 
         .gallery-filters { display: flex; gap: 0.5rem; margin-bottom: 2.5rem; flex-wrap: wrap; }
         .filter-btn { background: transparent; color: var(--text-muted); border: 1px solid var(--border); padding: 0.5rem 1.2rem; border-radius: 100px; font-size: 0.8rem; font-weight: 500; cursor: pointer; transition: all 0.3s; font-family: var(--font-body); }
@@ -161,6 +162,7 @@
     <div class="gallery-page">
         <h1>All Projects</h1>
         <p>Browse the full collection. Click any project to view all photos.</p>
+        <p class="gallery-note">All prints can be customised in different colours, materials, and sizes on request.</p>
 
         <div class="gallery-filters">
             <button class="filter-btn active" data-filter="all">All</button>
@@ -210,7 +212,7 @@
 
             <div class="gallery-card" data-category="artistic" onclick="openLightbox('flexicat')">
                 <div class="card-image">
-                    <span class="card-tag">Artistic & Functional</span>
+                    <span class="card-tag">Artistic</span>
                     <img src="Images/Portfolio/Flexi_Cat/thumbnail.png" alt="Flexi Cat Toy / Keychain">
                 </div>
                 <div class="card-body">
@@ -222,7 +224,7 @@
 
             <div class="gallery-card" data-category="functional" onclick="openLightbox('easteregg')">
                 <div class="card-image">
-                    <span class="card-tag">Functional</span>
+                    <span class="card-tag">Artistic</span>
                     <img src="Images/Portfolio/Easter_Egg/thumbnail.webp" alt="Surprise Egg">
                 </div>
                 <div class="card-body">
@@ -234,7 +236,7 @@
 
             <div class="gallery-card" data-category="functional" onclick="openLightbox('eleganttulip')">
                 <div class="card-image">
-                    <span class="card-tag">Functional</span>
+                    <span class="card-tag">Artistic</span>
                     <img src="Images/Portfolio/Elegant_tulip/thumbnail.jpg" alt="Elegant Tulip">
                 </div>
                 <div class="card-body">
@@ -265,6 +267,18 @@
                     <div class="card-title">Knitted Duck</div>
                     <div class="card-meta">PLA &bull; Bambu A1</div>
                     <div class="card-credit">Design by <a href="https://makerworld.com/en/models/search?searchKeyword=Smoggy3D" target="_blank">Smoggy3D</a> via MakerWorld</div>
+                </div>
+            </div>
+
+            <div class="gallery-card" data-category="prototypes" onclick="openLightbox('pi3case')">
+                <div class="card-image">
+                    <span class="card-tag">Prototyping</span>
+                    <img src="Images/Portfolio/Pi_3_Case/thumbnail.jpg" alt="Orange PI 3 LTS Case">
+                </div>
+                <div class="card-body">
+                    <div class="card-title">Orange PI 3 LTS Case</div>
+                    <div class="card-meta">PETG &bull; Bambu A1</div>
+                    <div class="card-credit">Design by <a href="https://makerworld.com/en/models/search?searchKeyword=skier3d" target="_blank">skier3d</a> via MakerWorld</div>
                 </div>
             </div>
         </div>
@@ -309,7 +323,8 @@
             easteregg: { title: 'Surprise Egg', credit: 'Design by 3D URSA via MakerWorld', images: ['Images/Portfolio/Easter_Egg/thumbnail.webp','Images/Portfolio/Easter_Egg/2.webp','Images/Portfolio/Easter_Egg/3.webp','Images/Portfolio/Easter_Egg/4.webp','Images/Portfolio/Easter_Egg/5.gif'] },
             eleganttulip: { title: 'Elegant Tulip', credit: 'Design by Crow_ck via MakerWorld', images: ['Images/Portfolio/Elegant_tulip/thumbnail.jpg','Images/Portfolio/Elegant_tulip/2.jpg','Images/Portfolio/Elegant_tulip/3.jpg','Images/Portfolio/Elegant_tulip/4.jpg','Images/Portfolio/Elegant_tulip/5.jpg','Images/Portfolio/Elegant_tulip/6.jpg','Images/Portfolio/Elegant_tulip/7.jpg','Images/Portfolio/Elegant_tulip/8.jpg'] },
             knittedcat: { title: 'Knitted Cat With Heart', credit: 'Design by Smoggy3D via MakerWorld', images: ['Images/Portfolio/Knitted_Cat/Thumbnail.jpg','Images/Portfolio/Knitted_Cat/2.JPG','Images/Portfolio/Knitted_Cat/3.JPG','Images/Portfolio/Knitted_Cat/4.jpg'] },
-            knittedduck: { title: 'Knitted Duck', credit: 'Design by Smoggy3D via MakerWorld', images: ['Images/Portfolio/Knitted_duck/Thumbnail.jpg','Images/Portfolio/Knitted_duck/2.jpg','Images/Portfolio/Knitted_duck/3.jpg','Images/Portfolio/Knitted_duck/4.jpg'] }
+            knittedduck: { title: 'Knitted Duck', credit: 'Design by Smoggy3D via MakerWorld', images: ['Images/Portfolio/Knitted_duck/Thumbnail.jpg','Images/Portfolio/Knitted_duck/2.jpg','Images/Portfolio/Knitted_duck/3.jpg','Images/Portfolio/Knitted_duck/4.jpg'] },
+            pi3case: { title: 'Orange PI 3 LTS Case', credit: 'Design by skier3d via MakerWorld', images: ['Images/Portfolio/Pi_3_Case/thumbnail.jpg','Images/Portfolio/Pi_3_Case/2.jpg','Images/Portfolio/Pi_3_Case/3.jpg','Images/Portfolio/Pi_3_Case/4.jpg','Images/Portfolio/Pi_3_Case/5.jpg'] }
         };
         let currentProject = null, currentIdx = 0;
         function openLightbox(k) { currentProject = projects[k]; if (!currentProject) return; currentIdx = 0; buildThumbs(); updateLightbox(); document.getElementById('lightbox').classList.add('active'); document.body.style.overflow = 'hidden'; }

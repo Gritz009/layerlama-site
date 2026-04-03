@@ -191,6 +191,7 @@
         .section-label { font-size: 0.75rem; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; background: var(--accent-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 1rem; display: inline-block; }
         .section-title { font-family: var(--font-display); font-size: clamp(2rem, 4vw, 3rem); font-weight: 700; letter-spacing: -0.03em; line-height: 1.1; margin-bottom: 1rem; }
         .section-desc { color: var(--text-muted); font-size: 1.05rem; line-height: 1.6; transition: color var(--tr); }
+        .section-note { color: var(--orange); font-size: 0.82rem; margin-top: 0.6rem; font-weight: 500; letter-spacing: 0.01em; opacity: 0.85; }
 
         /* ═══════ PORTFOLIO ═══════ */
         #portfolio { background: var(--bg); }
@@ -424,7 +425,7 @@
     <div class="section-divider"></div>
 
     <section id="portfolio">
-        <div class="section-header reveal"><span class="section-label">Portfolio</span><h2 class="section-title">Selected Works</h2><p class="section-desc">Recent 3D prints from the workshop. Click any project to explore all photos.</p></div>
+        <div class="section-header reveal"><span class="section-label">Portfolio</span><h2 class="section-title">Selected Works</h2><p class="section-desc">Recent 3D prints from the workshop. Click any project to explore all photos.</p><p class="section-note">All prints can be customised in different colours, materials, and sizes on request.</p></div>
 
         <div class="gallery-grid gallery-grid--featured">
             <!-- Polygon Planter -->
@@ -469,7 +470,7 @@
             <!-- Flexi Cat Toy -->
             <div class="gallery-card reveal" data-category="artistic" onclick="openLightbox('flexicat')">
                 <div class="card-image">
-                    <span class="card-tag">Artistic & Functional</span>
+                    <span class="card-tag">Artistic</span>
                     <img src="Images/Portfolio/Flexi_Cat/thumbnail.png" alt="Flexi Cat Toy" style="width:100%;height:100%;object-fit:cover;position:relative;z-index:1;">
                 </div>
                 <div class="card-body">
@@ -483,7 +484,7 @@
             <!-- Elegant Tulip -->
             <div class="gallery-card extra-6 reveal" data-category="functional" onclick="openLightbox('eleganttulip')">
                 <div class="card-image">
-                    <span class="card-tag">Functional</span>
+                    <span class="card-tag">Artistic</span>
                     <img src="Images/Portfolio/Elegant_tulip/thumbnail.jpg" alt="Elegant Tulip" style="width:100%;height:100%;object-fit:cover;position:relative;z-index:1;">
                 </div>
                 <div class="card-body">
@@ -496,7 +497,7 @@
             <!-- Surprise Egg -->
             <div class="gallery-card extra-6 reveal" data-category="artistic" onclick="openLightbox('easteregg')">
                 <div class="card-image">
-                    <span class="card-tag">Functional</span>
+                    <span class="card-tag">Artistic</span>
                     <img src="Images/Portfolio/Easter_Egg/thumbnail.webp" alt="Surprise Egg" style="width:100%;height:100%;object-fit:cover;position:relative;z-index:1;">
                 </div>
                 <div class="card-body">
@@ -519,16 +520,16 @@
                 </div>
             </div>
 
-            <!-- Knitted Duck -->
-            <div class="gallery-card extra-8 reveal" data-category="artistic" onclick="openLightbox('knittedduck')">
+            <!-- Orange PI 3 LTS Case -->
+            <div class="gallery-card extra-8 reveal" data-category="prototypes" onclick="openLightbox('pi3case')">
                 <div class="card-image">
-                    <span class="card-tag">Artistic</span>
-                    <img src="Images/Portfolio/Knitted_duck/Thumbnail.jpg" alt="Knitted Duck" style="width:100%;height:100%;object-fit:cover;position:relative;z-index:1;">
+                    <span class="card-tag">Prototyping</span>
+                    <img src="Images/Portfolio/Pi_3_Case/thumbnail.jpg" alt="Orange PI 3 LTS Case" style="width:100%;height:100%;object-fit:cover;position:relative;z-index:1;">
                 </div>
                 <div class="card-body">
-                    <div class="card-title">Knitted Duck</div>
-                    <div class="card-meta"><span>PLA &bull; Bambu A1</span></div>
-                    <div class="card-credit">Design by <a href="https://makerworld.com/en/models/search?searchKeyword=Smoggy3D" target="_blank">Smoggy3D</a> via MakerWorld</div>
+                    <div class="card-title">Orange PI 3 LTS Case</div>
+                    <div class="card-meta"><span>PETG &bull; Bambu A1</span></div>
+                    <div class="card-credit">Design by <a href="https://makerworld.com/en/models/search?searchKeyword=skier3d" target="_blank">skier3d</a> via MakerWorld</div>
                 </div>
             </div>
         </div>
@@ -724,6 +725,11 @@
                 title: 'Knitted Duck',
                 credit: 'Design by Smoggy3D via MakerWorld',
                 images: ['Images/Portfolio/Knitted_duck/Thumbnail.jpg','Images/Portfolio/Knitted_duck/2.jpg','Images/Portfolio/Knitted_duck/3.jpg','Images/Portfolio/Knitted_duck/4.jpg']
+            },
+            pi3case: {
+                title: 'Orange PI 3 LTS Case',
+                credit: 'Design by skier3d via MakerWorld',
+                images: ['Images/Portfolio/Pi_3_Case/thumbnail.jpg','Images/Portfolio/Pi_3_Case/2.jpg','Images/Portfolio/Pi_3_Case/3.jpg','Images/Portfolio/Pi_3_Case/4.jpg','Images/Portfolio/Pi_3_Case/5.jpg']
             }
         };
 
