@@ -696,7 +696,7 @@
             const jsonData = {};
             formData.forEach((v, k) => { if (k !== 'attachments') jsonData[k] = v; });
 
-            // Convert files to base64 for Notion (file names + sizes for reference)
+            // Convert files to base64 for Cloudinary upload
             const filePromises = selectedFiles.map(f => new Promise((resolve) => {
                 const reader = new FileReader();
                 reader.onload = () => resolve({ name: f.name, size: f.size, type: f.type, data: reader.result });
@@ -705,25 +705,22 @@
             }));
 
             Promise.all(filePromises).then(fileData => {
-                jsonData.attachments = fileData.map(f => f.name + ' (' + (f.size / 1024).toFixed(0) + 'KB)').join(', ');
+                // Send files as base64 data for Cloudinary upload
+                jsonData.files = fileData.filter(f => f.data);
+                jsonData.attachment_names = fileData.map(f => f.name + ' (' + (f.size / 1024).toFixed(0) + 'KB)').join(', ');
                 jsonData.attachment_count = selectedFiles.length;
 
-                // Send to Netlify Function → Notion
+                // Update button for upload progress
+                if (selectedFiles.length > 0) btn.textContent = 'Uploading files...';
+
+                // Send to Netlify Function → Cloudinary + Notion
                 const notionPromise = fetch('/.netlify/functions/submit-commission', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(jsonData)
                 }).catch(() => {});
 
-                // Send form data with files to Netlify Forms (backup)
-                const netlifyData = new FormData(form);
-                selectedFiles.forEach(f => netlifyData.append('attachments', f));
-                const netlifyPromise = fetch('/', {
-                    method: 'POST',
-                    body: netlifyData
-                }).catch(() => {});
-
-                Promise.all([notionPromise, netlifyPromise]).then(() => {
+                notionPromise.then(() => {
                     btn.textContent = 'Sent! \u2713';
                     btn.style.background = 'linear-gradient(135deg, #2E7D32, #1B5E20)';
                     selectedFiles = [];

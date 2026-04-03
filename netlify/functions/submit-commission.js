@@ -18,6 +18,9 @@ exports.handler = async (event) => {
     const data = JSON.parse(event.body);
     const NOTION_TOKEN = process.env.NOTION_TOKEN;
     const NOTION_DB_ID = process.env.NOTION_DB_ID;
+    const CLOUD_NAME = process.env.CLOUDINARY_CLOUD_NAME;
+    const CLOUD_KEY = process.env.CLOUDINARY_API_KEY;
+    const CLOUD_SECRET = process.env.CLOUDINARY_API_SECRET;
 
     if (!NOTION_TOKEN || !NOTION_DB_ID) {
       return { statusCode: 500, headers, body: JSON.stringify({ error: 'Server config missing' }) };
@@ -41,77 +44,121 @@ exports.handler = async (event) => {
     const email = data.email || '';
     const details = data.details || '';
     const referenceLinks = data['reference-links'] || '';
-    const attachments = data.attachments || '';
-    const attachmentCount = data.attachment_count || 0;
     const now = new Date();
     const requestId = now.toISOString().replace(/[-:T]/g, '').substring(0, 15);
     const submitted = now.toISOString().split('T')[0];
 
-    // Build notes summary
+    // Upload files to Cloudinary if credentials exist and files are provided
+    const uploadedFiles = [];
+    const files = data.files || [];
+
+    if (CLOUD_NAME && CLOUD_KEY && CLOUD_SECRET && files.length > 0) {
+      for (const file of files) {
+        try {
+          // file.data is a base64 data URL like "data:image/png;base64,..."
+          const timestamp = Math.floor(Date.now() / 1000);
+          const folder = 'layerlama/commissions/' + requestId;
+
+          // Generate signature for Cloudinary upload
+          const crypto = require('crypto');
+          const signStr = 'folder=' + folder + '&timestamp=' + timestamp + CLOUD_SECRET;
+          const signature = crypto.createHash('sha1').update(signStr).digest('hex');
+
+          const formBody = new URLSearchParams();
+          formBody.append('file', file.data);
+          formBody.append('api_key', CLOUD_KEY);
+          formBody.append('timestamp', timestamp.toString());
+          formBody.append('folder', folder);
+          formBody.append('signature', signature);
+          formBody.append('resource_type', 'auto');
+
+          const uploadRes = await fetch(
+            'https://api.cloudinary.com/v1_1/' + CLOUD_NAME + '/auto/upload',
+            { method: 'POST', body: formBody }
+          );
+
+          const uploadData = await uploadRes.json();
+
+          if (uploadData.secure_url) {
+            uploadedFiles.push({
+              name: file.name,
+              url: uploadData.secure_url,
+              size: file.size,
+              type: file.type || 'file'
+            });
+          }
+        } catch (uploadErr) {
+          console.error('Cloudinary upload error for', file.name, ':', uploadErr.message);
+        }
+      }
+    }
+
+    // Build notes
     const notesParts = [];
     if (referenceLinks.trim()) notesParts.push('Reference Links:\n' + referenceLinks.trim());
-    if (attachments) notesParts.push('Attachments (' + attachmentCount + ' files): ' + attachments);
+    if (uploadedFiles.length > 0) {
+      notesParts.push('Uploaded Files (' + uploadedFiles.length + '):\n' + uploadedFiles.map(f => f.name + ': ' + f.url).join('\n'));
+    } else if (data.attachment_names) {
+      notesParts.push('Attachments: ' + data.attachment_names);
+    }
     const notes = notesParts.join('\n\n');
 
-    // Build Notion page content blocks (children) for rich content
+    // Build Notion page content blocks
     const children = [];
 
-    // Project details as a callout
     if (details) {
       children.push({
-        object: 'block',
-        type: 'callout',
-        callout: {
-          icon: { type: 'emoji', emoji: '📋' },
-          rich_text: [{ type: 'text', text: { content: details.substring(0, 2000) } }]
-        }
+        object: 'block', type: 'callout',
+        callout: { icon: { type: 'emoji', emoji: '📋' }, rich_text: [{ type: 'text', text: { content: details.substring(0, 2000) } }] }
       });
     }
 
-    // Reference links as bookmarks and text
+    // Reference links as bookmarks
     if (referenceLinks.trim()) {
-      children.push({
-        object: 'block',
-        type: 'heading_2',
-        heading_2: { rich_text: [{ type: 'text', text: { content: '📎 Reference Links' } }] }
-      });
-
+      children.push({ object: 'block', type: 'heading_2', heading_2: { rich_text: [{ type: 'text', text: { content: '📎 Reference Links' } }] } });
       const links = referenceLinks.trim().split('\n').filter(l => l.trim());
       for (const link of links) {
         const trimmed = link.trim();
         if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
+          children.push({ object: 'block', type: 'bookmark', bookmark: { url: trimmed } });
+        } else {
+          children.push({ object: 'block', type: 'paragraph', paragraph: { rich_text: [{ type: 'text', text: { content: trimmed } }] } });
+        }
+      }
+    }
+
+    // Uploaded files as links and images in Notion
+    if (uploadedFiles.length > 0) {
+      children.push({ object: 'block', type: 'heading_2', heading_2: { rich_text: [{ type: 'text', text: { content: '📁 Uploaded Files' } }] } });
+
+      for (const file of uploadedFiles) {
+        const isImage = file.type.startsWith('image/') || /\.(jpg|jpeg|png|gif|webp|svg)$/i.test(file.name);
+
+        if (isImage) {
+          // Show images directly in Notion
           children.push({
-            object: 'block',
-            type: 'bookmark',
-            bookmark: { url: trimmed }
+            object: 'block', type: 'image',
+            image: { type: 'external', external: { url: file.url } }
+          });
+          children.push({
+            object: 'block', type: 'paragraph',
+            paragraph: { rich_text: [{ type: 'text', text: { content: file.name }, annotations: { italic: true, color: 'gray' } }] }
           });
         } else {
+          // Non-image files as download links
           children.push({
-            object: 'block',
-            type: 'paragraph',
-            paragraph: { rich_text: [{ type: 'text', text: { content: trimmed } }] }
+            object: 'block', type: 'paragraph',
+            paragraph: { rich_text: [
+              { type: 'text', text: { content: '📄 ' } },
+              { type: 'text', text: { content: file.name, link: { url: file.url } }, annotations: { bold: true } },
+              { type: 'text', text: { content: ' — Click to download' }, annotations: { color: 'gray' } }
+            ] }
           });
         }
       }
     }
 
-    // Attachment info
-    if (attachments) {
-      children.push({
-        object: 'block',
-        type: 'heading_2',
-        heading_2: { rich_text: [{ type: 'text', text: { content: '📁 Attachments' } }] }
-      });
-      children.push({
-        object: 'block',
-        type: 'paragraph',
-        paragraph: {
-          rich_text: [{ type: 'text', text: { content: attachmentCount + ' file(s) submitted: ' + attachments + '\n\nNote: Actual files are stored in Netlify Forms. Check the Netlify dashboard under Forms > contact to download them.' } }]
-        }
-      });
-    }
-
-    // Create Notion page with properties AND page content
+    // Create Notion page
     const pageBody = {
       parent: { database_id: NOTION_DB_ID },
       properties: {
@@ -127,10 +174,7 @@ exports.handler = async (event) => {
       }
     };
 
-    // Add page content if we have any
-    if (children.length > 0) {
-      pageBody.children = children;
-    }
+    if (children.length > 0) pageBody.children = children;
 
     const notionRes = await fetch('https://api.notion.com/v1/pages', {
       method: 'POST',
@@ -146,25 +190,16 @@ exports.handler = async (event) => {
 
     if (!notionRes.ok) {
       console.error('Notion API error:', JSON.stringify(notionData));
-      return {
-        statusCode: 500,
-        headers,
-        body: JSON.stringify({ error: 'Failed to save to Notion', detail: notionData.message })
-      };
+      return { statusCode: 500, headers, body: JSON.stringify({ error: 'Failed to save to Notion', detail: notionData.message }) };
     }
 
     return {
-      statusCode: 200,
-      headers,
-      body: JSON.stringify({ success: true, id: notionData.id })
+      statusCode: 200, headers,
+      body: JSON.stringify({ success: true, id: notionData.id, uploaded: uploadedFiles.length })
     };
 
   } catch (err) {
     console.error('Function error:', err);
-    return {
-      statusCode: 500,
-      headers,
-      body: JSON.stringify({ error: err.message })
-    };
+    return { statusCode: 500, headers, body: JSON.stringify({ error: err.message }) };
   }
 };
