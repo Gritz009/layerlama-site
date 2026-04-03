@@ -230,7 +230,11 @@
         .btn-view-all:hover { border-color: var(--orange); background: var(--orange); color: #000; box-shadow: 0 8px 24px var(--orange-glow); transform: translateY(-2px); }
 
         /* Featured grid — max 3 on homepage */
-        .gallery-grid--featured { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
+        .gallery-grid--featured { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5rem; }
+        .gallery-card.extra-6, .gallery-card.extra-8 { display: block; }
+        @media (min-width: 1025px) { .gallery-grid--featured { grid-template-columns: repeat(4, 1fr); } }
+        @media (max-width: 1024px) and (min-width: 769px) { .gallery-grid--featured { grid-template-columns: repeat(3, 1fr); } .gallery-card.extra-8 { display: none; } }
+        @media (max-width: 768px) { .gallery-grid--featured { grid-template-columns: repeat(2, 1fr); gap: 0.75rem; } .gallery-card.extra-6 { display: none; } .gallery-card.extra-8 { display: none; } }
 
         /* ═══════ LIGHTBOX ═══════ */
         .lightbox-overlay { display: none; position: fixed; inset: 0; z-index: 10000; background: rgba(0,0,0,0.96); flex-direction: column; }
@@ -345,7 +349,6 @@
             .stat:nth-child(odd) { border-right: 1px solid var(--border); }
             .stat:nth-child(-n+2) { border-bottom: 1px solid var(--border); }
             .gallery-grid { grid-template-columns: 1fr; }
-            .gallery-grid--featured { grid-template-columns: 1fr; }
             .lightbox-image-area { padding: 3rem 0 0; }
             .lightbox-img { max-width: 100vw; max-height: 100%; border-radius: 0; }
             .lightbox-arrow { width: 38px; height: 38px; font-size: 1.2rem; background: rgba(0,0,0,0.6); }
@@ -421,7 +424,7 @@
     <div class="section-divider"></div>
 
     <section id="portfolio">
-        <div class="section-header reveal"><span class="section-label">Portfolio</span><h2 class="section-title">Selected Works</h2><p class="section-desc">A selection of recent 3D prints. Click any project to explore all photos.</p></div>
+        <div class="section-header reveal"><span class="section-label">Portfolio</span><h2 class="section-title">Selected Works</h2><p class="section-desc">Recent 3D prints from the workshop. Click any project to explore all photos.</p></div>
 
         <div class="gallery-grid gallery-grid--featured">
             <!-- REAL PROJECT: Polygon Planter -->
@@ -460,6 +463,71 @@
                     <div class="card-title">Modular Desk Organizer</div>
                     <div class="card-meta"><span>PLA &bull; Bambu A1</span></div>
                     <div class="card-credit">Design by <a href="https://makerworld.com/en/models/search?searchKeyword=Meyui" target="_blank">Meyui</a> via MakerWorld</div>
+                </div>
+            </div>
+
+            <!-- ADDITIONAL SHOWCASE: Desk Organizer Alt View -->
+            <div class="gallery-card reveal" data-category="functional" onclick="openLightbox('deskorganizer')">
+                <div class="card-image">
+                    <span class="card-tag">Functional</span>
+                    <img src="Images/Portfolio/Desk_Organizer/2.png" alt="Desk Organizer — Detail" style="width:100%;height:100%;object-fit:cover;position:relative;z-index:1;">
+                </div>
+                <div class="card-body">
+                    <div class="card-title">Organizer — Detail</div>
+                    <div class="card-meta"><span>PLA &bull; Modular System</span></div>
+                    <div class="card-credit">Design by <a href="https://makerworld.com/en/models/search?searchKeyword=Meyui" target="_blank">Meyui</a> via MakerWorld</div>
+                </div>
+            </div>
+
+            <!-- ADDITIONAL SHOWCASE: Planter Alt View -->
+            <div class="gallery-card extra-6 reveal" data-category="artistic" onclick="openLightbox('planter')">
+                <div class="card-image">
+                    <span class="card-tag">Artistic</span>
+                    <img src="Images/Portfolio/Planter/2.png" alt="Polygon Planter — Side View" style="width:100%;height:100%;object-fit:cover;position:relative;z-index:1;">
+                </div>
+                <div class="card-body">
+                    <div class="card-title">Planter — Side View</div>
+                    <div class="card-meta"><span>PLA &bull; Geometric Design</span></div>
+                    <div class="card-credit">Design by <a href="https://makerworld.com/en/models/search?searchKeyword=h3li0" target="_blank">h3li0</a> via MakerWorld</div>
+                </div>
+            </div>
+
+            <!-- ADDITIONAL SHOWCASE: Happy Pot Alt View -->
+            <div class="gallery-card extra-6 reveal" data-category="artistic" onclick="openLightbox('happypot')">
+                <div class="card-image">
+                    <span class="card-tag">Artistic</span>
+                    <img src="Images/Portfolio/HappyPot/P1.jpg" alt="Happy Pot — Close Up" style="width:100%;height:100%;object-fit:cover;position:relative;z-index:1;">
+                </div>
+                <div class="card-body">
+                    <div class="card-title">Happy Pot — Close Up</div>
+                    <div class="card-meta"><span>PLA &bull; Character Design</span></div>
+                    <div class="card-credit">Design by <a href="https://makerworld.com/en/models/search?searchKeyword=TomoDesigns" target="_blank">TomoDesigns</a> via MakerWorld</div>
+                </div>
+            </div>
+
+            <!-- ADDITIONAL SHOWCASE: Desk Organizer Full Setup (7th - hidden on tablet) -->
+            <div class="gallery-card extra-8 reveal" data-category="functional" onclick="openLightbox('deskorganizer')">
+                <div class="card-image">
+                    <span class="card-tag">Functional</span>
+                    <img src="Images/Portfolio/Desk_Organizer/4.png" alt="Full Desk Setup" style="width:100%;height:100%;object-fit:cover;position:relative;z-index:1;">
+                </div>
+                <div class="card-body">
+                    <div class="card-title">Full Desk Setup</div>
+                    <div class="card-meta"><span>PLA &bull; Multi-piece Print</span></div>
+                    <div class="card-credit">Design by <a href="https://makerworld.com/en/models/search?searchKeyword=Meyui" target="_blank">Meyui</a> via MakerWorld</div>
+                </div>
+            </div>
+
+            <!-- ADDITIONAL SHOWCASE: Planter Top View (8th - hidden on tablet) -->
+            <div class="gallery-card extra-8 reveal" data-category="artistic" onclick="openLightbox('planter')">
+                <div class="card-image">
+                    <span class="card-tag">Artistic</span>
+                    <img src="Images/Portfolio/Planter/4.png" alt="Planter — Top View" style="width:100%;height:100%;object-fit:cover;position:relative;z-index:1;">
+                </div>
+                <div class="card-body">
+                    <div class="card-title">Planter — Top View</div>
+                    <div class="card-meta"><span>PLA &bull; Bambu A1</span></div>
+                    <div class="card-credit">Design by <a href="https://makerworld.com/en/models/search?searchKeyword=h3li0" target="_blank">h3li0</a> via MakerWorld</div>
                 </div>
             </div>
         </div>
