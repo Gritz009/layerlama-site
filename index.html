@@ -162,7 +162,7 @@
         .btn-primary:hover { background: linear-gradient(135deg, var(--orange-hot), var(--orange-light)); transform: translateY(-2px); box-shadow: 0 8px 32px var(--orange-glow), 0 2px 8px rgba(0,0,0,0.2); color: #000; }
         .btn-outline { background: transparent; color: var(--text); padding: 0.85rem 2rem; border-radius: 8px; font-weight: 600; font-size: 0.95rem; text-decoration: none; border: 1px solid var(--border); transition: all 0.3s; cursor: pointer; font-family: var(--font-body); }
         .btn-outline:hover { border-color: var(--orange); background: var(--orange); color: #000; box-shadow: 0 8px 24px var(--orange-glow); }
-        .scroll-indicator { position: absolute; bottom: 2rem; left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 0.5rem; color: var(--text-muted); font-size: 0.7rem; letter-spacing: 0.15em; text-transform: uppercase; animation: fadeInUp 0.8s ease 0.5s both; }
+        .scroll-indicator { margin-top: auto; padding-bottom: 1.5rem; display: flex; flex-direction: column; align-items: center; gap: 0.5rem; color: var(--text-muted); font-size: 0.7rem; letter-spacing: 0.15em; text-transform: uppercase; animation: fadeInUp 0.8s ease 0.5s both; }
         .scroll-line { width: 1px; height: 40px; background: linear-gradient(to bottom, var(--text-muted), transparent); animation: scrollPulse 2s infinite; }
         @keyframes scrollPulse { 0%, 100% { opacity: 0.5; transform: scaleY(1); } 50% { opacity: 1; transform: scaleY(0.6); } }
         @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
