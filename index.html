@@ -161,13 +161,14 @@
         .hero h1 .accent { background: linear-gradient(135deg, var(--orange-hot), var(--orange), var(--red-warm), var(--red)); background-size: 200% 200%; -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; animation: fadeInUp 0.8s ease 0.1s both, gradientShift 6s ease infinite; }
         @keyframes gradientShift { 0%, 100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
         .hero-sub { font-size: clamp(1rem, 2vw, 1.25rem); color: var(--text-muted); max-width: 650px; line-height: 1.6; margin-bottom: 2.5rem; animation: fadeInUp 0.8s ease 0.2s both; transition: color var(--tr); }
-        .hero-actions { display: flex; gap: 1rem; animation: fadeInUp 0.8s ease 0.3s both; }
+        .hero-actions { display: flex; gap: 1rem; animation: fadeInUp 0.8s ease 0.3s both; margin-bottom: 2rem; }
         .btn-primary { background: linear-gradient(135deg, var(--orange), var(--orange-deep)); color: #fff; padding: 0.85rem 2rem; border-radius: 8px; font-weight: 700; font-size: 0.95rem; text-decoration: none; transition: all 0.3s; border: none; cursor: pointer; font-family: var(--font-body); }
         .btn-primary:hover { background: linear-gradient(135deg, var(--orange-hot), var(--orange-light)); transform: translateY(-2px); box-shadow: 0 8px 32px var(--orange-glow), 0 2px 8px rgba(0,0,0,0.2); color: #000; }
         .btn-outline { background: transparent; color: var(--text); padding: 0.85rem 2rem; border-radius: 8px; font-weight: 600; font-size: 0.95rem; text-decoration: none; border: 1px solid var(--border); transition: all 0.3s; cursor: pointer; font-family: var(--font-body); }
         .btn-outline:hover { border-color: var(--orange); background: var(--orange); color: #000; box-shadow: 0 8px 24px var(--orange-glow); }
-        .scroll-indicator { position: absolute; bottom: 2rem; left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 0.5rem; color: var(--text-muted); font-size: 0.7rem; letter-spacing: 0.15em; text-transform: uppercase; animation: fadeInUp 0.8s ease 0.5s both; }
-        .scroll-line { width: 1px; height: 40px; background: linear-gradient(to bottom, var(--text-muted), transparent); animation: scrollPulse 2s infinite; }
+        .scroll-indicator { position: absolute; bottom: 3.5rem; left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 0.4rem; color: var(--text-muted); font-size: 0.7rem; letter-spacing: 0.15em; text-transform: uppercase; animation: fadeInUp 0.8s ease 0.5s both; transition: opacity 0.4s; }
+        .scroll-indicator.hidden { opacity: 0; pointer-events: none; }
+        .scroll-line { width: 1px; height: 20px; background: linear-gradient(to bottom, var(--text-muted), transparent); animation: scrollPulse 2s infinite; }
         @keyframes scrollPulse { 0%, 100% { opacity: 0.5; transform: scaleY(1); } 50% { opacity: 1; transform: scaleY(0.6); } }
         @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
 
@@ -319,6 +320,18 @@
         .material-item:hover { border-color: var(--orange); background: rgba(232,129,43,0.05); }
         .material-name { font-weight: 700; font-size: 0.95rem; margin-top: 0.4rem; }
         .material-desc { font-size: 0.72rem; color: var(--text-muted); margin-top: 0.2rem; }
+
+        /* ═══════ COMMUNITY LINKS ═══════ */
+        .links-grid { max-width: 1400px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; }
+        .link-card { display: flex; flex-direction: column; align-items: center; gap: 0.75rem; padding: 1.75rem 1rem; background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; text-decoration: none; transition: all 0.3s; }
+        .link-card:hover { border-color: var(--orange); transform: translateY(-4px); box-shadow: 0 12px 32px var(--card-shadow), 0 0 20px rgba(232,129,43,0.06); }
+        [data-theme="light"] .link-card { box-shadow: 0 3px 12px rgba(0,0,0,0.06); }
+        [data-theme="light"] .link-card:hover { box-shadow: 0 12px 32px rgba(80,50,15,0.12); }
+        .link-card-icon { width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; }
+        .link-card-icon img, .link-card-icon svg { width: 100%; height: 100%; object-fit: contain; border-radius: 8px; }
+        .link-card-name { font-family: var(--font-display); font-weight: 700; font-size: 0.95rem; color: var(--text); transition: color var(--tr); }
+        .link-card-desc { font-size: 0.72rem; color: var(--text-muted); text-align: center; line-height: 1.4; transition: color var(--tr); }
+        .link-card:hover .link-card-name { color: var(--orange); }
 
         /* ═══════ CONTACT ═══════ */
         #contact { background: var(--bg); }
@@ -666,6 +679,49 @@
 
     <div class="section-divider"></div>
 
+    <section id="resources">
+        <div class="section-header reveal"><span class="section-label">Explore</span><h2 class="section-title">3D Printing Resources</h2><p class="section-desc">Discover models, communities, and tools from the 3D printing world.</p></div>
+        <div class="links-grid">
+            <a href="https://makerworld.com" target="_blank" class="link-card reveal">
+                <div class="link-card-icon"><img src="https://cdn.makerworld.com/favicon.ico" alt="MakerWorld" onerror="this.src='https://www.google.com/s2/favicons?domain=makerworld.com&sz=64'"></div>
+                <div class="link-card-name">MakerWorld</div>
+                <div class="link-card-desc">Bambu Lab's model library with free 3D print files</div>
+            </a>
+            <a href="https://www.yeggi.com" target="_blank" class="link-card reveal">
+                <div class="link-card-icon"><img src="https://www.google.com/s2/favicons?domain=yeggi.com&sz=64" alt="Yeggi"></div>
+                <div class="link-card-name">Yeggi</div>
+                <div class="link-card-desc">Search engine for 3D printable models across all platforms</div>
+            </a>
+            <a href="https://www.thingiverse.com" target="_blank" class="link-card reveal">
+                <div class="link-card-icon"><img src="https://www.google.com/s2/favicons?domain=thingiverse.com&sz=64" alt="Thingiverse"></div>
+                <div class="link-card-name">Thingiverse</div>
+                <div class="link-card-desc">One of the original 3D model libraries — merging with MyMiniFactory</div>
+            </a>
+            <a href="https://www.printables.com" target="_blank" class="link-card reveal">
+                <div class="link-card-icon"><img src="https://www.google.com/s2/favicons?domain=printables.com&sz=64" alt="Printables"></div>
+                <div class="link-card-name">Printables</div>
+                <div class="link-card-desc">Prusa's community platform for sharing and discovering models</div>
+            </a>
+            <a href="https://thangs.com" target="_blank" class="link-card reveal">
+                <div class="link-card-icon"><img src="https://www.google.com/s2/favicons?domain=thangs.com&sz=64" alt="Thangs"></div>
+                <div class="link-card-name">Thangs</div>
+                <div class="link-card-desc">3D model search engine across multiple platforms</div>
+            </a>
+            <a href="https://cults3d.com" target="_blank" class="link-card reveal">
+                <div class="link-card-icon"><img src="https://www.google.com/s2/favicons?domain=cults3d.com&sz=64" alt="Cults3D"></div>
+                <div class="link-card-name">Cults3D</div>
+                <div class="link-card-desc">Marketplace for free and premium 3D printing files</div>
+            </a>
+            <a href="https://www.myminifactory.com" target="_blank" class="link-card reveal">
+                <div class="link-card-icon"><img src="https://www.google.com/s2/favicons?domain=myminifactory.com&sz=64" alt="MyMiniFactory"></div>
+                <div class="link-card-name">MyMiniFactory</div>
+                <div class="link-card-desc">Curated miniatures and printable designs — merging with Thingiverse</div>
+            </a>
+        </div>
+    </section>
+
+    <div class="section-divider"></div>
+
     <section id="contact">
         <div class="section-header reveal"><span class="section-label">Contact</span><h2 class="section-title">Start a Project</h2><p class="section-desc">Have an idea or a file ready to print? Drop me a message and let's make it real.</p></div>
         <div class="contact-wrapper reveal">
@@ -736,6 +792,9 @@
         document.querySelectorAll('.nav-links a').forEach(l => l.addEventListener('click', () => document.getElementById('navLinks').classList.remove('open')));
         const obs = new IntersectionObserver((entries) => { entries.forEach((e, i) => { if (e.isIntersecting) { setTimeout(() => e.target.classList.add('visible'), i * 80); obs.unobserve(e.target); } }); }, { threshold: 0.1 });
         document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+        // Hide scroll indicator on scroll
+        const scrollInd = document.querySelector('.scroll-indicator');
+        window.addEventListener('scroll', () => { if (window.scrollY > 50) scrollInd.classList.add('hidden'); else scrollInd.classList.remove('hidden'); }, { passive: true });
         const cObs = new IntersectionObserver((entries) => { entries.forEach(entry => { if (entry.isIntersecting) { const el = entry.target, target = parseInt(el.dataset.count); let cur = 0; const inc = Math.ceil(target / 40); const t = setInterval(() => { cur += inc; if (cur >= target) { cur = target; clearInterval(t); } el.textContent = cur + '+'; }, 30); cObs.unobserve(el); } }); }, { threshold: 0.5 });
         document.querySelectorAll('.stat-number[data-count]').forEach(c => cObs.observe(c));
         // Gallery filters (used on gallery.html)
