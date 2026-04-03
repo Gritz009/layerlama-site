@@ -798,7 +798,7 @@
                 jsonData.attachment_names = selectedFiles.map(f => f.name + ' (' + (f.size / 1024).toFixed(0) + 'KB)').join(', ');
                 jsonData.attachment_count = selectedFiles.length;
 
-                btn.textContent = 'Saving to Notion...';
+                btn.textContent = 'Sending request...';
 
                 const res = await fetch('/.netlify/functions/submit-commission', {
                     method: 'POST',
