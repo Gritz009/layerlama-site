@@ -752,6 +752,13 @@
             formData.append('file', file);
             formData.append('upload_preset', 'layerlama_unsigned');
             formData.append('folder', 'layerlama/commissions');
+            // Preserve original filename (remove extension, replace spaces/special chars)
+            const nameWithoutExt = file.name.replace(/\.[^.]+$/, '').replace(/[^a-zA-Z0-9_-]/g, '_');
+            formData.append('public_id', nameWithoutExt + '_' + Date.now());
+            formData.append('resource_type', 'auto');
+            // Force Cloudinary to keep the original extension for raw files
+            formData.append('use_filename', 'true');
+            formData.append('unique_filename', 'true');
             const res = await fetch('https://api.cloudinary.com/v1_1/dbq6puxi5/auto/upload', {
                 method: 'POST',
                 body: formData

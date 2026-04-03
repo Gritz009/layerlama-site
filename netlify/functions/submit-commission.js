@@ -100,11 +100,13 @@ exports.handler = async (event) => {
           });
         } else {
           // Non-image files as download links
+          // Add fl_attachment to force browser download with original filename
+          const downloadUrl = file.url.replace('/upload/', '/upload/fl_attachment:' + encodeURIComponent(file.name) + '/');
           children.push({
             object: 'block', type: 'paragraph',
             paragraph: { rich_text: [
               { type: 'text', text: { content: '📄 ' } },
-              { type: 'text', text: { content: file.name, link: { url: file.url } }, annotations: { bold: true } },
+              { type: 'text', text: { content: file.name, link: { url: downloadUrl } }, annotations: { bold: true } },
               { type: 'text', text: { content: ' — Click to download' }, annotations: { color: 'gray' } }
             ] }
           });
