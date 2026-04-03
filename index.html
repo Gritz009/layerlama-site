@@ -670,13 +670,13 @@
                 <div class="form-group"><label>Project Details</label><textarea name="details" placeholder="Describe your project, material preferences, quantity, deadline..."></textarea></div>
                 <div class="form-group"><label>Reference Links <span style="font-weight:400;opacity:0.6">(optional)</span></label><textarea name="reference-links" placeholder="Paste links to reference images, MakerWorld models, Thingiverse files, or any inspiration URLs — one per line" style="min-height:70px;"></textarea></div>
                 <div class="form-group">
-                    <label>Attachments <span style="font-weight:400;opacity:0.6">(optional — images, STL, 3MF, PDF, etc.)</span></label>
+                    <label>Attachments <span style="font-weight:400;opacity:0.6">(optional — images, STL, F3D, 3MF, PDF, etc.)</span></label>
                     <div class="file-upload-area" id="fileUploadArea">
-                        <input type="file" name="attachments" id="fileInput" multiple accept="image/*,.stl,.3mf,.obj,.step,.stp,.pdf,.zip,.rar" style="display:none;">
+                        <input type="file" name="attachments" id="fileInput" multiple accept="image/*,.stl,.3mf,.obj,.step,.stp,.f3d,.scad,.gcode,.pdf,.zip,.rar,.7z" style="display:none;">
                         <div class="file-upload-prompt" id="filePrompt" onclick="document.getElementById('fileInput').click()">
                             <span class="file-upload-icon">&#128206;</span>
                             <span>Click to browse or drag & drop files here</span>
-                            <span class="file-upload-hint">Images, 3D files (STL, 3MF, OBJ, STEP), PDF, ZIP — max 10MB each</span>
+                            <span class="file-upload-hint">Images, 3D files (STL, F3D, 3MF, OBJ, STEP), PDF, ZIP — max 10MB each</span>
                         </div>
                         <div class="file-list" id="fileList"></div>
                     </div>
