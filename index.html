@@ -295,16 +295,26 @@
         #setup { background: var(--bg-surface); }
         [data-theme="dark"] #setup { background: linear-gradient(180deg, #0E0E0C, #121210); }
         [data-theme="light"] #setup { background: linear-gradient(160deg, #DDD5C7, #D5CCB9 40%, #E2DBCE 70%, #D8CFBF); }
-        .specs-grid { max-width: 1400px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; }
-        .spec-card { padding: 2rem; background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; display: flex; gap: 1rem; align-items: flex-start; transition: all 0.3s; position: relative; overflow: hidden; }
-        .spec-card::before { content: ''; position: absolute; top: 0; bottom: 0; left: 0; width: 3px; background: var(--accent-gradient); opacity: 0; transition: opacity 0.3s; }
-        .spec-card:hover { border-color: var(--orange); }
+        .specs-grid { max-width: 1400px; margin: 0 auto; display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
+        @media (max-width: 1024px) and (min-width: 769px) { .specs-grid { grid-template-columns: repeat(2, 1fr); } .spec-card.materials-card { grid-template-columns: repeat(3, 1fr); } }
+        .spec-card { padding: 2rem 2rem 1.75rem; background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; display: flex; flex-direction: column; gap: 0.75rem; transition: all 0.3s; position: relative; overflow: hidden; }
+        .spec-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--accent-gradient); opacity: 0; transition: opacity 0.3s; }
+        .spec-card:hover { border-color: var(--orange); transform: translateY(-4px); }
         .spec-card:hover::before { opacity: 1; }
         [data-theme="light"] .spec-card { box-shadow: 0 3px 14px rgba(0,0,0,0.07); }
-        [data-theme="light"] .spec-card:hover { box-shadow: 0 12px 32px rgba(80,50,15,0.12); transform: translateY(-3px); }
-        .spec-icon { font-size: 1.5rem; flex-shrink: 0; margin-top: 0.2rem; }
-        .spec-name { font-weight: 600; font-size: 0.95rem; margin-bottom: 0.2rem; }
-        .spec-detail { font-size: 0.85rem; color: var(--text-muted); transition: color var(--tr); }
+        [data-theme="light"] .spec-card:hover { box-shadow: 0 16px 40px rgba(80,50,15,0.12); }
+        .spec-icon { font-size: 2.5rem; margin-bottom: 0.25rem; }
+        .spec-name { font-family: var(--font-display); font-weight: 700; font-size: 1.2rem; }
+        .spec-type { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--orange); font-weight: 600; margin-bottom: 0.25rem; }
+        .spec-detail { font-size: 0.9rem; color: var(--text-muted); line-height: 1.5; transition: color var(--tr); }
+        .spec-badges { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.5rem; }
+        .spec-badge { padding: 0.2rem 0.6rem; border-radius: 100px; font-size: 0.68rem; font-weight: 500; background: rgba(232,129,43,0.08); color: var(--orange); border: 1px solid rgba(232,129,43,0.15); }
+        .spec-card.materials-card { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 1rem; padding: 2rem 2.5rem; }
+        .spec-card.materials-card .spec-icon { font-size: 2rem; }
+        .material-item { text-align: center; padding: 1rem 0.5rem; border-radius: 10px; background: rgba(255,255,255,0.02); border: 1px solid var(--border); transition: all 0.3s; }
+        .material-item:hover { border-color: var(--orange); background: rgba(232,129,43,0.05); }
+        .material-name { font-weight: 700; font-size: 0.95rem; margin-top: 0.4rem; }
+        .material-desc { font-size: 0.72rem; color: var(--text-muted); margin-top: 0.2rem; }
 
         /* ═══════ CONTACT ═══════ */
         #contact { background: var(--bg); }
@@ -377,6 +387,9 @@
             .lightbox-thumb { width: 56px; height: 42px; }
             .process-grid { grid-template-columns: 1fr; }
             .services-grid { grid-template-columns: 1fr; }
+            .specs-grid { grid-template-columns: 1fr; }
+            .spec-card.materials-card { grid-template-columns: repeat(3, 1fr); }
+            .material-item { padding: 0.75rem 0.25rem; }
             .form-row { grid-template-columns: 1fr; }
             .hero { padding: 7rem 1.5rem 3rem; }
             section { padding: 4rem 1.5rem; }
@@ -583,12 +596,57 @@
     <section id="setup">
         <div class="section-header reveal"><span class="section-label">Setup</span><h2 class="section-title">The Fleet</h2><p class="section-desc">5 printers, 6 materials, and the precision to match any project requirement.</p></div>
         <div class="specs-grid">
-            <div class="spec-card reveal"><div class="spec-icon">&#128424;</div><div><div class="spec-name">Bambu Lab P1S</div><div class="spec-detail">256×256×256mm · Multi-color · High speed</div></div></div>
-            <div class="spec-card reveal"><div class="spec-icon">&#128424;</div><div><div class="spec-name">Bambu Lab A1</div><div class="spec-detail">256×256×256mm · AMS multi-material</div></div></div>
-            <div class="spec-card reveal"><div class="spec-icon">&#128424;</div><div><div class="spec-name">Bambu Lab A1 Mini</div><div class="spec-detail">180×180×180mm · Compact precision</div></div></div>
-            <div class="spec-card reveal"><div class="spec-icon">&#128424;</div><div><div class="spec-name">Creality Ender 3</div><div class="spec-detail">220×220×250mm · Reliable workhorse</div></div></div>
-            <div class="spec-card reveal"><div class="spec-icon">&#128300;</div><div><div class="spec-name">Creality LD-002H</div><div class="spec-detail">Resin · 0.05mm ultra-detail · Miniatures</div></div></div>
-            <div class="spec-card reveal"><div class="spec-icon">&#9889;</div><div><div class="spec-name">Materials</div><div class="spec-detail">PLA · PETG · ABS · ASA · PLA-CF · Resin</div></div></div>
+            <div class="spec-card reveal">
+                <div class="spec-icon">&#128424;</div>
+                <div class="spec-type">FDM Printer</div>
+                <div class="spec-name">Bambu Lab P1S</div>
+                <div class="spec-detail">Enclosed high-speed CoreXY printer. Multi-color capability with AMS. Ideal for engineering parts and multi-material prints.</div>
+                <div class="spec-badges"><span class="spec-badge">256×256×256mm</span><span class="spec-badge">Multi-color</span><span class="spec-badge">500mm/s</span><span class="spec-badge">Enclosed</span></div>
+            </div>
+            <div class="spec-card reveal">
+                <div class="spec-icon">&#128424;</div>
+                <div class="spec-type">FDM Printer</div>
+                <div class="spec-name">Bambu Lab A1</div>
+                <div class="spec-detail">Open-frame printer with AMS Lite support. Excellent for large batches and multi-material projects with fast turnaround.</div>
+                <div class="spec-badges"><span class="spec-badge">256×256×256mm</span><span class="spec-badge">AMS Lite</span><span class="spec-badge">500mm/s</span></div>
+            </div>
+            <div class="spec-card reveal">
+                <div class="spec-icon">&#128424;</div>
+                <div class="spec-type">FDM Printer</div>
+                <div class="spec-name">Bambu Lab A1 Mini</div>
+                <div class="spec-detail">Compact printer for small precision parts, miniatures, and quick prototypes. Full AMS color support in a small footprint.</div>
+                <div class="spec-badges"><span class="spec-badge">180×180×180mm</span><span class="spec-badge">AMS Lite</span><span class="spec-badge">Compact</span></div>
+            </div>
+            <div class="spec-card reveal">
+                <div class="spec-icon">&#128424;</div>
+                <div class="spec-type">FDM Printer</div>
+                <div class="spec-name">Creality Ender 3</div>
+                <div class="spec-detail">Battle-tested workhorse printer. Reliable for large functional prints, enclosures, and prototyping where volume matters.</div>
+                <div class="spec-badges"><span class="spec-badge">220×220×250mm</span><span class="spec-badge">Open Source</span><span class="spec-badge">Reliable</span></div>
+            </div>
+            <div class="spec-card reveal">
+                <div class="spec-icon">&#128300;</div>
+                <div class="spec-type">Resin Printer</div>
+                <div class="spec-name">Creality LD-002H</div>
+                <div class="spec-detail">UV resin printer for ultra-detail work. Perfect for miniatures, jewelry masters, dental models, and anything requiring 0.05mm resolution.</div>
+                <div class="spec-badges"><span class="spec-badge">0.05mm Layers</span><span class="spec-badge">2K LCD</span><span class="spec-badge">Ultra Detail</span></div>
+            </div>
+            <div class="spec-card reveal" style="display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;background:linear-gradient(135deg, rgba(232,129,43,0.06), rgba(232,129,43,0.02));">
+                <div class="spec-icon">&#9889;</div>
+                <div class="spec-name" style="font-size:2rem;">5 Printers</div>
+                <div class="spec-detail" style="font-size:1rem;">Ready to handle any project,<br>from single prints to batch runs</div>
+            </div>
+        </div>
+
+        <div class="specs-grid" style="margin-top:1.5rem;">
+            <div class="spec-card materials-card reveal">
+                <div class="material-item"><div style="font-size:1.8rem;">&#9898;</div><div class="material-name">PLA</div><div class="material-desc">Standard &amp; easy</div></div>
+                <div class="material-item"><div style="font-size:1.8rem;">&#128167;</div><div class="material-name">PETG</div><div class="material-desc">Water resistant</div></div>
+                <div class="material-item"><div style="font-size:1.8rem;">&#128293;</div><div class="material-name">ABS</div><div class="material-desc">Heat resistant</div></div>
+                <div class="material-item"><div style="font-size:1.8rem;">&#9728;&#65039;</div><div class="material-name">ASA</div><div class="material-desc">UV &amp; outdoor</div></div>
+                <div class="material-item"><div style="font-size:1.8rem;">&#128170;</div><div class="material-name">PLA-CF</div><div class="material-desc">Carbon fibre</div></div>
+                <div class="material-item"><div style="font-size:1.8rem;">&#128142;</div><div class="material-name">Resin</div><div class="material-desc">Ultra detail</div></div>
+            </div>
         </div>
     </section>
 
