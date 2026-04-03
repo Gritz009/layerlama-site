@@ -200,8 +200,8 @@
         .filter-btn { background: transparent; color: var(--text-muted); border: 1px solid var(--border); padding: 0.5rem 1.2rem; border-radius: 100px; font-size: 0.8rem; font-weight: 500; cursor: pointer; transition: all 0.3s; font-family: var(--font-body); }
         .filter-btn:hover, .filter-btn.active { background: linear-gradient(135deg, var(--orange), var(--orange-deep)); color: #fff; border-color: transparent; box-shadow: 0 4px 16px var(--orange-glow); }
         .gallery-grid { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 1.5rem; }
-        .gallery-card { background: var(--bg-card); border-radius: 12px; overflow: hidden; border: 1px solid var(--border); transition: all 0.4s ease; cursor: pointer; position: relative; display: flex; flex-direction: column; }
-        .gallery-card:hover { transform: translateY(-6px); border-color: var(--orange); box-shadow: 0 24px 64px var(--card-shadow), 0 0 30px rgba(232,129,43,0.08); background: var(--orange); }
+        .gallery-card { background: var(--bg-card); border-radius: 12px; overflow: hidden; border: 1px solid var(--border); transition: transform 0.3s, border-color 0.3s, box-shadow 0.3s; cursor: pointer; position: relative; display: flex; flex-direction: column; }
+        .gallery-card:hover { transform: translateY(-6px); border-color: var(--orange); box-shadow: 0 24px 64px var(--card-shadow), 0 0 30px rgba(232,129,43,0.08); }
         .gallery-card:hover .card-body { background: var(--orange); }
         .gallery-card:hover .card-title { color: #000; }
         .gallery-card:hover .card-meta { color: rgba(0,0,0,0.7); }
@@ -209,15 +209,16 @@
         .gallery-card:hover .card-credit a { color: #fff; }
         [data-theme="light"] .gallery-card { box-shadow: 0 3px 12px rgba(0,0,0,0.07), 0 0 0 1px rgba(0,0,0,0.03); }
         [data-theme="light"] .gallery-card:hover { box-shadow: 0 28px 60px rgba(80,50,15,0.18), 0 0 30px rgba(190,94,8,0.06); }
-        .card-image { width: 100%; aspect-ratio: 4/3; background: var(--bg-surface); display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; transition: background var(--tr); }
+        .card-image { width: 100%; aspect-ratio: 4/3; background: var(--bg-surface); display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
         .card-image .placeholder-icon { font-size: 3rem; opacity: 0.15; }
-        .card-image::after { content: ''; position: absolute; inset: 0; background: linear-gradient(to top, var(--bg-card), transparent 50%); transition: background var(--tr); }
+        .card-image::after { content: ''; position: absolute; inset: 0; background: linear-gradient(to top, var(--bg-card), transparent 50%); pointer-events: none; }
+        .gallery-card:hover .card-image::after { background: linear-gradient(to top, var(--orange), transparent 50%); }
         .card-tag { position: absolute; top: 1rem; left: 1rem; backdrop-filter: blur(10px); padding: 0.3rem 0.8rem; border-radius: 100px; font-size: 0.7rem; font-weight: 600; color: var(--orange); letter-spacing: 0.05em; text-transform: uppercase; z-index: 2; background: var(--tag-bg); border: 1px solid var(--border); }
-        .card-body { padding: 1.25rem 1.5rem 1.5rem; transition: background 0.3s; }
-        .card-title { font-family: var(--font-display); font-weight: 700; font-size: 1.15rem; margin-bottom: 0.4rem; transition: color 0.3s; }
-        .card-meta { font-size: 0.8rem; color: var(--text-muted); display: flex; gap: 1rem; transition: color 0.3s; }
-        .card-credit { font-size: 0.72rem; color: var(--text-muted); margin-top: 0.5rem; opacity: 0.7; transition: all 0.3s; }
-        .card-credit a { color: var(--orange); text-decoration: none; transition: color 0.3s; }
+        .card-body { padding: 1.25rem 1.5rem 1.5rem; background: var(--bg-card); flex: 1; display: flex; flex-direction: column; }
+        .card-title { font-family: var(--font-display); font-weight: 700; font-size: 1.15rem; margin-bottom: 0.4rem; min-height: 2.6em; }
+        .card-meta { font-size: 0.8rem; color: var(--text-muted); display: flex; gap: 1rem; }
+        .card-credit { font-size: 0.72rem; color: var(--text-muted); margin-top: auto; padding-top: 0.5rem; opacity: 0.7; }
+        .card-credit a { color: var(--orange); text-decoration: none; }
         .card-credit a:hover { opacity: 0.8; text-decoration: underline; }
 
         /* View All button */
@@ -321,6 +322,19 @@
         [data-theme="light"] .form-group select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%231A1714' stroke-width='1.5' fill='none'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 1rem center; }
         .form-submit { align-self: flex-start; background: linear-gradient(135deg, var(--orange), var(--orange-deep)); color: #fff; padding: 0.9rem 2.5rem; border-radius: 8px; font-weight: 700; font-size: 0.95rem; border: none; cursor: pointer; font-family: var(--font-body); transition: all 0.3s; }
         .form-submit:hover { background: linear-gradient(135deg, var(--orange-hot), var(--orange)); transform: translateY(-2px); box-shadow: 0 8px 30px var(--orange-glow); color: #000; }
+        .file-upload-area { border: 2px dashed var(--border); border-radius: 8px; transition: all 0.3s; }
+        .file-upload-area.dragover { border-color: var(--orange); background: rgba(232,129,43,0.05); }
+        .file-upload-prompt { padding: 1.5rem; text-align: center; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 0.3rem; color: var(--text-muted); transition: color 0.3s; }
+        .file-upload-prompt:hover { color: var(--orange); }
+        .file-upload-icon { font-size: 1.5rem; }
+        .file-upload-hint { font-size: 0.68rem; opacity: 0.6; }
+        .file-list { padding: 0; }
+        .file-list:empty { display: none; }
+        .file-item { display: flex; align-items: center; justify-content: space-between; padding: 0.5rem 0.75rem; border-top: 1px solid var(--border); font-size: 0.8rem; }
+        .file-item-name { color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; }
+        .file-item-size { color: var(--text-muted); font-size: 0.7rem; margin: 0 0.75rem; flex-shrink: 0; }
+        .file-item-remove { background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 1rem; padding: 0 0.25rem; transition: color 0.2s; }
+        .file-item-remove:hover { color: #EF4444; }
         .contact-links { display: flex; gap: 2rem; margin-top: 2.5rem; padding-top: 2rem; border-top: 1px solid var(--border); justify-content: center; transition: border-color var(--tr); }
         .contact-link { display: flex; align-items: center; gap: 0.5rem; color: var(--text-muted); text-decoration: none; font-size: 0.9rem; transition: color 0.3s; }
         .contact-link:hover { color: var(--orange); }
@@ -592,6 +606,19 @@
                 </div>
                 <div class="form-group"><label>Project Type</label><select name="project-type"><option>Custom Print (I have a file)</option><option>Design + Print (from scratch)</option><option>Prototype / Iteration</option><option>Art & Décor</option><option>Miniatures & Gaming</option><option>Workshop / Education</option><option>Other</option></select></div>
                 <div class="form-group"><label>Project Details</label><textarea name="details" placeholder="Describe your project, material preferences, quantity, deadline..."></textarea></div>
+                <div class="form-group"><label>Reference Links <span style="font-weight:400;opacity:0.6">(optional)</span></label><textarea name="reference-links" placeholder="Paste links to reference images, MakerWorld models, Thingiverse files, or any inspiration URLs — one per line" style="min-height:70px;"></textarea></div>
+                <div class="form-group">
+                    <label>Attachments <span style="font-weight:400;opacity:0.6">(optional — images, STL, 3MF, PDF, etc.)</span></label>
+                    <div class="file-upload-area" id="fileUploadArea">
+                        <input type="file" name="attachments" id="fileInput" multiple accept="image/*,.stl,.3mf,.obj,.step,.stp,.pdf,.zip,.rar" style="display:none;">
+                        <div class="file-upload-prompt" id="filePrompt" onclick="document.getElementById('fileInput').click()">
+                            <span class="file-upload-icon">&#128206;</span>
+                            <span>Click to browse or drag & drop files here</span>
+                            <span class="file-upload-hint">Images, 3D files (STL, 3MF, OBJ, STEP), PDF, ZIP — max 10MB each</span>
+                        </div>
+                        <div class="file-list" id="fileList"></div>
+                    </div>
+                </div>
                 <button type="submit" class="form-submit">Send Message</button>
             </form>
             <div class="contact-links">
@@ -628,6 +655,36 @@
         document.querySelectorAll('.stat-number[data-count]').forEach(c => cObs.observe(c));
         // Gallery filters (used on gallery.html)
         document.querySelectorAll('.filter-btn').forEach(btn => { btn.addEventListener('click', () => { document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active')); btn.classList.add('active'); const f = btn.dataset.filter; document.querySelectorAll('.gallery-card').forEach(card => { if (f === 'all' || card.dataset.category === f) { card.style.display = ''; requestAnimationFrame(() => card.style.opacity = '1'); } else { card.style.opacity = '0'; setTimeout(() => card.style.display = 'none', 300); } }); }); });
+        // File upload handling
+        const fileInput = document.getElementById('fileInput');
+        const fileUploadArea = document.getElementById('fileUploadArea');
+        const fileList = document.getElementById('fileList');
+        const filePrompt = document.getElementById('filePrompt');
+        let selectedFiles = [];
+
+        fileInput.addEventListener('change', (e) => { addFiles(Array.from(e.target.files)); });
+        fileUploadArea.addEventListener('dragover', (e) => { e.preventDefault(); fileUploadArea.classList.add('dragover'); });
+        fileUploadArea.addEventListener('dragleave', () => { fileUploadArea.classList.remove('dragover'); });
+        fileUploadArea.addEventListener('drop', (e) => { e.preventDefault(); fileUploadArea.classList.remove('dragover'); addFiles(Array.from(e.dataTransfer.files)); });
+
+        function addFiles(files) {
+            files.forEach(f => {
+                if (f.size > 10 * 1024 * 1024) { alert(f.name + ' is over 10MB limit'); return; }
+                if (!selectedFiles.some(sf => sf.name === f.name && sf.size === f.size)) selectedFiles.push(f);
+            });
+            renderFileList();
+        }
+
+        function removeFile(idx) { selectedFiles.splice(idx, 1); renderFileList(); }
+
+        function renderFileList() {
+            fileList.innerHTML = selectedFiles.map((f, i) => {
+                const size = f.size < 1024 ? f.size + ' B' : f.size < 1048576 ? (f.size / 1024).toFixed(1) + ' KB' : (f.size / 1048576).toFixed(1) + ' MB';
+                return '<div class="file-item"><span class="file-item-name">' + f.name + '</span><span class="file-item-size">' + size + '</span><button type="button" class="file-item-remove" onclick="removeFile(' + i + ')">&times;</button></div>';
+            }).join('');
+            filePrompt.querySelector('span:first-of-type').textContent = selectedFiles.length > 0 ? selectedFiles.length + ' file(s) selected — click to add more' : 'Click to browse or drag & drop files here';
+        }
+
         function handleSubmit(e) {
             e.preventDefault();
             const form = e.target;
@@ -637,30 +694,46 @@
 
             const formData = new FormData(form);
             const jsonData = {};
-            formData.forEach((v, k) => jsonData[k] = v);
+            formData.forEach((v, k) => { if (k !== 'attachments') jsonData[k] = v; });
 
-            // Send to Netlify Function → Notion
-            const notionPromise = fetch('/.netlify/functions/submit-commission', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(jsonData)
-            }).catch(() => {});
+            // Convert files to base64 for Notion (file names + sizes for reference)
+            const filePromises = selectedFiles.map(f => new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve({ name: f.name, size: f.size, type: f.type, data: reader.result });
+                reader.onerror = () => resolve({ name: f.name, size: f.size, type: f.type, data: null });
+                reader.readAsDataURL(f);
+            }));
 
-            // Also send to Netlify Forms (backup + email notification)
-            const netlifyPromise = fetch('/', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: new URLSearchParams(formData).toString()
-            }).catch(() => {});
+            Promise.all(filePromises).then(fileData => {
+                jsonData.attachments = fileData.map(f => f.name + ' (' + (f.size / 1024).toFixed(0) + 'KB)').join(', ');
+                jsonData.attachment_count = selectedFiles.length;
 
-            Promise.all([notionPromise, netlifyPromise]).then(() => {
-                btn.textContent = 'Sent! \u2713';
-                btn.style.background = 'linear-gradient(135deg, #2E7D32, #1B5E20)';
-                setTimeout(() => { btn.textContent = 'Send Message'; btn.style.background = ''; btn.disabled = false; form.reset(); }, 3000);
-            }).catch(() => {
-                btn.textContent = 'Error \u2014 try again';
-                btn.style.background = 'linear-gradient(135deg, #C62828, #B71C1C)';
-                setTimeout(() => { btn.textContent = 'Send Message'; btn.style.background = ''; btn.disabled = false; }, 3000);
+                // Send to Netlify Function → Notion
+                const notionPromise = fetch('/.netlify/functions/submit-commission', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(jsonData)
+                }).catch(() => {});
+
+                // Send form data with files to Netlify Forms (backup)
+                const netlifyData = new FormData(form);
+                selectedFiles.forEach(f => netlifyData.append('attachments', f));
+                const netlifyPromise = fetch('/', {
+                    method: 'POST',
+                    body: netlifyData
+                }).catch(() => {});
+
+                Promise.all([notionPromise, netlifyPromise]).then(() => {
+                    btn.textContent = 'Sent! \u2713';
+                    btn.style.background = 'linear-gradient(135deg, #2E7D32, #1B5E20)';
+                    selectedFiles = [];
+                    renderFileList();
+                    setTimeout(() => { btn.textContent = 'Send Message'; btn.style.background = ''; btn.disabled = false; form.reset(); }, 3000);
+                }).catch(() => {
+                    btn.textContent = 'Error \u2014 try again';
+                    btn.style.background = 'linear-gradient(135deg, #C62828, #B71C1C)';
+                    setTimeout(() => { btn.textContent = 'Send Message'; btn.style.background = ''; btn.disabled = false; }, 3000);
+                });
             });
         }
     </script>
