@@ -200,8 +200,8 @@
         .filter-btn { background: transparent; color: var(--text-muted); border: 1px solid var(--border); padding: 0.5rem 1.2rem; border-radius: 100px; font-size: 0.8rem; font-weight: 500; cursor: pointer; transition: all 0.3s; font-family: var(--font-body); }
         .filter-btn:hover, .filter-btn.active { background: linear-gradient(135deg, var(--orange), var(--orange-deep)); color: #fff; border-color: transparent; box-shadow: 0 4px 16px var(--orange-glow); }
         .gallery-grid { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 1.5rem; }
-        .gallery-card { background: var(--bg-card); border-radius: 12px; overflow: hidden; border: 1px solid var(--border); transition: all 0.4s ease; cursor: pointer; position: relative; }
-        .gallery-card:hover { transform: translateY(-6px); border-color: var(--orange); box-shadow: 0 24px 64px var(--card-shadow), 0 0 30px rgba(232,129,43,0.08); }
+        .gallery-card { background: var(--bg-card); border-radius: 12px; overflow: hidden; border: 1px solid var(--border); transition: all 0.4s ease; cursor: pointer; position: relative; display: flex; flex-direction: column; }
+        .gallery-card:hover { transform: translateY(-6px); border-color: var(--orange); box-shadow: 0 24px 64px var(--card-shadow), 0 0 30px rgba(232,129,43,0.08); background: var(--orange); }
         .gallery-card:hover .card-body { background: var(--orange); }
         .gallery-card:hover .card-title { color: #000; }
         .gallery-card:hover .card-meta { color: rgba(0,0,0,0.7); }

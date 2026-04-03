@@ -49,7 +49,7 @@
             .gallery-grid { grid-template-columns: repeat(2, 1fr); gap: 1rem; }
             .gallery-page { padding: 6rem 1.25rem 3rem; }
         }
-        .gallery-card { background: var(--bg-card); border-radius: 12px; overflow: hidden; border: 1px solid var(--border); transition: all 0.4s; cursor: pointer; position: relative; }
+        .gallery-card { background: var(--bg-card); border-radius: 12px; overflow: hidden; border: 1px solid var(--border); transition: all 0.4s; cursor: pointer; position: relative; display: flex; flex-direction: column; }
         .gallery-card:hover { transform: translateY(-6px); border-color: var(--orange); box-shadow: 0 24px 64px var(--card-shadow), 0 0 30px rgba(232,129,43,0.08); }
         @media (hover: none) { .gallery-card:hover { transform: none; } }
         .gallery-card:active { transform: scale(0.97); transition: transform 0.1s; }
