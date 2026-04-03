@@ -45,7 +45,7 @@ exports.handler = async (event) => {
     const details = data.details || '';
     const referenceLinks = data['reference-links'] || '';
     const now = new Date();
-    const requestId = now.toISOString().replace(/[-:T]/g, '').substring(0, 15);
+    const requestId = 'LL-' + now.toISOString().replace(/[-:T]/g, '').substring(0, 8) + '-' + now.toISOString().replace(/[-:T]/g, '').substring(8, 12);
     const submitted = now.toISOString().split('T')[0];
 
     // Upload files to Cloudinary if credentials exist and files are provided
@@ -191,6 +191,24 @@ exports.handler = async (event) => {
     if (!notionRes.ok) {
       console.error('Notion API error:', JSON.stringify(notionData));
       return { statusCode: 500, headers, body: JSON.stringify({ error: 'Failed to save to Notion', detail: notionData.message }) };
+    }
+
+    // Trigger auto-reply email via Make.com webhook
+    try {
+      await fetch('https://hook.eu1.make.com/5nbqf7mxih1fks67u1jqusz78596y4hj', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: clientName,
+          email: email,
+          projectType: projectType,
+          requestId: requestId,
+          submitted: submitted
+        })
+      });
+    } catch (emailErr) {
+      console.error('Auto-reply webhook error:', emailErr.message);
+      // Don't fail the whole request if email fails
     }
 
     return {
