@@ -724,19 +724,6 @@
                     <div class="card-credit">Design by <a href="https://makerworld.com/en/models/search?searchKeyword=3D+URSA" target="_blank">3D URSA</a> via MakerWorld</div>
                 </div>
             </div>
-
-            <!-- Knitted Cat With Heart -->
-            <div class="gallery-card extra-8 reveal" data-category="artistic" onclick="openLightbox('knittedcat')">
-                <div class="card-image">
-                    <span class="card-tag">Artistic · Miniatures</span>
-                    <img src="Images/Portfolio/Knitted_Cat/Thumbnail.jpg" alt="Knitted Cat With Heart" style="width:100%;height:100%;object-fit:cover;position:relative;z-index:1;">
-                </div>
-                <div class="card-body">
-                    <div class="card-title">Knitted Cat With Heart</div>
-                    <div class="card-meta"><span>PLA &bull; Bambu A1</span></div>
-                    <div class="card-credit">Design by <a href="https://makerworld.com/en/models/search?searchKeyword=Smoggy3D" target="_blank">Smoggy3D</a> via MakerWorld</div>
-                </div>
-            </div>
         </div>
 
         <div class="view-all-wrapper reveal">
@@ -1206,4 +1193,13 @@
         const imgArea = document.getElementById('lightboxImageArea');
         imgArea.addEventListener('touchstart', e => { touchStartX = e.changedTouches[0].screenX; touchStartY = e.changedTouches[0].screenY; }, {passive: true});
         imgArea.addEventListener('touchend', e => {
-            const diffX = touchStartX - e.changedTouches[0]
+            const diffX = touchStartX - e.changedTouches[0].screenX;
+            const diffY = Math.abs(touchStartY - e.changedTouches[0].screenY);
+            if (Math.abs(diffX) > 50 && diffY < 100) {
+                if (diffX > 0) nextImg();
+                else prevImg();
+            }
+        }, {passive: true});
+    </script>
+</body>
+</html>
