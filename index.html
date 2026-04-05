@@ -155,7 +155,7 @@
 
         /* ═══════ HERO ═══════ */
         .hero { min-height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 0 2rem; position: relative; overflow: hidden; }
-        body.banner-visible .hero { min-height: calc(100vh - 130px); }
+        body.banner-visible .hero { min-height: calc(100vh - 200px); justify-content: flex-start; padding-top: 7rem; }
         @media (max-width: 768px) { body.banner-visible .hero { min-height: calc(100vh - 85px); } }
         .hero::before { content: ''; position: absolute; top: -20%; left: 50%; transform: translateX(-50%); width: 900px; height: 900px; background: radial-gradient(circle at 50% 50%, var(--glow-primary) 0%, transparent 55%); pointer-events: none; }
         .hero::after { content: ''; position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); width: 600px; height: 400px; background: radial-gradient(ellipse at 50% 100%, var(--glow-secondary) 0%, transparent 70%); pointer-events: none; opacity: 0.5; }
@@ -394,7 +394,7 @@
         .commission-banner {
             position: relative;
             margin-top: 5rem; /* clear the fixed nav */
-            max-height: 260px;
+            max-height: 300px;
             overflow: hidden;
             background: linear-gradient(135deg, rgba(232,129,43,0.08), rgba(224,53,48,0.04));
             border-bottom: 1px solid var(--border);
@@ -419,7 +419,7 @@
         .commission-banner-thumbs { display: flex; align-items: center; flex-shrink: 0; }
         .commission-banner-thumb {
             display: block; cursor: pointer; text-decoration: none;
-            width: 72px; height: 72px; border-radius: 10px; overflow: hidden;
+            width: 120px; height: 120px; border-radius: 14px; overflow: hidden;
             border: 2px solid var(--border); box-shadow: 0 6px 20px rgba(0,0,0,0.25);
             transition: transform var(--tr), border-color var(--tr);
             background: var(--bg-card);
@@ -433,11 +433,11 @@
         .commission-banner:hover .commission-banner-thumb:nth-child(2) { transform: rotate(3deg) translateX(-10px) translateY(-2px); }
         .commission-banner:hover .commission-banner-thumb:nth-child(3) { transform: rotate(-4deg) translateX(-20px) translateY(-2px); }
         .commission-banner-text { display: flex; flex-direction: column; gap: 0.2rem; min-width: 0; }
-        .commission-banner-badge { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--orange); display: inline-flex; align-items: center; gap: 0.45rem; }
+        .commission-banner-badge { font-size: 0.77rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--orange); display: inline-flex; align-items: center; gap: 0.45rem; }
         .commission-banner-badge::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--orange-hot); box-shadow: 0 0 8px var(--orange-glow); animation: pulse 2s infinite; }
-        .commission-banner-title { font-family: var(--font-display); font-size: clamp(1.1rem, 2.2vw, 1.5rem); font-weight: 700; letter-spacing: -0.01em; line-height: 1.2; }
+        .commission-banner-title { font-family: var(--font-display); font-size: clamp(1.4rem, 2.8vw, 1.96rem); font-weight: 700; letter-spacing: -0.01em; line-height: 1.2; }
         .commission-banner-title .accent-text { background: linear-gradient(135deg, var(--orange-hot), var(--orange), var(--red-warm)); background-size: 200% 200%; -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; animation: gradientShift 6s ease infinite; }
-        .commission-banner-sub { font-size: 0.82rem; color: var(--text-muted); line-height: 1.4; transition: color var(--tr); }
+        .commission-banner-sub { font-size: 0.98rem; color: var(--text-muted); line-height: 1.4; transition: color var(--tr); }
         .commission-banner-cta {
             background: linear-gradient(135deg, var(--orange), var(--orange-deep));
             color: #fff; padding: 0.7rem 1.4rem; border-radius: 8px;
@@ -464,7 +464,7 @@
             .commission-banner { max-height: 340px; margin-top: 4.5rem; }
             .commission-banner.dismissed { margin-top: 0; }
             .commission-banner-inner { grid-template-columns: auto 1fr auto; gap: 0.75rem; padding: 0.85rem 0.9rem; }
-            .commission-banner-thumb { width: 40px; height: 40px; border-radius: 7px; border-width: 1.5px; }
+            .commission-banner-thumb { width: 56px; height: 56px; border-radius: 8px; border-width: 1.5px; }
             .commission-banner-thumb:nth-child(2) { transform: rotate(2deg) translateX(-6px); }
             .commission-banner-thumb:nth-child(3) { transform: rotate(-3deg) translateX(-12px); }
             .commission-banner-title { font-size: 0.92rem; }
@@ -520,7 +520,7 @@
             .link-card-icon { width: 38px; height: 38px; }
             .link-card-name { font-size: 0.85rem; }
             .link-card-desc { font-size: 0.68rem; line-height: 1.35; }
-            .commission-banner-thumb { width: 36px; height: 36px; }
+            .commission-banner-thumb { width: 48px; height: 48px; }
             .commission-banner-thumb:nth-child(2) { transform: rotate(2deg) translateX(-5px); }
             .commission-banner-thumb:nth-child(3) { transform: rotate(-3deg) translateX(-10px); }
             .commission-banner-title { font-size: 0.85rem; }
