@@ -460,11 +460,11 @@
             .nav-right { gap: 0.75rem; }
             .commission-banner { max-height: 340px; margin-top: 4.5rem; }
             .commission-banner.dismissed { margin-top: 0; }
-            .commission-banner-inner { grid-template-columns: auto 1fr auto; gap: 0.9rem; padding: 0.9rem 1rem; }
-            .commission-banner-thumb { width: 52px; height: 52px; border-radius: 8px; }
-            .commission-banner-thumb:nth-child(2) { display: none; }
-            .commission-banner-thumb:nth-child(3) { display: none; }
-            .commission-banner-title { font-size: 0.95rem; }
+            .commission-banner-inner { grid-template-columns: auto 1fr auto; gap: 0.75rem; padding: 0.85rem 0.9rem; }
+            .commission-banner-thumb { width: 40px; height: 40px; border-radius: 7px; border-width: 1.5px; }
+            .commission-banner-thumb:nth-child(2) { transform: rotate(2deg) translateX(-6px); }
+            .commission-banner-thumb:nth-child(3) { transform: rotate(-3deg) translateX(-12px); }
+            .commission-banner-title { font-size: 0.92rem; }
             .commission-banner-sub { display: none; }
             .commission-banner-cta { display: none; }
             .commission-banner-close { width: 28px; height: 28px; font-size: 1rem; }
@@ -474,9 +474,11 @@
             .nav-links.open { display: flex; flex-direction: column; position: absolute; top: 100%; left: 0; right: 0; background: var(--nav-bg); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); padding: 1.5rem; gap: 1rem; border-bottom: 1px solid var(--border); }
             .nav-links.open .mobile-cta-link { display: block !important; background: var(--orange); color: #fff; padding: 0.7rem 1.2rem; border-radius: 6px; font-weight: 600; text-align: center; margin-top: 0.5rem; }
             .stats { grid-template-columns: repeat(2, 1fr); }
-            .stat { border-right: none; }
+            .stat { border-right: none; padding: 1.75rem 0.75rem; min-width: 0; }
             .stat:nth-child(odd) { border-right: 1px solid var(--border); }
             .stat:nth-child(-n+2) { border-bottom: 1px solid var(--border); }
+            .stat-number { font-size: 1.85rem; word-break: break-word; }
+            .stat-label { font-size: 0.68rem; letter-spacing: 0.08em; line-height: 1.3; }
             .gallery-grid { grid-template-columns: 1fr; }
             .lightbox-image-area { padding: 3rem 0 0; }
             .lightbox-img { max-width: 100vw; max-height: 100%; border-radius: 0; }
@@ -507,11 +509,14 @@
             .hero h1 { font-size: 2.5rem; }
             .hero-actions { flex-direction: column; width: 100%; }
             .btn-primary, .btn-outline { text-align: center; }
-            .commission-modal-overlay { padding: 1rem; }
-            .commission-modal-inner { padding: 2rem 1.25rem 1.75rem; gap: 1.5rem; }
-            .commission-modal-images { height: 180px; }
-            .commission-modal-title { font-size: 1.6rem; }
-            .commission-modal-desc { font-size: 0.9rem; }
+            .stat { padding: 1.25rem 0.5rem; }
+            .stat-number { font-size: 1.55rem; }
+            .stat-label { font-size: 0.62rem; letter-spacing: 0.06em; }
+            .commission-banner-thumb { width: 36px; height: 36px; }
+            .commission-banner-thumb:nth-child(2) { transform: rotate(2deg) translateX(-5px); }
+            .commission-banner-thumb:nth-child(3) { transform: rotate(-3deg) translateX(-10px); }
+            .commission-banner-title { font-size: 0.85rem; }
+            .commission-banner-inner { padding: 0.75rem 0.75rem; gap: 0.6rem; }
             section { padding: 3.5rem 1.25rem; }
         }
     </style>
@@ -522,8 +527,8 @@
         <div class="commission-banner-inner">
             <div class="commission-banner-thumbs">
                 <div class="commission-banner-thumb"><img src="Images/Portfolio/Planter/thumbnail.png" alt=""></div>
+                <div class="commission-banner-thumb"><img src="Images/Portfolio/Desk_Organizer/Thumbnail.png" alt=""></div>
                 <div class="commission-banner-thumb"><img src="Images/Portfolio/Elegant_tulip/thumbnail.jpg" alt=""></div>
-                <div class="commission-banner-thumb"><img src="Images/Portfolio/HappyPot/Thumbnail.jpg" alt=""></div>
             </div>
             <div class="commission-banner-text">
                 <span class="commission-banner-badge">Commissions Open</span>
