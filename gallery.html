@@ -178,6 +178,18 @@
         </div>
 
         <div class="gallery-grid">
+            <div class="gallery-card" data-category="artistic" onclick="openLightbox('jeepkitcard')">
+                <div class="card-image">
+                    <span class="card-tag">Artistic</span>
+                    <img src="Images/Portfolio/Jeep_Kit_Card/Thumbnail.jpg" alt="Jeep Kit Card">
+                </div>
+                <div class="card-body">
+                    <div class="card-title">Jeep Kit Card</div>
+                    <div class="card-meta">PLA &bull; Bambu A1</div>
+                    <div class="card-credit">Design by <a href="https://makerworld.com/en/models/search?searchKeyword=agepbiz" target="_blank">agepbiz</a> via MakerWorld</div>
+                </div>
+            </div>
+
             <div class="gallery-card" data-category="artistic" onclick="openLightbox('planter')">
                 <div class="card-image">
                     <span class="card-tag">Artistic & Functional</span>
@@ -328,7 +340,8 @@
             eleganttulip: { title: 'Elegant Tulip', credit: 'Design by Crow_ck via MakerWorld', images: ['Images/Portfolio/Elegant_tulip/thumbnail.jpg','Images/Portfolio/Elegant_tulip/2.jpg','Images/Portfolio/Elegant_tulip/3.jpg','Images/Portfolio/Elegant_tulip/4.jpg','Images/Portfolio/Elegant_tulip/5.jpg','Images/Portfolio/Elegant_tulip/6.jpg','Images/Portfolio/Elegant_tulip/7.jpg','Images/Portfolio/Elegant_tulip/8.jpg'] },
             knittedcat: { title: 'Knitted Cat With Heart', credit: 'Design by Smoggy3D via MakerWorld', images: ['Images/Portfolio/Knitted_Cat/Thumbnail.jpg','Images/Portfolio/Knitted_Cat/2.JPG','Images/Portfolio/Knitted_Cat/3.JPG','Images/Portfolio/Knitted_Cat/4.jpg'] },
             knittedduck: { title: 'Knitted Duck', credit: 'Design by Smoggy3D via MakerWorld', images: ['Images/Portfolio/Knitted_duck/Thumbnail.jpg','Images/Portfolio/Knitted_duck/2.jpg','Images/Portfolio/Knitted_duck/3.jpg','Images/Portfolio/Knitted_duck/4.jpg'] },
-            pi3case: { title: 'Orange PI 3 LTS Case', credit: 'Design by skier3d via MakerWorld', images: ['Images/Portfolio/Pi_3_Case/thumbnail.jpg','Images/Portfolio/Pi_3_Case/2.jpg','Images/Portfolio/Pi_3_Case/3.jpg','Images/Portfolio/Pi_3_Case/4.jpg','Images/Portfolio/Pi_3_Case/5.jpg'] }
+            pi3case: { title: 'Orange PI 3 LTS Case', credit: 'Design by skier3d via MakerWorld', images: ['Images/Portfolio/Pi_3_Case/thumbnail.jpg','Images/Portfolio/Pi_3_Case/2.jpg','Images/Portfolio/Pi_3_Case/3.jpg','Images/Portfolio/Pi_3_Case/4.jpg','Images/Portfolio/Pi_3_Case/5.jpg'] },
+            jeepkitcard: { title: 'Jeep Kit Card', credit: 'Design by agepbiz via MakerWorld', images: ['Images/Portfolio/Jeep_Kit_Card/Thumbnail.jpg','Images/Portfolio/Jeep_Kit_Card/2.jpg','Images/Portfolio/Jeep_Kit_Card/3.jpg','Images/Portfolio/Jeep_Kit_Card/4.jpg','Images/Portfolio/Jeep_Kit_Card/5.jpg','Images/Portfolio/Jeep_Kit_Card/Instructions.webp'] }
         };
         let currentProject = null, currentIdx = 0;
         function openLightbox(k) { currentProject = projects[k]; if (!currentProject) return; currentIdx = 0; buildThumbs(); updateLightbox(); document.getElementById('lightbox').classList.add('active'); document.body.style.overflow = 'hidden'; }

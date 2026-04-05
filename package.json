@@ -1,0 +1,8 @@
+{
+  "name": "layer-lama-functions",
+  "version": "1.0.0",
+  "description": "Layer Lama Netlify serverless functions",
+  "dependencies": {
+    "nodemailer": "^6.9.13"
+  }
+}
