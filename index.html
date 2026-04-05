@@ -155,6 +155,8 @@
 
         /* ═══════ HERO ═══════ */
         .hero { min-height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 0 2rem; position: relative; overflow: hidden; }
+        body.banner-visible .hero { min-height: calc(100vh - 130px); }
+        @media (max-width: 768px) { body.banner-visible .hero { min-height: calc(100vh - 85px); } }
         .hero::before { content: ''; position: absolute; top: -20%; left: 50%; transform: translateX(-50%); width: 900px; height: 900px; background: radial-gradient(circle at 50% 50%, var(--glow-primary) 0%, transparent 55%); pointer-events: none; }
         .hero::after { content: ''; position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); width: 600px; height: 400px; background: radial-gradient(ellipse at 50% 100%, var(--glow-secondary) 0%, transparent 70%); pointer-events: none; opacity: 0.5; }
         .hero-badge { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1.2rem; border: 1px solid var(--border); border-radius: 100px; font-size: 0.8rem; color: var(--orange); margin-bottom: 2.5rem; letter-spacing: 0.08em; text-transform: uppercase; font-weight: 600; animation: fadeInUp 0.8s ease both; transition: border-color var(--tr); background: linear-gradient(135deg, transparent, rgba(232,129,43,0.03)); }
@@ -169,7 +171,7 @@
         .btn-primary:hover { background: linear-gradient(135deg, var(--orange-hot), var(--orange-light)); transform: translateY(-2px); box-shadow: 0 8px 32px var(--orange-glow), 0 2px 8px rgba(0,0,0,0.2); color: #000; }
         .btn-outline { background: transparent; color: var(--text); padding: 0.85rem 2rem; border-radius: 8px; font-weight: 600; font-size: 0.95rem; text-decoration: none; border: 1px solid var(--border); transition: all 0.3s; cursor: pointer; font-family: var(--font-body); }
         .btn-outline:hover { border-color: var(--orange); background: var(--orange); color: #000; box-shadow: 0 8px 24px var(--orange-glow); }
-        .scroll-indicator { position: absolute; bottom: 3.5rem; left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 0.4rem; color: var(--text-muted); font-size: 0.7rem; letter-spacing: 0.15em; text-transform: uppercase; animation: fadeInUp 0.8s ease 0.5s both; transition: opacity 0.4s; }
+        .scroll-indicator { position: absolute; bottom: 3rem; left: 0; right: 0; margin-inline: auto; width: fit-content; display: flex; flex-direction: column; align-items: center; gap: 0.4rem; color: var(--text-muted); font-size: 0.7rem; letter-spacing: 0.15em; text-transform: uppercase; animation: fadeInUp 0.8s ease 0.5s both; transition: opacity 0.4s; }
         .scroll-indicator.hidden { opacity: 0; pointer-events: none; }
         .scroll-line { width: 1px; height: 20px; background: linear-gradient(to bottom, var(--text-muted), transparent); animation: scrollPulse 2s infinite; }
         @keyframes scrollPulse { 0%, 100% { opacity: 0.5; transform: scaleY(1); } 50% { opacity: 1; transform: scaleY(0.6); } }
@@ -552,6 +554,7 @@
             if (dismissed) {
                 banner.classList.add('dismissed');
             } else {
+                document.body.classList.add('banner-visible');
                 // Auto-dismiss after 10 seconds
                 window.setTimeout(function() {
                     if (!banner.classList.contains('dismissed')) dismissCommissionBanner();
@@ -560,6 +563,7 @@
         })();
         function dismissCommissionBanner() {
             document.getElementById('commissionBanner').classList.add('dismissed');
+            document.body.classList.remove('banner-visible');
             try { sessionStorage.setItem('llBannerDismissed', '1'); } catch (e) {}
         }
     </script>
