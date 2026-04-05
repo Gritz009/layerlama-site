@@ -418,6 +418,7 @@
         }
         .commission-banner-thumbs { display: flex; align-items: center; flex-shrink: 0; }
         .commission-banner-thumb {
+            display: block; cursor: pointer; text-decoration: none;
             width: 72px; height: 72px; border-radius: 10px; overflow: hidden;
             border: 2px solid var(--border); box-shadow: 0 6px 20px rgba(0,0,0,0.25);
             transition: transform var(--tr), border-color var(--tr);
@@ -533,9 +534,9 @@
     <div class="commission-banner" id="commissionBanner" role="region" aria-label="Commissions open">
         <div class="commission-banner-inner">
             <div class="commission-banner-thumbs">
-                <div class="commission-banner-thumb"><img src="Images/Portfolio/Planter/thumbnail.png" alt=""></div>
-                <div class="commission-banner-thumb"><img src="Images/Portfolio/Desk_Organizer/Thumbnail.png" alt=""></div>
-                <div class="commission-banner-thumb"><img src="Images/Portfolio/Elegant_tulip/thumbnail.jpg" alt=""></div>
+                <a href="#portfolio" class="commission-banner-thumb" aria-label="View selected works"><img src="Images/Portfolio/Planter/thumbnail.png" alt=""></a>
+                <a href="#portfolio" class="commission-banner-thumb" aria-label="View selected works"><img src="Images/Portfolio/Desk_Organizer/Thumbnail.png" alt=""></a>
+                <a href="#portfolio" class="commission-banner-thumb" aria-label="View selected works"><img src="Images/Portfolio/Elegant_tulip/thumbnail.jpg" alt=""></a>
             </div>
             <div class="commission-banner-text">
                 <span class="commission-banner-badge">Commissions Open</span>
