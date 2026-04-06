@@ -150,6 +150,8 @@
         .toggle-icons { display: flex; justify-content: space-between; align-items: center; width: 100%; height: 100%; padding: 0 6px; font-size: 0.7rem; pointer-events: none; }
 
         .nav-cta { background: linear-gradient(135deg, var(--orange), var(--orange-deep)); color: #fff; padding: 0.6rem 1.4rem; border-radius: 6px; font-weight: 600; font-size: 0.85rem; text-decoration: none; letter-spacing: 0.03em; transition: all 0.3s; white-space: nowrap; }
+        .nav-ig { display: inline-flex; align-items: center; justify-content: center; width: 38px; height: 38px; border-radius: 10px; color: #fff; border: none; text-decoration: none; background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%); background-size: 200% 200%; animation: igGradient 5s ease infinite; box-shadow: 0 4px 14px rgba(220,39,67,0.35); transition: transform 0.3s ease, box-shadow 0.3s ease; }
+        .nav-ig:hover { transform: translateY(-2px) scale(1.08); box-shadow: 0 10px 24px rgba(220,39,67,0.5); }
         .nav-cta:hover { background: linear-gradient(135deg, var(--orange-hot), var(--orange)); transform: translateY(-1px); box-shadow: 0 4px 20px var(--orange-glow); color: #000; }
         .mobile-toggle { display: none; background: none; border: none; color: var(--text); font-size: 1.5rem; cursor: pointer; transition: color var(--tr); }
 
@@ -446,6 +448,14 @@
             font-family: var(--font-body);
         }
         .commission-banner-cta:hover { background: linear-gradient(135deg, var(--orange-hot), var(--orange-light)); transform: translateY(-1px); box-shadow: 0 6px 22px var(--orange-glow); color: #000; }
+        .commission-banner-ig { position: relative; display: inline-flex; align-items: center; gap: 0.55rem; padding: 0.75rem 1.25rem; border-radius: 100px; color: #fff; border: none; text-decoration: none; font-weight: 700; font-size: 0.88rem; letter-spacing: 0.03em; white-space: nowrap; background: linear-gradient(45deg, #f09433 0%, #e6683c 20%, #dc2743 45%, #cc2366 70%, #bc1888 100%); background-size: 200% 200%; animation: igGradient 5s ease infinite; box-shadow: 0 6px 20px rgba(220,39,67,0.4), 0 0 0 0 rgba(220,39,67,0.5); transition: transform 0.3s ease, box-shadow 0.3s ease; overflow: hidden; }
+        .commission-banner-ig::before { content: ''; position: absolute; inset: 0; border-radius: inherit; background: linear-gradient(120deg, transparent 30%, rgba(255,255,255,0.45) 50%, transparent 70%); transform: translateX(-100%); transition: transform 0.7s ease; }
+        .commission-banner-ig:hover { transform: translateY(-2px) scale(1.04); box-shadow: 0 12px 30px rgba(220,39,67,0.55), 0 0 0 4px rgba(220,39,67,0.15); }
+        .commission-banner-ig:hover::before { transform: translateX(100%); }
+        .commission-banner-ig svg { filter: drop-shadow(0 1px 2px rgba(0,0,0,0.25)); }
+        @keyframes igGradient { 0%,100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
+        @keyframes igPulse { 0%,100% { box-shadow: 0 6px 20px rgba(220,39,67,0.4), 0 0 0 0 rgba(220,39,67,0.5); } 50% { box-shadow: 0 6px 20px rgba(220,39,67,0.4), 0 0 0 8px rgba(220,39,67,0); } }
+        .commission-banner-ig { animation: igGradient 5s ease infinite, igPulse 2.4s ease-out infinite; }
         .commission-banner-close {
             background: transparent; border: 1px solid var(--border); color: var(--text-muted);
             width: 32px; height: 32px; border-radius: 50%; cursor: pointer;
@@ -470,6 +480,8 @@
             .commission-banner-title { font-size: 0.92rem; }
             .commission-banner-sub { display: none; }
             .commission-banner-cta { display: none; }
+            .commission-banner-ig span { display: none; }
+            .commission-banner-ig { padding: 0.55rem 0.65rem; }
             .commission-banner-close { width: 28px; height: 28px; font-size: 1rem; }
             .nav-links { display: none; }
             .nav-cta { display: none; }
@@ -543,30 +555,16 @@
                 <div class="commission-banner-title">Want something <span class="accent-text">printed?</span></div>
                 <div class="commission-banner-sub">Any colour, any size, any material — tell me what you need.</div>
             </div>
-            <a href="#contact" class="commission-banner-cta" onclick="dismissCommissionBanner()">Request a Print &rarr;</a>
-            <button class="commission-banner-close" onclick="dismissCommissionBanner()" aria-label="Dismiss banner">&times;</button>
+            <a href="#contact" class="commission-banner-cta">Request a Print &rarr;</a>
+            <a href="https://instagram.com/Layer_lama" target="_blank" rel="noopener" class="commission-banner-ig" aria-label="Follow @Layer_lama on Instagram">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
+                <span>Follow @Layer_lama</span>
+            </a>
         </div>
     </div>
     <script>
-        (function() {
-            var banner = document.getElementById('commissionBanner');
-            var dismissed = false;
-            try { dismissed = sessionStorage.getItem('llBannerDismissed') === '1'; } catch (e) {}
-            if (dismissed) {
-                banner.classList.add('dismissed');
-            } else {
-                document.body.classList.add('banner-visible');
-                // Auto-dismiss after 10 seconds
-                window.setTimeout(function() {
-                    if (!banner.classList.contains('dismissed')) dismissCommissionBanner();
-                }, 10000);
-            }
-        })();
-        function dismissCommissionBanner() {
-            document.getElementById('commissionBanner').classList.add('dismissed');
-            document.body.classList.remove('banner-visible');
-            try { sessionStorage.setItem('llBannerDismissed', '1'); } catch (e) {}
-        }
+        // Banner is permanent - always visible
+        document.body.classList.add('banner-visible');
     </script>
 
 
@@ -587,6 +585,9 @@
             </ul>
         </div>
         <div class="nav-right">
+            <a href="https://instagram.com/Layer_lama" target="_blank" rel="noopener" class="nav-ig" aria-label="Follow Layer Lama on Instagram">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
+            </a>
             <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
                 <span class="toggle-icons"><span>&#9790;</span><span>&#9728;</span></span>
             </button>
