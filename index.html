@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="pl" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <link rel="icon" type="image/x-icon" href="favicon.ico">
@@ -7,7 +7,7 @@
     <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png">
     <link rel="apple-touch-icon" sizes="192x192" href="icon-192.png">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Layer Lama — 3D Print Portfolio</title>
+    <title data-i18n="title.index">Layer Lama — 3D Print Portfolio</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -539,11 +539,20 @@
             .commission-banner-inner { padding: 0.75rem 0.75rem; gap: 0.6rem; }
             section { padding: 3.5rem 1.25rem; }
         }
+    
+        /* ═══════ Language Toggle ═══════ */
+        .lang-toggle { display: flex; align-items: center; gap: 0; border: 1px solid var(--border); border-radius: 100px; padding: 2px; background: var(--bg-card, transparent); }
+        .lang-btn { background: transparent; border: none; color: var(--text-muted); font-family: var(--font-body); font-size: 0.72rem; font-weight: 600; letter-spacing: 0.05em; padding: 0.32rem 0.65rem; border-radius: 100px; cursor: pointer; transition: all 0.3s; text-transform: uppercase; }
+        .lang-btn:hover { color: var(--text); }
+        .lang-btn.active { background: var(--orange); color: #fff; }
+
     </style>
+<style id="i18n-fouc">body{visibility:hidden}body.i18n-ready{visibility:visible}</style>
+    <script>setTimeout(function(){document.body&&document.body.classList.add('i18n-ready')},400);</script>
 </head>
 <body>
     <!-- ═══════ COMMISSION TOP BANNER ═══════ -->
-    <div class="commission-banner" id="commissionBanner" role="region" aria-label="Commissions open">
+    <div class="commission-banner" id="commissionBanner" role="region" aria-label="Commissions open" data-i18n-aria="aria.commissions">
         <div class="commission-banner-inner">
             <div class="commission-banner-thumbs">
                 <a href="#portfolio" class="commission-banner-thumb" aria-label="View selected works"><img src="Images/Portfolio/Planter/thumbnail.png" alt=""></a>
@@ -551,14 +560,14 @@
                 <a href="#portfolio" class="commission-banner-thumb" aria-label="View selected works"><img src="Images/Portfolio/Elegant_tulip/thumbnail.jpg" alt=""></a>
             </div>
             <div class="commission-banner-text">
-                <span class="commission-banner-badge">Commissions Open</span>
-                <div class="commission-banner-title">Want something <span class="accent-text">printed?</span></div>
-                <div class="commission-banner-sub">Any colour, any size, any material — tell me what you need.</div>
+                <span class="commission-banner-badge" data-i18n="banner.badge">Commissions Open</span>
+                <div class="commission-banner-title"><span data-i18n="banner.title_pre">Want something</span> <span class="accent-text" data-i18n="banner.title_accent">printed?</span></div>
+                <div class="commission-banner-sub" data-i18n="banner.sub">Any colour, any size, any material — tell me what you need.</div>
             </div>
-            <a href="#contact" class="commission-banner-cta">Request a Print &rarr;</a>
+            <a href="#contact" class="commission-banner-cta" data-i18n="banner.cta">Request a Print →</a>
             <a href="https://instagram.com/Layer_lama" target="_blank" rel="noopener" class="commission-banner-ig" aria-label="Follow @Layer_lama on Instagram">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
-                <span>Follow @Layer_lama</span>
+                <span data-i18n="banner.follow">Follow @Layer_lama</span>
             </a>
         </div>
     </div>
@@ -576,56 +585,57 @@
                 <span>Layer Lama</span>
             </a>
             <ul class="nav-links" id="navLinks">
-                <li><a href="#portfolio">Portfolio</a></li>
-                <li><a href="#about">Process</a></li>
-                <li><a href="#services">Services</a></li>
-                <li><a href="#setup">Setup</a></li>
-                <li><a href="#contact">Contact</a></li>
-                <li><a href="#contact" class="mobile-cta-link" style="display:none;">Get a Quote</a></li>
+                <li><a href="#portfolio" data-i18n="nav.portfolio">Portfolio</a></li>
+                <li><a href="#about" data-i18n="nav.process">Process</a></li>
+                <li><a href="#services" data-i18n="nav.services">Services</a></li>
+                <li><a href="#setup" data-i18n="nav.setup">Setup</a></li>
+                <li><a href="#contact" data-i18n="nav.contact">Contact</a></li>
+                <li><a href="#contact" class="mobile-cta-link" style="display:none;" data-i18n="nav.cta">Get a Quote</a></li>
             </ul>
         </div>
         <div class="nav-right">
-            <a href="https://instagram.com/Layer_lama" target="_blank" rel="noopener" class="nav-ig" aria-label="Follow Layer Lama on Instagram">
+            <a href="https://instagram.com/Layer_lama" target="_blank" rel="noopener" class="nav-ig" aria-label="Follow Layer Lama on Instagram" data-i18n-aria="aria.instagram">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
             </a>
-            <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+            <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme" data-i18n-aria="aria.theme">
                 <span class="toggle-icons"><span>&#9790;</span><span>&#9728;</span></span>
             </button>
-            <a href="#contact" class="nav-cta">Get a Quote</a>
+            <div class="lang-toggle" role="group" aria-label="Language" data-i18n-aria="aria.language"><button class="lang-btn" data-lang="pl" onclick="setLang('pl')">PL</button><button class="lang-btn" data-lang="en" onclick="setLang('en')">EN</button></div>
+            <a href="#contact" class="nav-cta" data-i18n="nav.cta">Get a Quote</a>
             <button class="mobile-toggle" id="mobileToggle">&#9776;</button>
         </div>
     </nav>
 
     <section class="hero">
-        <div class="hero-badge">Available for commissions</div>
-        <h1>Crafted in<br><span class="accent">Layers</span></h1>
-        <p class="hero-sub">Precision 3D printing for prototypes, models, art pieces, and functional parts. Every layer counts.</p>
+        <div class="hero-badge" data-i18n="hero.badge">Available for commissions</div>
+        <h1><span data-i18n="hero.title_pre">Crafted in</span><br><span class="accent" data-i18n="hero.title_accent">Layers</span></h1>
+        <p class="hero-sub" data-i18n="hero.sub">Precision 3D printing for prototypes, models, art pieces, and functional parts. Every layer counts.</p>
         <div class="hero-actions">
-            <a href="#portfolio" class="btn-primary">View Portfolio</a>
-            <a href="#contact" class="btn-outline">Get in Touch</a>
+            <a href="#portfolio" class="btn-primary" data-i18n="hero.btn_portfolio">View Portfolio</a>
+            <a href="#contact" class="btn-outline" data-i18n="hero.btn_contact">Get in Touch</a>
         </div>
-        <div class="scroll-indicator"><span>Scroll</span><div class="scroll-line"></div></div>
+        <div class="scroll-indicator"><span data-i18n="hero.scroll">Scroll</span><div class="scroll-line"></div></div>
     </section>
 
     <div class="section-divider"></div>
 
     <div class="stats">
-        <div class="stat reveal"><div class="stat-number" data-count="300">0</div><div class="stat-label">Prints Completed</div></div>
-        <div class="stat reveal"><div class="stat-number" data-count="5">0</div><div class="stat-label">Printers in Fleet</div></div>
-        <div class="stat reveal"><div class="stat-number" data-count="6">0</div><div class="stat-label">Materials Offered</div></div>
-        <div class="stat reveal"><div class="stat-number">0.05mm</div><div class="stat-label">Min Layer Height</div></div>
+        <div class="stat reveal"><div class="stat-number" data-count="300">0</div><div class="stat-label" data-i18n="stats.completed">Prints Completed</div></div>
+        <div class="stat reveal"><div class="stat-number" data-count="5">0</div><div class="stat-label" data-i18n="stats.printers">Printers in Fleet</div></div>
+        <div class="stat reveal"><div class="stat-number" data-count="6">0</div><div class="stat-label" data-i18n="stats.materials">Materials Offered</div></div>
+        <div class="stat reveal"><div class="stat-number">0.05mm</div><div class="stat-label" data-i18n="stats.layer">Min Layer Height</div></div>
     </div>
 
     <div class="section-divider"></div>
 
     <section id="portfolio">
-        <div class="section-header reveal"><span class="section-label">Portfolio</span><h2 class="section-title">Selected Works</h2><p class="section-desc">Recent 3D prints from the workshop. Click any project to explore all photos.</p><p class="section-note">All prints can be customised in different colours, materials, and sizes on request.</p></div>
+        <div class="section-header reveal"><span class="section-label" data-i18n="portfolio.label">Portfolio</span><h2 class="section-title" data-i18n="portfolio.title">Selected Works</h2><p class="section-desc" data-i18n="portfolio.desc">Recent 3D prints from the workshop. Click any project to explore all photos.</p><p class="section-note" data-i18n="portfolio.note">All prints can be customised in different colours, materials, and sizes on request.</p></div>
 
         <div class="gallery-grid gallery-grid--featured">
             <!-- Jeep Kit Card -->
             <div class="gallery-card reveal" data-category="artistic" onclick="openLightbox('jeepkitcard')">
                 <div class="card-image">
-                    <span class="card-tag">Artistic</span>
+                    <span class="card-tag" data-i18n="tag.artistic">Artistic</span>
                     <img src="Images/Portfolio/Jeep_Kit_Card/Thumbnail.jpg" alt="Jeep Kit Card" style="width:100%;height:100%;object-fit:cover;position:relative;z-index:1;">
                 </div>
                 <div class="card-body">
@@ -638,7 +648,7 @@
             <!-- Polygon Planter -->
             <div class="gallery-card reveal" data-category="artistic" onclick="openLightbox('planter')">
                 <div class="card-image">
-                    <span class="card-tag">Artistic & Functional</span>
+                    <span class="card-tag" data-i18n="tag.artistic_functional">Artistic & Functional</span>
                     <img src="Images/Portfolio/Planter/thumbnail.png" alt="Polygon Planter" style="width:100%;height:100%;object-fit:cover;position:relative;z-index:1;">
                 </div>
                 <div class="card-body">
@@ -651,7 +661,7 @@
             <!-- Happy Pot -->
             <div class="gallery-card reveal" data-category="artistic" onclick="openLightbox('happypot')">
                 <div class="card-image">
-                    <span class="card-tag">Artistic & Functional</span>
+                    <span class="card-tag" data-i18n="tag.artistic_functional">Artistic & Functional</span>
                     <img src="Images/Portfolio/HappyPot/Thumbnail.jpg" alt="Happy Pot" style="width:100%;height:100%;object-fit:cover;position:relative;z-index:1;">
                 </div>
                 <div class="card-body">
@@ -664,7 +674,7 @@
             <!-- Modular Desk Organizer -->
             <div class="gallery-card reveal" data-category="functional" onclick="openLightbox('deskorganizer')">
                 <div class="card-image">
-                    <span class="card-tag">Functional</span>
+                    <span class="card-tag" data-i18n="tag.functional">Functional</span>
                     <img src="Images/Portfolio/Desk_Organizer/Thumbnail.png" alt="Modular Desk Organizer" style="width:100%;height:100%;object-fit:cover;position:relative;z-index:1;">
                 </div>
                 <div class="card-body">
@@ -677,7 +687,7 @@
             <!-- Orange PI 3 LTS Case — Prototyping example, always visible -->
             <div class="gallery-card reveal" data-category="prototypes" onclick="openLightbox('pi3case')">
                 <div class="card-image">
-                    <span class="card-tag">Prototyping</span>
+                    <span class="card-tag" data-i18n="tag.prototyping">Prototyping</span>
                     <img src="Images/Portfolio/Pi_3_Case/thumbnail.jpg" alt="Orange PI 3 LTS Case" style="width:100%;height:100%;object-fit:cover;position:relative;z-index:1;">
                 </div>
                 <div class="card-body">
@@ -691,7 +701,7 @@
             <!-- Flexi Cat Toy -->
             <div class="gallery-card extra-6 reveal" data-category="artistic" onclick="openLightbox('flexicat')">
                 <div class="card-image">
-                    <span class="card-tag">Artistic · Miniatures</span>
+                    <span class="card-tag" data-i18n="tag.artistic_miniatures">Artistic · Miniatures</span>
                     <img src="Images/Portfolio/Flexi_Cat/thumbnail.png" alt="Flexi Cat Toy" style="width:100%;height:100%;object-fit:cover;position:relative;z-index:1;">
                 </div>
                 <div class="card-body">
@@ -704,7 +714,7 @@
             <!-- Elegant Tulip -->
             <div class="gallery-card extra-6 reveal" data-category="artistic" onclick="openLightbox('eleganttulip')">
                 <div class="card-image">
-                    <span class="card-tag">Artistic</span>
+                    <span class="card-tag" data-i18n="tag.artistic">Artistic</span>
                     <img src="Images/Portfolio/Elegant_tulip/thumbnail.jpg" alt="Elegant Tulip" style="width:100%;height:100%;object-fit:cover;position:relative;z-index:1;">
                 </div>
                 <div class="card-body">
@@ -717,7 +727,7 @@
             <!-- Surprise Egg -->
             <div class="gallery-card extra-8 reveal" data-category="artistic" onclick="openLightbox('easteregg')">
                 <div class="card-image">
-                    <span class="card-tag">Artistic · Miniatures</span>
+                    <span class="card-tag" data-i18n="tag.artistic_miniatures">Artistic · Miniatures</span>
                     <img src="Images/Portfolio/Easter_Egg/thumbnail.webp" alt="Surprise Egg" style="width:100%;height:100%;object-fit:cover;position:relative;z-index:1;">
                 </div>
                 <div class="card-body">
@@ -729,90 +739,90 @@
         </div>
 
         <div class="view-all-wrapper reveal">
-            <a href="gallery.html" class="btn-view-all">View All Projects &rarr;</a>
+            <a href="gallery.html" class="btn-view-all" data-i18n="portfolio.viewall">View All Projects →</a>
         </div>
     </section>
 
     <div class="section-divider"></div>
 
     <section id="about">
-        <div class="section-header reveal"><span class="section-label">Process</span><h2 class="section-title">From Concept to Print</h2><p class="section-desc">Every project follows a refined workflow to deliver prints that exceed expectations.</p></div>
+        <div class="section-header reveal"><span class="section-label" data-i18n="process.label">Process</span><h2 class="section-title" data-i18n="process.title">From Concept to Print</h2><p class="section-desc" data-i18n="process.desc">Every project follows a refined workflow to deliver prints that exceed expectations.</p></div>
         <div class="process-grid">
-            <div class="process-step reveal"><div class="step-number">01</div><div class="step-icon">&#128172;</div><div class="step-title">Consultation</div><div class="step-desc">We discuss your vision, requirements, and constraints. I recommend the best material and approach for your project.</div></div>
-            <div class="process-step reveal"><div class="step-number">02</div><div class="step-icon">&#9998;</div><div class="step-title">Design & Slice</div><div class="step-desc">Models are optimized for 3D printing — wall thickness, supports, infill, and orientation are tuned for quality.</div></div>
-            <div class="process-step reveal"><div class="step-number">03</div><div class="step-icon">&#9881;</div><div class="step-title">Print & Finish</div><div class="step-desc">Prints are monitored for quality. Post-processing includes support removal, sanding, and optional painting or coating.</div></div>
+            <div class="process-step reveal"><div class="step-number">01</div><div class="step-icon">&#128172;</div><div class="step-title" data-i18n="process.s1.title">Consultation</div><div class="step-desc" data-i18n="process.s1.desc">We discuss your vision, requirements, and constraints. I recommend the best material and approach for your project.</div></div>
+            <div class="process-step reveal"><div class="step-number">02</div><div class="step-icon">&#9998;</div><div class="step-title" data-i18n="process.s2.title">Design & Slice</div><div class="step-desc" data-i18n="process.s2.desc">Models are optimized for 3D printing — wall thickness, supports, infill, and orientation are tuned for quality.</div></div>
+            <div class="process-step reveal"><div class="step-number">03</div><div class="step-icon">&#9881;</div><div class="step-title" data-i18n="process.s3.title">Print & Finish</div><div class="step-desc" data-i18n="process.s3.desc">Prints are monitored for quality. Post-processing includes support removal, sanding, and optional painting or coating.</div></div>
         </div>
     </section>
 
     <div class="section-divider"></div>
 
     <section id="services">
-        <div class="section-header reveal"><span class="section-label">Services</span><h2 class="section-title">What I Offer</h2><p class="section-desc">From one-off prints to small production runs, Layer Lama has you covered.</p></div>
+        <div class="section-header reveal"><span class="section-label" data-i18n="services.label">Services</span><h2 class="section-title" data-i18n="services.title">What I Offer</h2><p class="section-desc" data-i18n="services.desc">From one-off prints to small production runs, Layer Lama has you covered.</p></div>
         <div class="services-grid">
-            <div class="service-card reveal"><div class="service-icon">&#128230;</div><div class="service-title">Custom Prints</div><div class="service-desc">Send your STL or 3MF file and choose your material, color, and finish. Fast turnaround on single prints or batches using our fleet of Bambu Lab and Creality printers.</div></div>
-            <div class="service-card reveal"><div class="service-icon">&#128736;</div><div class="service-title">Prototyping</div><div class="service-desc">Rapid iteration on product enclosures, mechanical parts, and custom fittings. PLA-CF and ASA available for engineering-grade strength. Design feedback included.</div></div>
-            <div class="service-card reveal"><div class="service-icon">&#127912;</div><div class="service-title">Art & Décor</div><div class="service-desc">Sculptural pieces, vases, lithophanes, and decorative objects. Unique gifts and home accents printed to order in a variety of colors and finishes.</div></div>
-            <div class="service-card reveal"><div class="service-icon">&#128187;</div><div class="service-title">Design + Print</div><div class="service-desc">Don't have a 3D model? No problem. We can design print-ready models from sketches, photos, or descriptions — and bring them to life.</div></div>
-            <div class="service-card reveal"><div class="service-icon">&#9812;</div><div class="service-title">Miniatures & Gaming</div><div class="service-desc">High-detail resin prints for tabletop gaming, D&D characters, terrain pieces, and collectible miniatures at 0.05mm layer resolution.</div></div>
-            <div class="service-card reveal"><div class="service-icon">&#127891;</div><div class="service-title">Workshops & Education</div><div class="service-desc">Introduction to the world of 3D printing. Hands-on demos, printer walkthroughs, and workshops for beginners, schools, and businesses looking to explore additive manufacturing.</div></div>
+            <div class="service-card reveal"><div class="service-icon">&#128230;</div><div class="service-title" data-i18n="svc.custom.title">Custom Prints</div><div class="service-desc" data-i18n="svc.custom.desc">Send your STL or 3MF file and choose your material, color, and finish. Fast turnaround on single prints or batches using our fleet of Bambu Lab and Creality printers.</div></div>
+            <div class="service-card reveal"><div class="service-icon">&#128736;</div><div class="service-title" data-i18n="svc.proto.title">Prototyping</div><div class="service-desc" data-i18n="svc.proto.desc">Rapid iteration on product enclosures, mechanical parts, and custom fittings. PLA-CF and ASA available for engineering-grade strength. Design feedback included.</div></div>
+            <div class="service-card reveal"><div class="service-icon">&#127912;</div><div class="service-title" data-i18n="svc.art.title">Art & Décor</div><div class="service-desc" data-i18n="svc.art.desc">Sculptural pieces, vases, lithophanes, and decorative objects. Unique gifts and home accents printed to order in a variety of colors and finishes.</div></div>
+            <div class="service-card reveal"><div class="service-icon">&#128187;</div><div class="service-title" data-i18n="svc.design.title">Design + Print</div><div class="service-desc" data-i18n="svc.design.desc">Don't have a 3D model? No problem. We can design print-ready models from sketches, photos, or descriptions — and bring them to life.</div></div>
+            <div class="service-card reveal"><div class="service-icon">&#9812;</div><div class="service-title" data-i18n="svc.mini.title">Miniatures & Gaming</div><div class="service-desc" data-i18n="svc.mini.desc">High-detail resin prints for tabletop gaming, D&D characters, terrain pieces, and collectible miniatures at 0.05mm layer resolution.</div></div>
+            <div class="service-card reveal"><div class="service-icon">&#127891;</div><div class="service-title" data-i18n="svc.workshop.title">Workshops & Education</div><div class="service-desc" data-i18n="svc.workshop.desc">Introduction to the world of 3D printing. Hands-on demos, printer walkthroughs, and workshops for beginners, schools, and businesses looking to explore additive manufacturing.</div></div>
         </div>
     </section>
 
     <div class="section-divider"></div>
 
     <section id="setup">
-        <div class="section-header reveal"><span class="section-label">Setup</span><h2 class="section-title">The Fleet</h2><p class="section-desc">5 printers, 6 materials, and the precision to match any project requirement.</p></div>
+        <div class="section-header reveal"><span class="section-label" data-i18n="setup.label">Setup</span><h2 class="section-title" data-i18n="setup.title">The Fleet</h2><p class="section-desc" data-i18n="setup.desc">5 printers, 6 materials, and the precision to match any project requirement.</p></div>
         <div class="specs-grid">
             <div class="spec-card reveal">
                 <div class="spec-icon">&#128424;</div>
-                <div class="spec-type">FDM Printer</div>
+                <div class="spec-type" data-i18n="spec.fdm">FDM Printer</div>
                 <div class="spec-name">Bambu Lab P1S</div>
-                <div class="spec-detail">Enclosed high-speed CoreXY printer. Multi-color capability with AMS. Ideal for engineering parts and multi-material prints.</div>
+                <div class="spec-detail" data-i18n="spec.p1s.desc">Enclosed high-speed CoreXY printer. Multi-color capability with AMS. Ideal for engineering parts and multi-material prints.</div>
                 <div class="spec-badges"><span class="spec-badge">256×256×256mm</span><span class="spec-badge">Multi-color</span><span class="spec-badge">500mm/s</span><span class="spec-badge">Enclosed</span></div>
             </div>
             <div class="spec-card reveal">
                 <div class="spec-icon">&#128424;</div>
-                <div class="spec-type">FDM Printer</div>
+                <div class="spec-type" data-i18n="spec.fdm">FDM Printer</div>
                 <div class="spec-name">Bambu Lab A1</div>
-                <div class="spec-detail">Open-frame printer with AMS Lite support. Excellent for large batches and multi-material projects with fast turnaround.</div>
+                <div class="spec-detail" data-i18n="spec.a1.desc">Open-frame printer with AMS Lite support. Excellent for large batches and multi-material projects with fast turnaround.</div>
                 <div class="spec-badges"><span class="spec-badge">256×256×256mm</span><span class="spec-badge">AMS Lite</span><span class="spec-badge">500mm/s</span></div>
             </div>
             <div class="spec-card reveal">
                 <div class="spec-icon">&#128424;</div>
-                <div class="spec-type">FDM Printer</div>
+                <div class="spec-type" data-i18n="spec.fdm">FDM Printer</div>
                 <div class="spec-name">Bambu Lab A1 Mini</div>
-                <div class="spec-detail">Compact printer for small precision parts, miniatures, and quick prototypes. Full AMS color support in a small footprint.</div>
+                <div class="spec-detail" data-i18n="spec.a1mini.desc">Compact printer for small precision parts, miniatures, and quick prototypes. Full AMS color support in a small footprint.</div>
                 <div class="spec-badges"><span class="spec-badge">180×180×180mm</span><span class="spec-badge">AMS Lite</span><span class="spec-badge">Compact</span></div>
             </div>
             <div class="spec-card reveal">
                 <div class="spec-icon">&#128424;</div>
-                <div class="spec-type">FDM Printer</div>
+                <div class="spec-type" data-i18n="spec.fdm">FDM Printer</div>
                 <div class="spec-name">Creality Ender 3</div>
-                <div class="spec-detail">Battle-tested workhorse printer. Reliable for large functional prints, enclosures, and prototyping where volume matters.</div>
+                <div class="spec-detail" data-i18n="spec.ender.desc">Battle-tested workhorse printer. Reliable for large functional prints, enclosures, and prototyping where volume matters.</div>
                 <div class="spec-badges"><span class="spec-badge">220×220×250mm</span><span class="spec-badge">Open Source</span><span class="spec-badge">Reliable</span></div>
             </div>
             <div class="spec-card reveal">
                 <div class="spec-icon">&#128300;</div>
-                <div class="spec-type">Resin Printer</div>
+                <div class="spec-type" data-i18n="spec.resin">Resin Printer</div>
                 <div class="spec-name">Creality LD-002H</div>
-                <div class="spec-detail">UV resin printer for ultra-detail work. Perfect for miniatures, jewelry masters, dental models, and anything requiring 0.05mm resolution.</div>
+                <div class="spec-detail" data-i18n="spec.ld002h.desc">UV resin printer for ultra-detail work. Perfect for miniatures, jewelry masters, dental models, and anything requiring 0.05mm resolution.</div>
                 <div class="spec-badges"><span class="spec-badge">0.05mm Layers</span><span class="spec-badge">2K LCD</span><span class="spec-badge">Ultra Detail</span></div>
             </div>
             <div class="spec-card reveal" style="display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;background:linear-gradient(135deg, rgba(232,129,43,0.06), rgba(232,129,43,0.02));">
                 <div class="spec-icon">&#9889;</div>
-                <div class="spec-name" style="font-size:2rem;">5 Printers</div>
-                <div class="spec-detail" style="font-size:1rem;">Ready to handle any project,<br>from single prints to batch runs</div>
+                <div class="spec-name" style="font-size:2rem;" data-i18n="spec.5printers.title">5 Printers</div>
+                <div class="spec-detail" style="font-size:1rem;" data-i18n="spec.5printers.sub">Ready to handle any project,<br>from single prints to batch runs</div>
             </div>
         </div>
 
         <div class="specs-grid" style="margin-top:1.5rem;">
             <div class="spec-card materials-card reveal">
-                <div class="material-item"><div style="font-size:1.8rem;">&#9898;</div><div class="material-name">PLA</div><div class="material-desc">Standard &amp; easy</div></div>
-                <div class="material-item"><div style="font-size:1.8rem;">&#128167;</div><div class="material-name">PETG</div><div class="material-desc">Water resistant</div></div>
-                <div class="material-item"><div style="font-size:1.8rem;">&#128293;</div><div class="material-name">ABS</div><div class="material-desc">Heat resistant</div></div>
-                <div class="material-item"><div style="font-size:1.8rem;">&#9728;&#65039;</div><div class="material-name">ASA</div><div class="material-desc">UV &amp; outdoor</div></div>
-                <div class="material-item"><div style="font-size:1.8rem;">&#128170;</div><div class="material-name">PLA-CF</div><div class="material-desc">Carbon fibre</div></div>
-                <div class="material-item"><div style="font-size:1.8rem;">&#128142;</div><div class="material-name">Resin</div><div class="material-desc">Ultra detail</div></div>
+                <div class="material-item"><div style="font-size:1.8rem;">&#9898;</div><div class="material-name">PLA</div><div class="material-desc" data-i18n="mat.pla">Standard &amp; easy</div></div>
+                <div class="material-item"><div style="font-size:1.8rem;">&#128167;</div><div class="material-name">PETG</div><div class="material-desc" data-i18n="mat.petg">Water resistant</div></div>
+                <div class="material-item"><div style="font-size:1.8rem;">&#128293;</div><div class="material-name">ABS</div><div class="material-desc" data-i18n="mat.abs">Heat resistant</div></div>
+                <div class="material-item"><div style="font-size:1.8rem;">&#9728;&#65039;</div><div class="material-name">ASA</div><div class="material-desc" data-i18n="mat.asa">UV &amp; outdoor</div></div>
+                <div class="material-item"><div style="font-size:1.8rem;">&#128170;</div><div class="material-name">PLA-CF</div><div class="material-desc" data-i18n="mat.placf">Carbon fibre</div></div>
+                <div class="material-item"><div style="font-size:1.8rem;">&#128142;</div><div class="material-name">Resin</div><div class="material-desc" data-i18n="mat.resin">Ultra detail</div></div>
             </div>
         </div>
     </section>
@@ -820,47 +830,47 @@
     <div class="section-divider"></div>
 
     <section id="resources">
-        <div class="section-header reveal"><span class="section-label">Explore</span><h2 class="section-title">3D Printing Resources</h2><p class="section-desc">Discover models, communities, and tools from the 3D printing world.</p></div>
+        <div class="section-header reveal"><span class="section-label" data-i18n="res.label">Explore</span><h2 class="section-title" data-i18n="res.title">3D Printing Resources</h2><p class="section-desc" data-i18n="res.desc">Discover models, communities, and tools from the 3D printing world.</p></div>
         <div class="links-grid">
             <a href="https://makerworld.com" target="_blank" class="link-card reveal">
                 <div class="link-card-icon"><img src="https://cdn.makerworld.com/favicon.ico" alt="MakerWorld" onerror="this.src='https://www.google.com/s2/favicons?domain=makerworld.com&sz=64'"></div>
                 <div class="link-card-name">MakerWorld</div>
-                <div class="link-card-desc">Bambu Lab's model library with free 3D print files</div>
+                <div class="link-card-desc" data-i18n="res.makerworld">Bambu Lab's model library with free 3D print files</div>
             </a>
             <a href="https://www.yeggi.com" target="_blank" class="link-card reveal">
                 <div class="link-card-icon"><img src="https://www.google.com/s2/favicons?domain=yeggi.com&sz=64" alt="Yeggi"></div>
                 <div class="link-card-name">Yeggi</div>
-                <div class="link-card-desc">Search engine for 3D printable models across all platforms</div>
+                <div class="link-card-desc" data-i18n="res.yeggi">Search engine for 3D printable models across all platforms</div>
             </a>
             <a href="https://www.thingiverse.com" target="_blank" class="link-card reveal">
                 <div class="link-card-icon"><img src="https://www.google.com/s2/favicons?domain=thingiverse.com&sz=64" alt="Thingiverse"></div>
                 <div class="link-card-name">Thingiverse</div>
-                <div class="link-card-desc">One of the original 3D model libraries — merging with MyMiniFactory</div>
+                <div class="link-card-desc" data-i18n="res.thingiverse">One of the original 3D model libraries — merging with MyMiniFactory</div>
             </a>
             <a href="https://www.printables.com" target="_blank" class="link-card reveal">
                 <div class="link-card-icon"><img src="https://www.google.com/s2/favicons?domain=printables.com&sz=64" alt="Printables"></div>
                 <div class="link-card-name">Printables</div>
-                <div class="link-card-desc">Prusa's community platform for sharing and discovering models</div>
+                <div class="link-card-desc" data-i18n="res.printables">Prusa's community platform for sharing and discovering models</div>
             </a>
             <a href="https://thangs.com" target="_blank" class="link-card reveal">
                 <div class="link-card-icon"><img src="https://www.google.com/s2/favicons?domain=thangs.com&sz=64" alt="Thangs"></div>
                 <div class="link-card-name">Thangs</div>
-                <div class="link-card-desc">3D model search engine across multiple platforms</div>
+                <div class="link-card-desc" data-i18n="res.thangs">3D model search engine across multiple platforms</div>
             </a>
             <a href="https://cults3d.com" target="_blank" class="link-card reveal">
                 <div class="link-card-icon"><img src="https://www.google.com/s2/favicons?domain=cults3d.com&sz=64" alt="Cults3D"></div>
                 <div class="link-card-name">Cults3D</div>
-                <div class="link-card-desc">Marketplace for free and premium 3D printing files</div>
+                <div class="link-card-desc" data-i18n="res.cults3d">Marketplace for free and premium 3D printing files</div>
             </a>
             <a href="https://www.crealitycloud.com" target="_blank" class="link-card reveal">
                 <div class="link-card-icon"><img src="data:image/png;base64,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" alt="Creality Cloud"></div>
                 <div class="link-card-name">Creality Cloud</div>
-                <div class="link-card-desc">Creality's model library, slicer, and printing community</div>
+                <div class="link-card-desc" data-i18n="res.creality">Creality's model library, slicer, and printing community</div>
             </a>
             <a href="https://www.myminifactory.com" target="_blank" class="link-card reveal">
                 <div class="link-card-icon"><img src="https://www.google.com/s2/favicons?domain=myminifactory.com&sz=64" alt="MyMiniFactory"></div>
                 <div class="link-card-name">MyMiniFactory</div>
-                <div class="link-card-desc">Curated miniatures and printable designs — merging with Thingiverse</div>
+                <div class="link-card-desc" data-i18n="res.myminifactory">Curated miniatures and printable designs — merging with Thingiverse</div>
             </a>
         </div>
     </section>
@@ -868,31 +878,31 @@
     <div class="section-divider"></div>
 
     <section id="contact">
-        <div class="section-header reveal"><span class="section-label">Contact</span><h2 class="section-title">Start a Project</h2><p class="section-desc">Have an idea or a file ready to print? Drop me a message and let's make it real.</p></div>
+        <div class="section-header reveal"><span class="section-label" data-i18n="contact.label">Contact</span><h2 class="section-title" data-i18n="contact.title">Start a Project</h2><p class="section-desc" data-i18n="contact.desc">Have an idea or a file ready to print? Drop me a message and let's make it real.</p></div>
         <div class="contact-wrapper reveal">
             <form class="contact-form" name="contact" method="POST" data-netlify="true" netlify-honeypot="bot-field" onsubmit="handleSubmit(event)">
                 <input type="hidden" name="form-name" value="contact">
                 <p style="display:none"><label>Don't fill this out: <input name="bot-field"></label></p>
                 <div class="form-row">
-                    <div class="form-group"><label>Name</label><input type="text" name="name" placeholder="Your name" required></div>
-                    <div class="form-group"><label>Email</label><input type="email" name="email" placeholder="you@email.com" required></div>
+                    <div class="form-group"><label data-i18n="form.name">Name</label><input type="text" name="name" placeholder="Your name" data-i18n-placeholder="form.ph.name" required></div>
+                    <div class="form-group"><label data-i18n="form.email">Email</label><input type="email" name="email" placeholder="you@email.com" data-i18n-placeholder="form.ph.email" required></div>
                 </div>
-                <div class="form-group"><label>Project Type</label><select name="project-type"><option>Custom Print (I have a file)</option><option>Design + Print (from scratch)</option><option>Prototype / Iteration</option><option>Art & Décor</option><option>Miniatures & Gaming</option><option>Workshop / Education</option><option>Other</option></select></div>
-                <div class="form-group"><label>Project Details</label><textarea name="details" placeholder="Describe your project, material preferences, quantity, deadline..."></textarea></div>
-                <div class="form-group"><label>Reference Links <span style="font-weight:400;opacity:0.6">(optional)</span></label><textarea name="reference-links" placeholder="Paste links to reference images, MakerWorld models, Thingiverse files, or any inspiration URLs — one per line" style="min-height:70px;"></textarea></div>
+                <div class="form-group"><label data-i18n="form.project_type">Project Type</label><select name="project-type"><option value="Custom Print (I have a file)" data-i18n="form.opt.custom">Custom Print (I have a file)</option><option value="Design + Print (from scratch)" data-i18n="form.opt.design">Design + Print (from scratch)</option><option value="Prototype / Iteration" data-i18n="form.opt.proto">Prototype / Iteration</option><option value="Art &amp; Décor" data-i18n="form.opt.art">Art &amp; Décor</option><option value="Miniatures &amp; Gaming" data-i18n="form.opt.mini">Miniatures &amp; Gaming</option><option value="Workshop / Education" data-i18n="form.opt.workshop">Workshop / Education</option><option value="Other" data-i18n="form.opt.other">Other</option></select></div>
+                <div class="form-group"><label data-i18n="form.details">Project Details</label><textarea name="details" placeholder="Describe your project, material preferences, quantity, deadline..." data-i18n-placeholder="form.ph.details"></textarea></div>
+                <div class="form-group"><label><span data-i18n="form.ref_links">Reference Links</span> <span style="font-weight:400;opacity:0.6" data-i18n="form.optional">(optional)</span></label><textarea name="reference-links" placeholder="Paste links to reference images, MakerWorld models, Thingiverse files, or any inspiration URLs — one per line" data-i18n-placeholder="form.ph.ref" style="min-height:70px;"></textarea></div>
                 <div class="form-group">
-                    <label>Attachments <span style="font-weight:400;opacity:0.6">(optional — images, STL, F3D, 3MF, PDF, etc.)</span></label>
+                    <label><span data-i18n="form.attachments">Attachments</span> <span style="font-weight:400;opacity:0.6" data-i18n="form.attachments_opt">(optional — images, STL, F3D, 3MF, PDF, etc.)</span></label>
                     <div class="file-upload-area" id="fileUploadArea">
                         <input type="file" name="attachments" id="fileInput" multiple accept="image/*,.stl,.3mf,.obj,.step,.stp,.f3d,.scad,.gcode,.pdf,.zip,.rar,.7z" style="display:none;">
                         <div class="file-upload-prompt" id="filePrompt" onclick="document.getElementById('fileInput').click()">
                             <span class="file-upload-icon">&#128206;</span>
-                            <span>Click to browse or drag & drop files here</span>
-                            <span class="file-upload-hint">Images, 3D files (STL, F3D, 3MF, OBJ, STEP), PDF, ZIP — max 10MB each</span>
+                            <span data-i18n="form.upload_prompt">Click to browse or drag &amp; drop files here</span>
+                            <span class="file-upload-hint" data-i18n="form.upload_hint">Images, 3D files (STL, F3D, 3MF, OBJ, STEP), PDF, ZIP — max 10MB each</span>
                         </div>
                         <div class="file-list" id="fileList"></div>
                     </div>
                 </div>
-                <button type="submit" class="form-submit">Send Message</button>
+                <button type="submit" class="form-submit" data-i18n="form.submit">Send Message</button>
             </form>
             <div class="contact-links">
                 <a href="/cdn-cgi/l/email-protection#026e637b67706e636f63323342656f636b6e2c616d6f" class="contact-link"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg> <span class="__cf_email__" data-cfemail="513d302834233d303c30616011363c30383d7f323e3c">[email&#160;protected]</span></a>
@@ -911,7 +921,7 @@
             <img src="data:image/png;base64,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" alt="Layer Lama" class="logo-light">
             <span>Layer Lama</span>
                 </div>
-                <p class="footer-bio">Precision 3D printing service based in Europe. From prototypes to art pieces, every layer counts.</p>
+                <p class="footer-bio" data-i18n="footer.bio">Precision 3D printing service based in Europe. From prototypes to art pieces, every layer counts.</p>
             </div>
             <div class="footer-socials">
                 <a href="/cdn-cgi/l/email-protection#2e424f574b5c424f434f1e1f6e49434f4742004d4143" class="footer-social" title="Email"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg></a>
@@ -920,7 +930,7 @@
                 <a href="https://layerlama.com" class="footer-social" title="Website"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></a>
             </div>
         </div>
-        <div class="footer-bottom">&copy; 2026 Layer Lama. All rights reserved.</div>
+        <div class="footer-bottom" data-i18n="footer.bottom">&copy; 2026 Layer Lama. All rights reserved.</div>
     </footer>
 
     <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
@@ -997,7 +1007,7 @@
             e.preventDefault();
             const form = e.target;
             const btn = form.querySelector('.form-submit');
-            btn.textContent = 'Sending...';
+            btn.textContent = (window.t ? t('form.sending') : 'Sending...');
             btn.disabled = true;
 
             const formData = new FormData(form);
@@ -1008,9 +1018,9 @@
                 // Upload files directly to Cloudinary from browser
                 const uploadedFiles = [];
                 if (selectedFiles.length > 0) {
-                    btn.textContent = 'Uploading files (0/' + selectedFiles.length + ')...';
+                    btn.textContent = (window.t ? t('form.uploading') : 'Uploading files') + ' (0/' + selectedFiles.length + ')...';
                     for (let i = 0; i < selectedFiles.length; i++) {
-                        btn.textContent = 'Uploading files (' + (i + 1) + '/' + selectedFiles.length + ')...';
+                        btn.textContent = (window.t ? t('form.uploading') : 'Uploading files') + ' (' + (i + 1) + '/' + selectedFiles.length + ')...';
                         try {
                             const result = await uploadToCloudinary(selectedFiles[i]);
                             uploadedFiles.push(result);
@@ -1025,7 +1035,7 @@
                 jsonData.attachment_names = selectedFiles.map(f => f.name + ' (' + (f.size / 1024).toFixed(0) + 'KB)').join(', ');
                 jsonData.attachment_count = selectedFiles.length;
 
-                btn.textContent = 'Sending request...';
+                btn.textContent = (window.t ? t('form.sending_req') : 'Sending request...');
 
                 const res = await fetch('/.netlify/functions/submit-commission', {
                     method: 'POST',
@@ -1034,18 +1044,18 @@
                 });
 
                 if (res.ok) {
-                    btn.textContent = 'Sent! \u2713';
+                    btn.textContent = (window.t ? t('form.sent') : 'Sent! \u2713');
                     btn.style.background = 'linear-gradient(135deg, #2E7D32, #1B5E20)';
                     selectedFiles = [];
                     renderFileList();
-                    setTimeout(() => { btn.textContent = 'Send Message'; btn.style.background = ''; btn.disabled = false; form.reset(); }, 3000);
+                    setTimeout(() => { btn.textContent = (window.t ? t('form.submit') : 'Send Message'); btn.style.background = ''; btn.disabled = false; form.reset(); }, 3000);
                 } else {
                     throw new Error('Failed');
                 }
             } catch (err) {
-                btn.textContent = 'Error \u2014 try again';
+                btn.textContent = (window.t ? t('form.error') : 'Error \u2014 try again');
                 btn.style.background = 'linear-gradient(135deg, #C62828, #B71C1C)';
-                setTimeout(() => { btn.textContent = 'Send Message'; btn.style.background = ''; btn.disabled = false; }, 3000);
+                setTimeout(() => { btn.textContent = (window.t ? t('form.submit') : 'Send Message'); btn.style.background = ''; btn.disabled = false; }, 3000);
             }
         }
     </script>
@@ -1203,5 +1213,83 @@
             }
         }, {passive: true});
     </script>
+
+<script>
+// ═══════ Layer Lama i18n ═══════
+const I18N = {
+  en: {"nav.portfolio": "Portfolio", "nav.process": "Process", "nav.services": "Services", "nav.setup": "Setup", "nav.contact": "Contact", "nav.cta": "Get a Quote", "banner.badge": "Commissions Open", "banner.title_pre": "Want something", "banner.title_accent": "printed?", "banner.sub": "Any colour, any size, any material — tell me what you need.", "banner.cta": "Request a Print →", "banner.follow": "Follow @Layer_lama", "hero.badge": "Available for commissions", "hero.title_pre": "Crafted in", "hero.title_accent": "Layers", "hero.sub": "Precision 3D printing for prototypes, models, art pieces, and functional parts. Every layer counts.", "hero.btn_portfolio": "View Portfolio", "hero.btn_contact": "Get in Touch", "hero.scroll": "Scroll", "stats.completed": "Prints Completed", "stats.printers": "Printers in Fleet", "stats.materials": "Materials Offered", "stats.layer": "Min Layer Height", "portfolio.label": "Portfolio", "portfolio.title": "Selected Works", "portfolio.desc": "Recent 3D prints from the workshop. Click any project to explore all photos.", "portfolio.note": "All prints can be customised in different colours, materials, and sizes on request.", "portfolio.viewall": "View All Projects →", "tag.artistic": "Artistic", "tag.functional": "Functional", "tag.artistic_functional": "Artistic & Functional", "tag.prototyping": "Prototyping", "tag.artistic_miniatures": "Artistic · Miniatures", "process.label": "Process", "process.title": "From Concept to Print", "process.desc": "Every project follows a refined workflow to deliver prints that exceed expectations.", "process.s1.title": "Consultation", "process.s1.desc": "We discuss your vision, requirements, and constraints. I recommend the best material and approach for your project.", "process.s2.title": "Design & Slice", "process.s2.desc": "Models are optimized for 3D printing — wall thickness, supports, infill, and orientation are tuned for quality.", "process.s3.title": "Print & Finish", "process.s3.desc": "Prints are monitored for quality. Post-processing includes support removal, sanding, and optional painting or coating.", "services.label": "Services", "services.title": "What I Offer", "services.desc": "From one-off prints to small production runs, Layer Lama has you covered.", "svc.custom.title": "Custom Prints", "svc.custom.desc": "Send your STL or 3MF file and choose your material, color, and finish. Fast turnaround on single prints or batches using our fleet of Bambu Lab and Creality printers.", "svc.proto.title": "Prototyping", "svc.proto.desc": "Rapid iteration on product enclosures, mechanical parts, and custom fittings. PLA-CF and ASA available for engineering-grade strength. Design feedback included.", "svc.art.title": "Art & Décor", "svc.art.desc": "Sculptural pieces, vases, lithophanes, and decorative objects. Unique gifts and home accents printed to order in a variety of colors and finishes.", "svc.design.title": "Design + Print", "svc.design.desc": "Don't have a 3D model? No problem. We can design print-ready models from sketches, photos, or descriptions — and bring them to life.", "svc.mini.title": "Miniatures & Gaming", "svc.mini.desc": "High-detail resin prints for tabletop gaming, D&D characters, terrain pieces, and collectible miniatures at 0.05mm layer resolution.", "svc.workshop.title": "Workshops & Education", "svc.workshop.desc": "Introduction to the world of 3D printing. Hands-on demos, printer walkthroughs, and workshops for beginners, schools, and businesses looking to explore additive manufacturing.", "setup.label": "Setup", "setup.title": "The Fleet", "setup.desc": "5 printers, 6 materials, and the precision to match any project requirement.", "spec.fdm": "FDM Printer", "spec.resin": "Resin Printer", "spec.p1s.desc": "Enclosed high-speed CoreXY printer. Multi-color capability with AMS. Ideal for engineering parts and multi-material prints.", "spec.a1.desc": "Open-frame printer with AMS Lite support. Excellent for large batches and multi-material projects with fast turnaround.", "spec.a1mini.desc": "Compact printer for small precision parts, miniatures, and quick prototypes. Full AMS color support in a small footprint.", "spec.ender.desc": "Battle-tested workhorse printer. Reliable for large functional prints, enclosures, and prototyping where volume matters.", "spec.ld002h.desc": "UV resin printer for ultra-detail work. Perfect for miniatures, jewelry masters, dental models, and anything requiring 0.05mm resolution.", "spec.5printers.title": "5 Printers", "spec.5printers.sub": "Ready to handle any project,<br>from single prints to batch runs", "mat.pla": "Standard & easy", "mat.petg": "Water resistant", "mat.abs": "Heat resistant", "mat.asa": "UV & outdoor", "mat.placf": "Carbon fibre", "mat.resin": "Ultra detail", "res.label": "Explore", "res.title": "3D Printing Resources", "res.desc": "Discover models, communities, and tools from the 3D printing world.", "res.makerworld": "Bambu Lab's model library with free 3D print files", "res.yeggi": "Search engine for 3D printable models across all platforms", "res.thingiverse": "One of the original 3D model libraries — merging with MyMiniFactory", "res.printables": "Prusa's community platform for sharing and discovering models", "res.thangs": "3D model search engine across multiple platforms", "res.cults3d": "Marketplace for free and premium 3D printing files", "res.creality": "Creality's model library, slicer, and printing community", "res.myminifactory": "Curated miniatures and printable designs — merging with Thingiverse", "contact.label": "Contact", "contact.title": "Start a Project", "contact.desc": "Have an idea or a file ready to print? Drop me a message and let's make it real.", "form.name": "Name", "form.email": "Email", "form.project_type": "Project Type", "form.details": "Project Details", "form.ref_links": "Reference Links", "form.optional": "(optional)", "form.attachments": "Attachments", "form.attachments_opt": "(optional — images, STL, F3D, 3MF, PDF, etc.)", "form.upload_prompt": "Click to browse or drag & drop files here", "form.upload_hint": "Images, 3D files (STL, F3D, 3MF, OBJ, STEP), PDF, ZIP — max 10MB each", "form.submit": "Send Message", "form.ph.name": "Your name", "form.ph.email": "you@email.com", "form.ph.details": "Describe your project, material preferences, quantity, deadline...", "form.ph.ref": "Paste links to reference images, MakerWorld models, Thingiverse files, or any inspiration URLs — one per line", "form.opt.custom": "Custom Print (I have a file)", "form.opt.design": "Design + Print (from scratch)", "form.opt.proto": "Prototype / Iteration", "form.opt.art": "Art & Décor", "form.opt.mini": "Miniatures & Gaming", "form.opt.workshop": "Workshop / Education", "form.opt.other": "Other", "form.sending": "Sending...", "form.uploading": "Uploading files", "form.sending_req": "Sending request...", "form.sent": "Sent! ✓", "form.error": "Error — try again", "footer.bio": "Precision 3D printing service based in Europe. From prototypes to art pieces, every layer counts.", "footer.bottom": "© 2026 Layer Lama. All rights reserved.", "gallery.title": "All Projects", "gallery.desc": "Browse the full collection. Click any project to view all photos.", "gallery.note": "All prints can be customised in different colours, materials, and sizes on request.", "gallery.back": "← Back to Home", "filter.all": "All", "filter.functional": "Functional", "filter.artistic": "Artistic", "filter.miniatures": "Miniatures", "filter.prototypes": "Prototypes", "filter.educational": "Educational", "title.index": "Layer Lama — 3D Print Portfolio", "title.gallery": "All Projects — Layer Lama", "aria.theme": "Toggle theme", "aria.instagram": "Follow Layer Lama on Instagram", "aria.language": "Language", "aria.commissions": "Commissions open"},
+  pl: {"nav.portfolio": "Portfolio", "nav.process": "Proces", "nav.services": "Usługi", "nav.setup": "Sprzęt", "nav.contact": "Kontakt", "nav.cta": "Wycena", "banner.badge": "Przyjmuję zlecenia", "banner.title_pre": "Chcesz coś", "banner.title_accent": "wydrukować?", "banner.sub": "Dowolny kolor, rozmiar i materiał — powiedz, czego potrzebujesz.", "banner.cta": "Zamów wydruk →", "banner.follow": "Obserwuj @Layer_lama", "hero.badge": "Przyjmuję zlecenia", "hero.title_pre": "Tworzone", "hero.title_accent": "warstwami", "hero.sub": "Precyzyjny druk 3D — prototypy, modele, dzieła sztuki i części funkcjonalne. Każda warstwa się liczy.", "hero.btn_portfolio": "Zobacz portfolio", "hero.btn_contact": "Napisz do mnie", "hero.scroll": "Przewiń", "stats.completed": "Wydrukowanych projektów", "stats.printers": "Drukarek w parku", "stats.materials": "Dostępnych materiałów", "stats.layer": "Min. wysokość warstwy", "portfolio.label": "Portfolio", "portfolio.title": "Wybrane realizacje", "portfolio.desc": "Najnowsze wydruki 3D z warsztatu. Kliknij projekt, aby zobaczyć więcej zdjęć.", "portfolio.note": "Wszystkie wydruki można dostosować — kolor, materiał i rozmiar na życzenie.", "portfolio.viewall": "Zobacz wszystkie projekty →", "tag.artistic": "Artystyczne", "tag.functional": "Funkcjonalne", "tag.artistic_functional": "Artystyczne i funkcjonalne", "tag.prototyping": "Prototypowanie", "tag.artistic_miniatures": "Artystyczne · Miniatury", "process.label": "Proces", "process.title": "Od koncepcji do wydruku", "process.desc": "Każdy projekt przechodzi przez sprawdzony proces, by efekt przeszedł oczekiwania.", "process.s1.title": "Konsultacja", "process.s1.desc": "Rozmawiamy o Twojej wizji, wymaganiach i ograniczeniach. Doradzam najlepszy materiał i podejście do projektu.", "process.s2.title": "Projekt i przygotowanie", "process.s2.desc": "Modele są optymalizowane pod druk 3D — grubość ścianek, podpory, wypełnienie i orientacja dobrane pod jakość.", "process.s3.title": "Druk i wykończenie", "process.s3.desc": "Wydruki są monitorowane pod kątem jakości. Wykończenie obejmuje usuwanie podpór, szlifowanie oraz opcjonalne malowanie i powłoki.", "services.label": "Usługi", "services.title": "Co oferuję", "services.desc": "Od pojedynczych wydruków po małe serie produkcyjne — Layer Lama Cię obsłuży.", "svc.custom.title": "Wydruki na zamówienie", "svc.custom.desc": "Prześlij plik STL lub 3MF i wybierz materiał, kolor i wykończenie. Szybka realizacja pojedynczych wydruków i serii na drukarkach Bambu Lab i Creality.", "svc.proto.title": "Prototypowanie", "svc.proto.desc": "Szybkie iteracje obudów, części mechanicznych i niestandardowych elementów. Dostępne PLA-CF i ASA o wytrzymałości inżynierskiej. W cenie konsultacja projektu.", "svc.art.title": "Sztuka i dekoracje", "svc.art.desc": "Rzeźby, wazony, litofanie i obiekty dekoracyjne. Wyjątkowe prezenty i akcenty do domu drukowane na zamówienie w różnych kolorach i wykończeniach.", "svc.design.title": "Projekt + druk", "svc.design.desc": "Nie masz modelu 3D? Żaden problem. Zaprojektuję gotowy do druku model na podstawie szkicu, zdjęcia lub opisu — i zrealizuję go.", "svc.mini.title": "Miniatury i gry", "svc.mini.desc": "Wysokiej szczegółowości wydruki żywiczne do gier bitewnych, postaci D&D, elementów terenu i kolekcjonerskich miniatur, z rozdzielczością warstw 0.05 mm.", "svc.workshop.title": "Warsztaty i edukacja", "svc.workshop.desc": "Wprowadzenie do świata druku 3D. Pokazy na żywo, prezentacje drukarek oraz warsztaty dla początkujących, szkół i firm chcących poznać produkcję addytywną.", "setup.label": "Sprzęt", "setup.title": "Park maszynowy", "setup.desc": "5 drukarek, 6 materiałów i precyzja dopasowana do każdego projektu.", "spec.fdm": "Drukarka FDM", "spec.resin": "Drukarka żywiczna", "spec.p1s.desc": "Zamknięta, szybka drukarka CoreXY. Druk wielokolorowy z AMS. Idealna do części inżynierskich i wielomateriałowych wydruków.", "spec.a1.desc": "Otwarta drukarka z obsługą AMS Lite. Świetna do dużych serii i projektów wielomateriałowych z szybką realizacją.", "spec.a1mini.desc": "Kompaktowa drukarka do małych precyzyjnych części, miniatur i szybkich prototypów. Pełna obsługa kolorów AMS w niewielkich rozmiarach.", "spec.ender.desc": "Sprawdzona, niezawodna drukarka. Wytrzymała przy dużych wydrukach funkcjonalnych, obudowach i prototypach, gdzie liczy się objętość.", "spec.ld002h.desc": "Drukarka UV-żywiczna do prac o ultra-szczegółowości. Idealna do miniatur, wzorców biżuterii, modeli stomatologicznych i wszystkiego, co wymaga rozdzielczości 0.05 mm.", "spec.5printers.title": "5 drukarek", "spec.5printers.sub": "Gotowe na każdy projekt —<br>od pojedynczych wydruków po serie", "mat.pla": "Standardowy, prosty", "mat.petg": "Wodoodporny", "mat.abs": "Odporny na ciepło", "mat.asa": "Odporny na UV", "mat.placf": "Włókno węglowe", "mat.resin": "Ultra szczegóły", "res.label": "Odkrywaj", "res.title": "Zasoby druku 3D", "res.desc": "Odkryj modele, społeczności i narzędzia ze świata druku 3D.", "res.makerworld": "Biblioteka modeli Bambu Lab z darmowymi plikami do druku 3D", "res.yeggi": "Wyszukiwarka modeli do druku 3D z wielu platform", "res.thingiverse": "Jedna z najstarszych bibliotek modeli 3D — łączy się z MyMiniFactory", "res.printables": "Społecznościowa platforma Prusy do dzielenia się modelami", "res.thangs": "Wyszukiwarka modeli 3D z wielu platform", "res.cults3d": "Sklep z darmowymi i płatnymi plikami do druku 3D", "res.creality": "Biblioteka modeli, slicer i społeczność Creality", "res.myminifactory": "Wyselekcjonowane miniatury i projekty do druku — łączy się z Thingiverse", "contact.label": "Kontakt", "contact.title": "Rozpocznij projekt", "contact.desc": "Masz pomysł albo gotowy plik? Napisz do mnie — zrealizujemy to razem.", "form.name": "Imię", "form.email": "E-mail", "form.project_type": "Rodzaj projektu", "form.details": "Szczegóły projektu", "form.ref_links": "Linki referencyjne", "form.optional": "(opcjonalnie)", "form.attachments": "Załączniki", "form.attachments_opt": "(opcjonalnie — zdjęcia, STL, F3D, 3MF, PDF itd.)", "form.upload_prompt": "Kliknij, aby wybrać pliki, lub przeciągnij je tutaj", "form.upload_hint": "Zdjęcia, pliki 3D (STL, F3D, 3MF, OBJ, STEP), PDF, ZIP — maks. 10 MB każdy", "form.submit": "Wyślij wiadomość", "form.ph.name": "Twoje imię", "form.ph.email": "ty@email.com", "form.ph.details": "Opisz projekt — materiał, ilość, termin...", "form.ph.ref": "Wklej linki do zdjęć referencyjnych, modeli z MakerWorld, Thingiverse lub inspiracji — po jednym w linii", "form.opt.custom": "Wydruk na zamówienie (mam plik)", "form.opt.design": "Projekt + druk (od zera)", "form.opt.proto": "Prototyp / iteracja", "form.opt.art": "Sztuka i dekoracje", "form.opt.mini": "Miniatury i gry", "form.opt.workshop": "Warsztat / edukacja", "form.opt.other": "Inne", "form.sending": "Wysyłanie...", "form.uploading": "Wysyłanie plików", "form.sending_req": "Wysyłanie zgłoszenia...", "form.sent": "Wysłane! ✓", "form.error": "Błąd — spróbuj ponownie", "footer.bio": "Precyzyjny druk 3D z siedzibą w Europie. Od prototypów po dzieła sztuki — każda warstwa się liczy.", "footer.bottom": "© 2026 Layer Lama. Wszelkie prawa zastrzeżone.", "gallery.title": "Wszystkie projekty", "gallery.desc": "Przeglądaj pełną kolekcję. Kliknij projekt, aby zobaczyć wszystkie zdjęcia.", "gallery.note": "Wszystkie wydruki można dostosować — kolor, materiał i rozmiar na życzenie.", "gallery.back": "← Powrót na stronę główną", "filter.all": "Wszystkie", "filter.functional": "Funkcjonalne", "filter.artistic": "Artystyczne", "filter.miniatures": "Miniatury", "filter.prototypes": "Prototypy", "filter.educational": "Edukacyjne", "title.index": "Layer Lama — Portfolio druku 3D", "title.gallery": "Wszystkie projekty — Layer Lama", "aria.theme": "Przełącz motyw", "aria.instagram": "Obserwuj Layer Lama na Instagramie", "aria.language": "Język", "aria.commissions": "Przyjmuję zlecenia"}
+};
+window.t = function(key) {
+  const lang = localStorage.getItem('ll-lang') || 'pl';
+  return (I18N[lang] && I18N[lang][key]) || (I18N.en && I18N.en[key]) || key;
+};
+
+
+(function() {
+  const DEFAULT_LANG = 'pl';
+  const SUPPORTED = ['pl', 'en'];
+
+  function getLang() {
+    const url = new URLSearchParams(window.location.search).get('lang');
+    if (url && SUPPORTED.includes(url)) return url;
+    const stored = localStorage.getItem('ll-lang');
+    if (stored && SUPPORTED.includes(stored)) return stored;
+    return DEFAULT_LANG;
+  }
+
+  function applyLang(lang) {
+    if (!SUPPORTED.includes(lang)) lang = DEFAULT_LANG;
+    const dict = I18N[lang] || I18N[DEFAULT_LANG];
+    document.documentElement.setAttribute('lang', lang);
+    localStorage.setItem('ll-lang', lang);
+
+    // Text content
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+      const key = el.getAttribute('data-i18n');
+      if (dict[key] !== undefined) el.innerHTML = dict[key];
+    });
+    // Placeholders
+    document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+      const key = el.getAttribute('data-i18n-placeholder');
+      if (dict[key] !== undefined) el.setAttribute('placeholder', dict[key]);
+    });
+    // Aria labels
+    document.querySelectorAll('[data-i18n-aria]').forEach(el => {
+      const key = el.getAttribute('data-i18n-aria');
+      if (dict[key] !== undefined) el.setAttribute('aria-label', dict[key]);
+    });
+    // Title attributes
+    document.querySelectorAll('[data-i18n-title]').forEach(el => {
+      const key = el.getAttribute('data-i18n-title');
+      if (dict[key] !== undefined) el.setAttribute('title', dict[key]);
+    });
+    // Document title
+    const titleKey = document.querySelector('title')?.getAttribute('data-i18n');
+    if (titleKey && dict[titleKey]) document.title = dict[titleKey];
+
+    // Toggle button visual state
+    document.querySelectorAll('.lang-btn').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.lang === lang);
+    });
+  }
+
+  window.setLang = function(lang) {
+    applyLang(lang);
+    // Update URL without reload (may fail in sandboxed/srcdoc iframes — harmless)
+    try {
+      const url = new URL(window.location);
+      url.searchParams.set('lang', lang);
+      window.history.replaceState({}, '', url);
+    } catch (e) { /* ignore — localStorage still persists choice */ }
+  };
+
+    // Apply on load
+  document.addEventListener('DOMContentLoaded', () => { applyLang(getLang()); document.body && document.body.classList.add('i18n-ready'); });
+  // Also apply immediately in case DOM is already ready
+  if (document.readyState !== 'loading') { applyLang(getLang()); document.body && document.body.classList.add('i18n-ready'); }
+})();
+</script>
+
 </body>
 </html>
