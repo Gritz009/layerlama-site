@@ -1,9 +1,16 @@
+// RFC-5322-lite check. Catches blank/malformed emails that would otherwise
+// fail the Make.com Gmail module with BundleValidationError (see the
+// 2026-04-14 silent-stop incident in docs/11-TROUBLESHOOTING.md).
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+
 exports.handler = async (event) => {
   const headers = {
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Headers': 'Content-Type',
     'Access-Control-Allow-Methods': 'POST, OPTIONS',
-    'Content-Type': 'application/json'
+    'Content-Type': 'application/json',
+    'X-Content-Type-Options': 'nosniff',
+    'Referrer-Policy': 'strict-origin-when-cross-origin'
   };
 
   if (event.httpMethod === 'OPTIONS') {
@@ -15,7 +22,27 @@ exports.handler = async (event) => {
   }
 
   try {
+    // Guard against oversized payloads (Netlify Functions hard-limit is ~6 MB
+    // but we keep the form JSON well under that — uploadedFiles are URLs only).
+    if (event.body && event.body.length > 200000) {
+      return { statusCode: 413, headers, body: JSON.stringify({ error: 'Payload too large' }) };
+    }
+
     const data = JSON.parse(event.body);
+
+    // Honeypot — if a bot filled the hidden "bot-field", silently accept
+    // (return 200 so the bot thinks it worked, but do nothing).
+    if (data['bot-field']) {
+      console.log('Honeypot triggered, ignoring submission');
+      return { statusCode: 200, headers, body: JSON.stringify({ success: true }) };
+    }
+
+    // GDPR consent — required. The form checkbox enforces client-side,
+    // this enforces server-side so direct-to-API submissions can't bypass.
+    if (data.consent !== 'yes' && data.consent !== true && data.consent !== 'on') {
+      return { statusCode: 400, headers, body: JSON.stringify({ error: 'Consent required' }) };
+    }
+
     const NOTION_TOKEN = process.env.NOTION_TOKEN;
     const NOTION_DB_ID = process.env.NOTION_DB_ID;
 
@@ -37,13 +64,26 @@ exports.handler = async (event) => {
     };
 
     const projectType = projectTypeMap[data['project-type']] || projectTypeMap[data.project_type] || 'Other';
-    const clientName = data.name || 'Unknown';
-    const email = data.email || '';
-    const details = data.details || '';
-    const referenceLinks = data['reference-links'] || '';
-    const uploadedFiles = data.uploadedFiles || [];
-    const attachmentNames = data.attachment_names || '';
-    const attachmentCount = data.attachment_count || 0;
+    const clientName = (data.name || 'Unknown').toString().trim().slice(0, 100);
+    const email = (data.email || '').toString().trim().slice(0, 254);
+    const details = (data.details || '').toString().slice(0, 2000);
+    const referenceLinks = (data['reference-links'] || '').toString().slice(0, 4000);
+    const uploadedFiles = Array.isArray(data.uploadedFiles) ? data.uploadedFiles : [];
+    const attachmentNames = (data.attachment_names || '').toString().slice(0, 1000);
+    const attachmentCount = Number(data.attachment_count) || 0;
+
+    // Validate email. If invalid, reject before touching Notion/Make — both
+    // would fail downstream anyway (Make Gmail module returns BundleValidationError
+    // on blank/malformed addresses, which silently auto-pauses the scenario).
+    const emailValid = EMAIL_RE.test(email);
+    if (!emailValid) {
+      return { statusCode: 400, headers, body: JSON.stringify({ error: 'Invalid email address' }) };
+    }
+
+    // Basic length validation for required fields
+    if (!clientName || clientName === 'Unknown') {
+      return { statusCode: 400, headers, body: JSON.stringify({ error: 'Name required' }) };
+    }
     const now = new Date();
     const requestId = 'LL-' + now.toISOString().replace(/[-:T]/g, '').substring(0, 8) + '-' + now.toISOString().replace(/[-:T]/g, '').substring(8, 12);
     const submitted = now.toISOString().split('T')[0];
@@ -147,21 +187,31 @@ exports.handler = async (event) => {
       return { statusCode: 500, headers, body: JSON.stringify({ error: 'Failed to save to Notion', detail: notionData.message }) };
     }
 
-    // Trigger auto-reply email via Make.com webhook
-    try {
-      await fetch('https://hook.eu1.make.com/5nbqf7mxih1fks67u1jqusz78596y4hj', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: clientName,
-          email: email,
-          projectType: projectType,
-          requestId: requestId,
-          submitted: submitted
-        })
-      });
-    } catch (emailErr) {
-      console.error('Auto-reply webhook error:', emailErr.message);
+    // Trigger auto-reply email via Make.com webhook — only if email looks valid.
+    // Logs response body on non-2xx so silent Make failures surface in Netlify
+    // function logs (previously only the status code was visible).
+    if (emailValid) {
+      try {
+        const makeRes = await fetch('https://hook.eu1.make.com/5nbqf7mxih1fks67u1jqusz78596y4hj', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name: clientName,
+            email: email,
+            projectType: projectType,
+            requestId: requestId,
+            submitted: submitted
+          })
+        });
+        if (!makeRes.ok) {
+          const makeBody = await makeRes.text().catch(() => '<unreadable>');
+          console.error('Auto-reply webhook non-2xx:', makeRes.status, makeBody.slice(0, 500));
+        }
+      } catch (emailErr) {
+        console.error('Auto-reply webhook error:', emailErr.message);
+      }
+    } else {
+      console.log('Skipping auto-reply webhook: email invalid');
     }
 
     return {

@@ -6,11 +6,23 @@ const nodemailer = require('nodemailer');
 const NOTION_API = 'https://api.notion.com/v1';
 const NOTION_VERSION = '2022-06-28';
 
+// Admin-only endpoint — only reachable from the production origin. Any other
+// origin (including local dev) must be added here explicitly.
+const ALLOWED_ORIGINS = new Set([
+  'https://layerlama.com',
+  'https://www.layerlama.com'
+]);
+
 exports.handler = async (event) => {
+  const origin = event.headers && (event.headers.origin || event.headers.Origin);
+  const allowOrigin = ALLOWED_ORIGINS.has(origin) ? origin : 'https://layerlama.com';
   const corsHeaders = {
-    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Origin': allowOrigin,
     'Access-Control-Allow-Headers': 'Content-Type, X-Admin-Secret',
     'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Vary': 'Origin',
+    'X-Content-Type-Options': 'nosniff',
+    'Referrer-Policy': 'strict-origin-when-cross-origin'
   };
 
   if (event.httpMethod === 'OPTIONS') {
