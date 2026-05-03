@@ -159,8 +159,8 @@
 
         /* ═══════ HERO ═══════ */
         .hero { min-height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 0 2rem; position: relative; overflow: hidden; }
-        body.banner-visible .hero { min-height: calc(100vh - 200px); justify-content: flex-start; padding-top: 7rem; }
-        @media (max-width: 768px) { body.banner-visible .hero { min-height: calc(100vh - 85px); } }
+        body.banner-visible .hero { min-height: calc(100vh - 200px); justify-content: center; padding-top: 0; padding-bottom: 4rem; }
+        @media (max-width: 768px) { body.banner-visible .hero { min-height: calc(100vh - 85px); padding-bottom: 3rem; } }
         .hero::before { content: ''; position: absolute; top: -20%; left: 50%; transform: translateX(-50%); width: 900px; height: 900px; background: radial-gradient(circle at 50% 50%, var(--glow-primary) 0%, transparent 55%); pointer-events: none; }
         .hero::after { content: ''; position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); width: 600px; height: 400px; background: radial-gradient(ellipse at 50% 100%, var(--glow-secondary) 0%, transparent 70%); pointer-events: none; opacity: 0.5; }
         .hero-badge { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1.2rem; border: 1px solid var(--border); border-radius: 100px; font-size: 0.8rem; color: var(--orange); margin-bottom: 2.5rem; letter-spacing: 0.08em; text-transform: uppercase; font-weight: 600; animation: fadeInUp 0.8s ease both; transition: border-color var(--tr); background: linear-gradient(135deg, transparent, rgba(232,129,43,0.03)); }
@@ -175,9 +175,9 @@
         .btn-primary:hover { background: linear-gradient(135deg, var(--orange-hot), var(--orange-light)); transform: translateY(-2px); box-shadow: 0 8px 32px var(--orange-glow), 0 2px 8px rgba(0,0,0,0.2); color: #000; }
         .btn-outline { background: transparent; color: var(--text); padding: 0.85rem 2rem; border-radius: 8px; font-weight: 600; font-size: 0.95rem; text-decoration: none; border: 1px solid var(--border); transition: all 0.3s; cursor: pointer; font-family: var(--font-body); }
         .btn-outline:hover { border-color: var(--orange); background: var(--orange); color: #000; box-shadow: 0 8px 24px var(--orange-glow); }
-        .scroll-indicator { position: absolute; bottom: 3rem; left: 0; right: 0; margin-inline: auto; width: fit-content; display: flex; flex-direction: column; align-items: center; gap: 0.4rem; color: var(--text-muted); font-size: 0.7rem; letter-spacing: 0.15em; text-transform: uppercase; animation: fadeInUp 0.8s ease 0.5s both; transition: opacity 0.4s; }
+        .scroll-indicator { position: absolute; bottom: 1.5rem; left: 0; right: 0; margin-inline: auto; width: fit-content; display: flex; flex-direction: column; align-items: center; gap: 0.4rem; color: rgba(255,255,255,0.75); font-size: 0.7rem; letter-spacing: 0.15em; text-transform: uppercase; animation: fadeInUp 0.8s ease 0.5s both; transition: opacity 0.4s; text-shadow: 0 1px 4px rgba(0,0,0,0.8); }
         .scroll-indicator.hidden { opacity: 0; pointer-events: none; }
-        .scroll-line { width: 1px; height: 20px; background: linear-gradient(to bottom, var(--text-muted), transparent); animation: scrollPulse 2s infinite; }
+        .scroll-line { width: 1px; height: 28px; background: linear-gradient(to bottom, rgba(255,255,255,0.85), rgba(255,255,255,0)); animation: scrollPulse 2s infinite; }
         @keyframes scrollPulse { 0%, 100% { opacity: 0.5; transform: scaleY(1); } 50% { opacity: 1; transform: scaleY(0.6); } }
         @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
 
@@ -561,6 +561,44 @@
         @media (max-width: 768px) {
             .card-request-link { font-size: 0.62rem; padding: 0.3rem 0.65rem; margin-top: 0.55rem; }
         }
+
+        /* === HERO BACKGROUND: image + scrim + particle canvas === */
+        .hero { isolation: isolate; background: #050402; }
+        .hero-bg, #hero-particles {
+            position: absolute; inset: 0;
+            width: 100%; height: 100%;
+            pointer-events: none;
+        }
+        .hero-bg { z-index: 0; overflow: hidden; }
+        .hero-bg-img {
+            width: 100%; height: 100%;
+            object-fit: cover; object-position: center center;
+            display: block;
+            /* Native pixel resampling — image stays crisp at all zoom levels */
+            image-rendering: -webkit-optimize-contrast;
+        }
+        /* Scrim — darkest in the centre where the headline + CTAs sit, fading out so the artwork still reads at the edges */
+        .hero-scrim {
+            position: absolute; inset: 0; pointer-events: none;
+            background:
+                radial-gradient(ellipse 55% 55% at center, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.88) 35%, rgba(0,0,0,0.60) 65%, rgba(0,0,0,0.22) 88%, rgba(0,0,0,0) 100%),
+                linear-gradient(180deg, rgba(0,0,0,0.30) 0%, rgba(0,0,0,0) 40%, rgba(0,0,0,0) 60%, rgba(0,0,0,0.35) 100%);
+        }
+        #hero-particles { z-index: 1; mix-blend-mode: screen; }
+        /* Existing radial glows lift above bg + particles but stay below text */
+        .hero::before, .hero::after { z-index: 2; opacity: 0.5; }
+        /* All hero content above everything */
+        .hero > .hero-badge, .hero > h1, .hero > .hero-sub, .hero > .hero-actions { position: relative; z-index: 3; }
+        .hero > .scroll-indicator { z-index: 3; }
+        /* Light theme: keep image but tone down for readability with light text */
+        [data-theme="light"] .hero-bg-img { filter: saturate(0.92) brightness(0.95); }
+        [data-theme="light"] .hero-scrim {
+            background:
+                radial-gradient(ellipse 55% 55% at center, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.78) 35%, rgba(0,0,0,0.50) 65%, rgba(0,0,0,0.18) 88%, rgba(0,0,0,0) 100%),
+                linear-gradient(180deg, rgba(0,0,0,0.22) 0%, rgba(0,0,0,0) 40%, rgba(0,0,0,0) 60%, rgba(0,0,0,0.28) 100%);
+        }
+        [data-theme="light"] #hero-particles { opacity: 0.55; }
+        @media (prefers-reduced-motion: reduce) { #hero-particles { opacity: 0.45; } }
     </style>
 <style id="i18n-fouc">body{visibility:hidden}body.i18n-ready{visibility:visible}</style>
     <script>setTimeout(function(){document.body&&document.body.classList.add('i18n-ready')},400);</script>
@@ -625,6 +663,14 @@
     </nav>
 
     <section class="hero">
+        <!-- === Hero background image === -->
+        <div class="hero-bg" aria-hidden="true">
+            <img class="hero-bg-img" src="Images/Hero/hero-bg.png" alt="" decoding="async" fetchpriority="high">
+            <div class="hero-scrim"></div>
+        </div>
+        <!-- === Particle canvas === -->
+        <canvas id="hero-particles" aria-hidden="true"></canvas>
+
         <div class="hero-badge" data-i18n="hero.badge">Available for commissions</div>
         <h1><span data-i18n="hero.title_pre">Crafted in</span><br><span class="accent" data-i18n="hero.title_accent">Layers</span></h1>
         <p class="hero-sub" data-i18n="hero.sub">Precision 3D printing for prototypes, models, art pieces, and functional parts. Every layer counts.</p>
@@ -1364,6 +1410,119 @@ window.t = function(key) {
         document.addEventListener('DOMContentLoaded', run);
     } else {
         run();
+    }
+})();
+</script>
+
+<script>
+// === Hero particle layer ===
+(function heroParticles() {
+    const canvas = document.getElementById('hero-particles');
+    if (!canvas) return;
+    const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const ctx = canvas.getContext('2d', { alpha: true });
+    let w = 0, h = 0, dpr = 1, particles = [], rafId = null, running = false;
+
+    function resize() {
+        dpr = Math.min(window.devicePixelRatio || 1, 2);
+        w = canvas.clientWidth || canvas.parentElement.clientWidth || window.innerWidth;
+        h = canvas.clientHeight || canvas.parentElement.clientHeight || window.innerHeight;
+        canvas.width = Math.floor(w * dpr);
+        canvas.height = Math.floor(h * dpr);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+
+    function init() {
+        const target = Math.min(90, Math.max(28, Math.floor((w * h) / 22000)));
+        particles = [];
+        for (let i = 0; i < target; i++) {
+            const isWarm = Math.random() < 0.30;
+            particles.push({
+                x: Math.random() * w,
+                y: Math.random() * h,
+                vx: (Math.random() - 0.5) * 0.35,
+                vy: (Math.random() - 0.5) * 0.25,
+                r: isWarm ? 1.4 + Math.random() * 1.6 : 0.5 + Math.random() * 0.9,
+                warm: isWarm,
+                a: 0.25 + Math.random() * 0.45,
+                phase: Math.random() * Math.PI * 2,
+                speed: 0.008 + Math.random() * 0.018
+            });
+        }
+    }
+
+    function tick() {
+        ctx.clearRect(0, 0, w, h);
+        // Connection lines first (behind particles)
+        const max = 110;
+        for (let i = 0; i < particles.length; i++) {
+            const a = particles[i];
+            for (let j = i + 1; j < particles.length; j++) {
+                const b = particles[j];
+                const dx = a.x - b.x, dy = a.y - b.y;
+                const d2 = dx * dx + dy * dy;
+                if (d2 < max * max) {
+                    const t = 1 - Math.sqrt(d2) / max;
+                    ctx.strokeStyle = 'rgba(232,129,43,' + (0.10 * t).toFixed(3) + ')';
+                    ctx.lineWidth = 0.6;
+                    ctx.beginPath();
+                    ctx.moveTo(a.x, a.y);
+                    ctx.lineTo(b.x, b.y);
+                    ctx.stroke();
+                }
+            }
+        }
+        // Particles
+        for (const p of particles) {
+            p.x += p.vx; p.y += p.vy; p.phase += p.speed;
+            if (p.x < -10) p.x = w + 10; else if (p.x > w + 10) p.x = -10;
+            if (p.y < -10) p.y = h + 10; else if (p.y > h + 10) p.y = -10;
+            const alpha = (p.a * (0.65 + Math.sin(p.phase) * 0.35)).toFixed(3);
+            if (p.warm) {
+                ctx.shadowColor = 'rgba(232,129,43,0.7)';
+                ctx.shadowBlur = 10;
+                ctx.fillStyle = 'rgba(255,160,80,' + alpha + ')';
+            } else {
+                ctx.shadowBlur = 0;
+                ctx.fillStyle = 'rgba(255,255,255,' + alpha + ')';
+            }
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+            ctx.fill();
+        }
+        ctx.shadowBlur = 0;
+        rafId = requestAnimationFrame(tick);
+    }
+
+    function start() { if (!running) { running = true; tick(); } }
+    function stop()  { if (rafId) cancelAnimationFrame(rafId); rafId = null; running = false; }
+
+    // Resize (debounced)
+    let rt;
+    window.addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(() => { resize(); init(); }, 150); }, { passive: true });
+
+    // Pause when tab hidden
+    document.addEventListener('visibilitychange', () => { if (document.hidden) stop(); else if (!reduce) start(); });
+
+    // Pause when hero scrolled out
+    if ('IntersectionObserver' in window) {
+        const obs = new IntersectionObserver(entries => {
+            for (const e of entries) {
+                if (e.isIntersecting) { if (!reduce) start(); }
+                else stop();
+            }
+        }, { threshold: 0 });
+        obs.observe(canvas);
+    }
+
+    resize();
+    init();
+    if (reduce) {
+        // Render one static frame
+        tick();
+        stop();
+    } else {
+        start();
     }
 })();
 </script>
