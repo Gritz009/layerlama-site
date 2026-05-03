@@ -571,7 +571,8 @@
             width: 100%; height: 100%;
             pointer-events: none;
         }
-        .hero-bg { z-index: 0; overflow: hidden; }
+        .hero-bg { z-index: 0; overflow: hidden; background-image: url('data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDABQODxIPDRQSEBIXFRQYHjIhHhwcHj0sLiQySUBMS0dARkVQWnNiUFVtVkVGZIhlbXd7gYKBTmCNl4x9lnN+gXz/2wBDARUXFx4aHjshITt8U0ZTfHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHz/wAARCAATACgDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwDAij8sZpXuKCSF61VZSzUkW30JfPOc03eZWpoiJ4qzEixDLUyQ8o7elFStcpjgUUhlNSfWpFFFFACr1pkpOaKKAYxulFFFAH//2Q=='); background-size: cover; background-position: center; }
+        .hero-bg-pic { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
         .hero-bg-img {
             width: 100%; height: 100%;
             object-fit: cover; object-position: center center;
@@ -604,6 +605,12 @@
     </style>
 <style id="i18n-fouc">body{visibility:hidden}body.i18n-ready{visibility:visible}</style>
     <script>setTimeout(function(){document.body&&document.body.classList.add('i18n-ready')},400);</script>
+    <link rel="preload" as="image" type="image/avif"
+        imagesrcset="Images/Hero/hero-bg-1280.avif 1280w, Images/Hero/hero-bg-1920.avif 1920w, Images/Hero/hero-bg-2880.avif 2880w"
+        imagesizes="100vw">
+    <link rel="preload" as="image" type="image/webp"
+        imagesrcset="Images/Hero/hero-bg-1280.webp 1280w, Images/Hero/hero-bg-1920.webp 1920w, Images/Hero/hero-bg-2880.webp 2880w"
+        imagesizes="100vw">
 </head>
 <body>
     <!-- ═══════ COMMISSION TOP BANNER ═══════ -->
@@ -667,7 +674,25 @@
     <section class="hero">
         <!-- === Hero background image === -->
         <div class="hero-bg" aria-hidden="true">
-            <img class="hero-bg-img" src="Images/Hero/hero-bg.png" alt="" decoding="async" fetchpriority="high">
+            <picture class="hero-bg-pic">
+                <source type="image/avif"
+                        srcset="Images/Hero/hero-bg-1280.avif 1280w,
+                                Images/Hero/hero-bg-1920.avif 1920w,
+                                Images/Hero/hero-bg-2880.avif 2880w"
+                        sizes="100vw">
+                <source type="image/webp"
+                        srcset="Images/Hero/hero-bg-1280.webp 1280w,
+                                Images/Hero/hero-bg-1920.webp 1920w,
+                                Images/Hero/hero-bg-2880.webp 2880w"
+                        sizes="100vw">
+                <img class="hero-bg-img"
+                     src="Images/Hero/hero-bg-1920.jpg"
+                     srcset="Images/Hero/hero-bg-1280.jpg 1280w,
+                             Images/Hero/hero-bg-1920.jpg 1920w,
+                             Images/Hero/hero-bg-2880.jpg 2880w"
+                     sizes="100vw"
+                     alt="" decoding="async" fetchpriority="high" loading="eager">
+            </picture>
             <div class="hero-scrim"></div>
         </div>
         <!-- === Particle canvas === -->
