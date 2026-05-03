@@ -414,6 +414,18 @@
                     <div class="card-credit">Design by <a href="https://makerworld.com/en/@Layerlama" target="_blank">Layerlama</a> via MakerWorld</div>
                 </div>
             </div>
+
+            <div class="gallery-card" data-category="miniatures" onclick="openLightbox('fluffytailfox')">
+                <div class="card-image">
+                    <span class="card-tag" data-i18n="tag.artistic_miniatures">Artistic · Miniatures</span>
+                    <img src="Images/Portfolio/Fluffytail_Fox/Thumbnail.png" alt="Fluffytail Fox">
+                </div>
+                <div class="card-body">
+                    <div class="card-title">Fluffytail Fox</div>
+                    <div class="card-meta">PLA &bull; Bambu Lab A1</div>
+                    <div class="card-credit">Design by <a href="https://makerworld.com/en/@fluffytails37" target="_blank">Fluffy Tails</a> via MakerWorld</div>
+                </div>
+            </div>
         </div>
 
         <!-- === BOTTOM CTA === -->
@@ -488,7 +500,8 @@
             pi3case: { title: 'Orange PI 3 LTS Case', credit: 'Design by skier3d via MakerWorld', images: ['Images/Portfolio/Pi_3_Case/thumbnail.jpg','Images/Portfolio/Pi_3_Case/2.jpg','Images/Portfolio/Pi_3_Case/3.jpg','Images/Portfolio/Pi_3_Case/4.jpg','Images/Portfolio/Pi_3_Case/5.jpg'] },
             jeepkitcard: { title: 'Jeep Kit Card', credit: 'Design by agepbiz via MakerWorld', images: ['Images/Portfolio/Jeep_Kit_Card/Thumbnail.jpg','Images/Portfolio/Jeep_Kit_Card/2.jpg','Images/Portfolio/Jeep_Kit_Card/3.jpg','Images/Portfolio/Jeep_Kit_Card/4.jpg','Images/Portfolio/Jeep_Kit_Card/5.jpg','Images/Portfolio/Jeep_Kit_Card/Instructions.webp'] },
             auraflowvase: { title: 'Aura Flow Vase', credit: 'Design by Layerlama via MakerWorld', images: ['Images/Portfolio/Aura_flow_Vase/Thumbnail.png','Images/Portfolio/Aura_flow_Vase/2.png','Images/Portfolio/Aura_flow_Vase/3.png','Images/Portfolio/Aura_flow_Vase/4.png','Images/Portfolio/Aura_flow_Vase/5.png','Images/Portfolio/Aura_flow_Vase/6.png','Images/Portfolio/Aura_flow_Vase/7.png','Images/Portfolio/Aura_flow_Vase/8.png','Images/Portfolio/Aura_flow_Vase/9.png'] },
-            dolphinplanter: { title: 'Dolphin Planter', credit: 'Design by Layerlama via MakerWorld', images: ['Images/Portfolio/Dolphin_Planter/Thumbnail.png','Images/Portfolio/Dolphin_Planter/1.png','Images/Portfolio/Dolphin_Planter/2.png','Images/Portfolio/Dolphin_Planter/3.png','Images/Portfolio/Dolphin_Planter/4.png','Images/Portfolio/Dolphin_Planter/5.png'] }
+            dolphinplanter: { title: 'Dolphin Planter', credit: 'Design by Layerlama via MakerWorld', images: ['Images/Portfolio/Dolphin_Planter/Thumbnail.png','Images/Portfolio/Dolphin_Planter/1.png','Images/Portfolio/Dolphin_Planter/2.png','Images/Portfolio/Dolphin_Planter/3.png','Images/Portfolio/Dolphin_Planter/4.png','Images/Portfolio/Dolphin_Planter/5.png'] },
+            fluffytailfox: { title: 'Fluffytail Fox', credit: 'Design by Fluffy Tails via MakerWorld', images: ['Images/Portfolio/Fluffytail_Fox/Thumbnail.png','Images/Portfolio/Fluffytail_Fox/1.png','Images/Portfolio/Fluffytail_Fox/2.png','Images/Portfolio/Fluffytail_Fox/3.png','Images/Portfolio/Fluffytail_Fox/4.png','Images/Portfolio/Fluffytail_Fox/5.png','Images/Portfolio/Fluffytail_Fox/6.png'] }
         };
         let currentProject = null, currentIdx = 0;
         function openLightbox(k) { currentProject = projects[k]; if (!currentProject) return; currentIdx = 0; buildThumbs(); updateLightbox(); document.getElementById('lightbox').classList.add('active'); document.body.style.overflow = 'hidden'; }
