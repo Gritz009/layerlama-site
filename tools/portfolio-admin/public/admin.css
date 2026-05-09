@@ -38,12 +38,14 @@
     --accent-gradient: linear-gradient(135deg, #BE5E08, #D47A20, #A14E00);
 }
 
-/* Logo swap, same pattern as the public site */
-.logo-dark, .logo-light { transition: opacity 0.3s; }
-.logo-dark { display: block; }
-.logo-light { display: none; }
-[data-theme="light"] .logo-dark { display: none; }
-[data-theme="light"] .logo-light { display: block; }
+/* Logo swap, same pattern as the public site.
+   Selectors scoped to .nav-logo so they outrank `.nav-logo img` which sets
+   display: block on all imgs inside .nav-logo. */
+.nav-logo .logo-dark, .nav-logo .logo-light { transition: opacity 0.3s; }
+.nav-logo .logo-dark  { display: block; }
+.nav-logo .logo-light { display: none; }
+[data-theme="light"] .nav-logo .logo-dark  { display: none; }
+[data-theme="light"] .nav-logo .logo-light { display: block; }
 
 /* Theme toggle pill, copied 1:1 from the public site */
 .theme-toggle {
@@ -703,6 +705,13 @@ input[type="file"]:hover { border-color: var(--orange); color: var(--text); }
 }
 
 .netlify-panel.state-unconfigured {
+    border-color: var(--border-strong);
+    background: var(--bg-card);
+}
+.netlify-panel.state-unconfigured .netlify-dot {
+    background: var(--text-muted);
+}
+panel.state-unconfigured {
     border-color: var(--border-strong);
     background: var(--bg-card);
 }
