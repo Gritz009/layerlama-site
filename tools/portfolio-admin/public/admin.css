@@ -378,10 +378,28 @@ input[type="file"]:hover { border-color: var(--orange); color: var(--text); }
 }
 .btn-primary {
     background: linear-gradient(135deg, var(--orange), var(--orange-deep));
-    color: #fff;
+    color: #000;
+    font-weight: 700;
+    box-shadow: 0 0 0 0 rgba(232,129,43,0);
+    transition: box-shadow 0.25s, font-weight 0.15s, background 0.25s, transform 0.15s;
 }
-.btn-primary:hover { background: linear-gradient(135deg, var(--orange-hot), var(--orange)); color: #000; }
-.btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+.btn-primary:hover {
+    background: linear-gradient(135deg, var(--orange-hot), var(--orange));
+    color: #000;
+    font-weight: 800;
+    /* Trimmed glow: 1.5px outline + tighter halo so hover doesn't bleed into
+       neighbouring buttons in a tight row. */
+    box-shadow:
+        0 0 0 1.5px rgba(255, 145, 48, 0.9),
+        0 0 12px rgba(232, 129, 43, 0.35),
+        0 3px 10px rgba(232, 129, 43, 0.25);
+    transform: translateY(-1px);
+}
+.btn-primary:active { transform: translateY(0); }
+.btn-primary:disabled { opacity: 0.5; cursor: not-allowed; box-shadow: none; }
+/* Anchor variants (e.g. Open layerlama.com link styled as a primary btn) */
+a.btn-primary { text-decoration: none; }
+a.btn-primary:hover { text-decoration: none; }
 .btn-ghost {
     background: transparent;
     border: 1px solid var(--border-strong);
@@ -643,14 +661,35 @@ input[type="file"]:hover { border-color: var(--orange); color: var(--text); }
     color: var(--text-muted);
 }
 .netlify-actions {
-    margin-top: 0.5rem;
+    margin-top: 0.6rem;
 }
 .netlify-actions:empty { display: none; }
 .netlify-hint {
     font-size: 0.84rem;
     color: var(--text-muted);
     line-height: 1.5;
-    margin: 0.4rem 0;
+    margin: 0.55rem 0;
+}
+/* Buttons inside the netlify panel use a proper flex row with real gap so the
+   hover outline can't bleed into neighbours. */
+.netlify-panel .row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    margin-top: 0.85rem;
+    align-items: center;
+}
+.netlify-panel .row .btn {
+    flex: 0 0 auto;
+    white-space: nowrap;
+}
+/* Anchors as buttons need explicit alignment + line-height so they match
+   <button> heights pixel-perfect. */
+a.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
 }
 
 /* States */
@@ -705,13 +744,6 @@ input[type="file"]:hover { border-color: var(--orange); color: var(--text); }
 }
 
 .netlify-panel.state-unconfigured {
-    border-color: var(--border-strong);
-    background: var(--bg-card);
-}
-.netlify-panel.state-unconfigured .netlify-dot {
-    background: var(--text-muted);
-}
-panel.state-unconfigured {
     border-color: var(--border-strong);
     background: var(--bg-card);
 }

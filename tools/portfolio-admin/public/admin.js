@@ -327,7 +327,7 @@
         }
     }
     function startOverHtml() {
-        return '<div class="row" style="margin-top:0.85rem"><button type="button" id="nfStartOver" class="btn btn-primary">Start over</button></div>';
+        return '<div class="row"><button type="button" id="nfStartOver" class="btn btn-primary">Start over</button></div>';
     }
     function wireStartOver() {
         const b = el('nfStartOver');
@@ -423,10 +423,26 @@
         btn.classList.remove('btn-primary');
         btn.classList.add('btn-ghost');
         if (result.ok) {
-            btn.innerHTML = 'Pushed to GitHub';
+            const noChanges = !!(result.event && result.event.noChanges);
+            btn.innerHTML = noChanges ? 'Already in sync' : 'Pushed to GitHub';
             const pushedAt = Date.now();
             const container = el('netlifyContainer');
-            if (container) await watchNetlify(container, pushedAt);
+            if (container) {
+                if (noChanges) {
+                    container.innerHTML =
+                        '<div class="netlify-panel state-ready">' +
+                            '<div class="netlify-status-row">' +
+                                '<span class="netlify-dot" aria-hidden="true"></span>' +
+                                '<strong class="netlify-label">Already in sync -- nothing to deploy</strong>' +
+                            '</div>' +
+                            '<p class="netlify-hint">' + escapeHtml(result.event.message || '') + '</p>' +
+                            '<div class="row"><button type="button" id="nfStartOver" class="btn btn-primary">Start over</button></div>' +
+                        '</div>';
+                    const b = el('nfStartOver'); if (b) b.addEventListener('click', fullReset);
+                } else {
+                    await watchNetlify(container, pushedAt);
+                }
+            }
         } else {
             btn.disabled = false;
             btn.innerHTML = 'Retry push';
@@ -480,6 +496,7 @@
         logEl.style.display = 'block';
         logEl.textContent = '';
         let pushedOK = false;
+        let completeEvent = null;
         try {
             const r = await apiFetch('/api/git-push', {
                 method: 'POST', headers: { 'Content-Type': 'application/json' },
@@ -501,17 +518,36 @@
                         let evt; try { evt = JSON.parse(line.slice(6)); } catch (e) { continue; }
                         if (evt.text)   logEl.textContent += '  ' + evt.text + '\n';
                         if (evt.output) logEl.textContent += evt.output + '\n';
-                        if (!evt.step && evt.status === 'complete') pushedOK = true;
+                        if (!evt.step && evt.status === 'complete') {
+                            pushedOK = true;
+                            completeEvent = evt;
+                        }
                     }
                 }
             }
             btn.classList.remove('btn-primary');
             btn.classList.add('btn-ghost');
-            btn.innerHTML = pushedOK ? 'Pushed to GitHub' : 'Push failed (see log)';
+            const noChanges = !!(completeEvent && completeEvent.noChanges);
+            btn.innerHTML = pushedOK ? (noChanges ? 'Already in sync' : 'Pushed to GitHub') : 'Push failed (see log)';
             if (pushedOK) {
                 const pushedAt = Date.now();
                 const container = el('syncNetlifyContainer');
-                if (container) await watchNetlify(container, pushedAt);
+                if (container) {
+                    if (noChanges) {
+                        container.innerHTML =
+                            '<div class="netlify-panel state-ready">' +
+                                '<div class="netlify-status-row">' +
+                                    '<span class="netlify-dot" aria-hidden="true"></span>' +
+                                    '<strong class="netlify-label">Already in sync -- nothing to deploy</strong>' +
+                                '</div>' +
+                                '<p class="netlify-hint">' + escapeHtml(completeEvent.message || '') + '</p>' +
+                                '<div class="row"><button type="button" id="nfStartOver" class="btn btn-primary">Start over</button></div>' +
+                            '</div>';
+                        const b = el('nfStartOver'); if (b) b.addEventListener('click', fullReset);
+                    } else {
+                        await watchNetlify(container, pushedAt);
+                    }
+                }
             }
         } catch (err) {
             logEl.textContent += '[network] ' + (err.message || String(err)) + '\n';
