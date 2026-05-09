@@ -5,9 +5,6 @@
     'use strict';
 
     // ----- token bootstrap -----
-    // Server prints URL like http://localhost:3000/?t=<32hex>. We grab the
-    // token from the URL on first load, persist to sessionStorage so reloads
-    // work, and scrub it from the URL bar so it doesn't end up in history.
     const ADMIN_TOKEN = (function () {
         const params = new URLSearchParams(location.search);
         const fromUrl = params.get('t');
@@ -21,7 +18,6 @@
         return sessionStorage.getItem('ll_admin_token') || '';
     })();
 
-    // Wrap fetch to always inject X-Admin-Token on /api/*.
     const rawFetch = window.fetch.bind(window);
     function apiFetch(url, opts) {
         opts = opts || {};
@@ -30,7 +26,7 @@
         return rawFetch(url, Object.assign({}, opts, { headers }));
     }
 
-    // ----- theme toggle (uses the same ll-theme localStorage key as the public site) -----
+    // ----- theme toggle -----
     (function setupTheme() {
         const root = document.documentElement;
         const saved = localStorage.getItem('ll-theme');
@@ -63,6 +59,78 @@
     const statusText  = el('statusText');
     const writeNotion = el('writeNotion');
 
+    // ----- generic SSE consumer -----
+    // Drives a multi-step status panel from a Server-Sent Events response.
+    // stepEls: { stepName: <li id="step-..."> }
+    async function runStreamingJob(opts) {
+        const { url, body, btn, btnSpinnerLabel, panel, titleEl, elapsedEl, logEl, stepEls, runningTitle, doneTitle, failTitle } = opts;
+        function setStep(step, state, label) {
+            const li = stepEls[step];
+            if (!li) return;
+            li.className = 'state-' + state;
+            const icon = li.querySelector('.step-icon');
+            const lbl = li.querySelector('.step-label');
+            if (icon) icon.textContent = state === 'running' ? '~' : (state === 'done' ? 'OK' : (state === 'error' ? 'X' : 'o'));
+            if (lbl && label) lbl.textContent = label;
+        }
+        function appendLog(line) { logEl.textContent += line + '\n'; }
+        // reset
+        for (const k in stepEls) setStep(k, '', '');
+        logEl.textContent = '';
+        if (btn) { btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>' + btnSpinnerLabel; }
+        if (panel) panel.style.display = '';
+        if (titleEl) titleEl.textContent = runningTitle;
+        const startedAt = Date.now();
+        const ticker = setInterval(() => { if (elapsedEl) elapsedEl.textContent = Math.floor((Date.now() - startedAt) / 1000) + 's'; }, 250);
+
+        let okEvt = null, errMsg = null;
+        try {
+            const r = await apiFetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body || {})
+            });
+            if (!r.ok) {
+                let msg = 'HTTP ' + r.status;
+                try { msg = (await r.json()).error || msg; } catch (e) {}
+                throw new Error(msg);
+            }
+            if (!r.body || !r.body.getReader) throw new Error('Browser does not support streaming responses.');
+            const reader = r.body.getReader();
+            const decoder = new TextDecoder();
+            let buf = '';
+            while (true) {
+                const { value, done } = await reader.read();
+                if (done) break;
+                buf += decoder.decode(value, { stream: true });
+                const events = buf.split('\n\n');
+                buf = events.pop();
+                for (const block of events) {
+                    for (const line of block.split('\n')) {
+                        if (!line.startsWith('data: ')) continue;
+                        let evt; try { evt = JSON.parse(line.slice(6)); } catch (e) { continue; }
+                        if (evt.text)   appendLog('  ' + evt.text);
+                        if (evt.output) appendLog(evt.output);
+                        if (evt.step && evt.status === 'running') setStep(evt.step, 'running', evt.label);
+                        if (evt.step && evt.status === 'done')    setStep(evt.step, 'done');
+                        if (evt.step && evt.status === 'error') {
+                            setStep(evt.step, 'error');
+                            errMsg = evt.output || evt.message || (evt.step + ' failed');
+                        }
+                        if (!evt.step && evt.status === 'complete') okEvt = evt;
+                        if (!evt.step && evt.status === 'error')    errMsg = evt.message || 'failed';
+                    }
+                }
+            }
+        } catch (err) {
+            errMsg = err.message || String(err);
+        }
+        clearInterval(ticker);
+        if (titleEl) titleEl.textContent = okEvt ? doneTitle : failTitle;
+        if (!okEvt && errMsg) appendLog('[error] ' + errMsg);
+        return { ok: !!okEvt, event: okEvt, error: errMsg };
+    }
+
     // ----- status -----
     async function checkHealth() {
         if (!ADMIN_TOKEN) {
@@ -88,6 +156,8 @@
                 writeNotion.checked = false;
                 writeNotion.disabled = true;
                 writeNotion.parentElement.title = 'Add NOTION_TOKEN to .env to enable Notion mirroring.';
+                const sBtn = el('syncBtn');
+                if (sBtn) { sBtn.disabled = true; sBtn.title = 'Notion not configured.'; }
             }
         } catch (e) {
             statusDot.className = 'status-dot offline';
@@ -97,12 +167,8 @@
     checkHealth();
 
     // ----- auto-fill folder + key from project name -----
-    function pascalSnake(s) {
-        return String(s).trim().replace(/[^A-Za-z0-9 ]/g, '').split(/\s+/).filter(Boolean).join('_');
-    }
-    function jsKey(s) {
-        return String(s).toLowerCase().replace(/[^a-z0-9]/g, '');
-    }
+    function pascalSnake(s) { return String(s).trim().replace(/[^A-Za-z0-9 ]/g, '').split(/\s+/).filter(Boolean).join('_'); }
+    function jsKey(s) { return String(s).toLowerCase().replace(/[^a-z0-9]/g, ''); }
     let userTouchedFolder = false;
     let userTouchedKey = false;
     folderName.addEventListener('input', () => { userTouchedFolder = true; });
@@ -137,7 +203,7 @@
         thumbPrev.appendChild(img);
     });
 
-    // ----- gallery preview (accumulates, with per-image remove) -----
+    // ----- gallery preview (accumulates) -----
     let galleryFiles = [];
     function syncGalleryInput() {
         const dt = new DataTransfer();
@@ -200,16 +266,14 @@
         result.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
 
-    // ----- submit -----
+    // ----- submit (add a project) -----
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
-
         const cats = Array.from(document.querySelectorAll('input[name="categories"]:checked')).map(c => c.value);
         if (!cats.length) {
             showResult({ type: 'error', html: '<h3>Pick at least one category.</h3>' });
             return;
         }
-
         const fd = new FormData(form);
         if (!fd.has('featured'))    fd.set('featured', 'false');
         if (!fd.has('published'))   fd.set('published', 'false');
@@ -226,11 +290,7 @@
                 const txt = await r.text().catch(() => '');
                 throw new Error('Server returned a non-JSON response (HTTP ' + r.status + '). First chars: ' + txt.slice(0, 200));
             }
-
-            if (!data.ok) {
-                showResult({ type: 'error', html: '<h3>' + escapeHtml(data.error || 'Something went wrong.') + '</h3>' });
-                return;
-            }
+            if (!data.ok) { showResult({ type: 'error', html: '<h3>' + escapeHtml(data.error || 'Something went wrong.') + '</h3>' }); return; }
 
             const project = data.project;
             const filesChanged = data.filesChanged || [];
@@ -242,10 +302,7 @@
                 ? '<p><a href="' + escapeHtml(notionUrl) + '" target="_blank">Open Notion entry</a></p>'
                 : (notionWarning ? '<p class="muted" style="color:var(--orange)">' + escapeHtml(notionWarning) + '</p>' : '');
 
-            const pushPaths = [
-                'Images/Portfolio/' + project.folderName,
-                'gallery.html'
-            ].concat(project.featured ? ['index.html'] : []);
+            const pushPaths = ['Images/Portfolio/' + project.folderName, 'gallery.html'].concat(project.featured ? ['index.html'] : []);
 
             showResult({
                 type: '',
@@ -258,12 +315,8 @@
                         '<button type="button" id="commitBtn" class="btn btn-primary">Commit and Push</button>' +
                         '<button type="button" id="newBtn" class="btn btn-ghost">Add another</button>' +
                     '</div>' +
-                    // Multi-step publish status panel (hidden until publish starts)
                     '<div class="publish-status" id="publishStatus" style="display:none">' +
-                        '<div class="publish-header">' +
-                            '<strong id="publishTitle">Publishing...</strong>' +
-                            '<span class="publish-elapsed" id="publishElapsed">0s</span>' +
-                        '</div>' +
+                        '<div class="publish-header"><strong id="publishTitle">Publishing...</strong><span class="publish-elapsed" id="publishElapsed">0s</span></div>' +
                         '<ol class="publish-steps">' +
                             '<li id="step-add"><span class="step-icon">o</span><span class="step-label">Staging files</span></li>' +
                             '<li id="step-commit"><span class="step-icon">o</span><span class="step-label">Creating commit</span></li>' +
@@ -277,7 +330,6 @@
             const newBtn    = el('newBtn');
             commitBtn.addEventListener('click', () => publish(project.projectName, pushPaths, commitBtn));
             newBtn.addEventListener('click', () => resetBtn.click());
-
         } catch (err) {
             showResult({ type: 'error', html: '<h3>Network error</h3><pre>' + escapeHtml(err.message || String(err)) + '</pre>' });
         } finally {
@@ -286,71 +338,103 @@
         }
     });
 
-    // ----- publish (SSE consumer) -----
+    // ----- publish (after add a project) -----
     async function publish(projectNameStr, paths, btn) {
-        const panel  = el('publishStatus');
-        const title  = el('publishTitle');
-        const elapsedEl = el('publishElapsed');
-        const logEl  = el('publishLog');
-        const stepEls = {
-            add:    el('step-add'),
-            commit: el('step-commit'),
-            push:   el('step-push')
-        };
-        function setStep(step, state, label) {
-            const li = stepEls[step];
-            if (!li) return;
-            li.className = 'state-' + state;
-            const icon = li.querySelector('.step-icon');
-            const lbl = li.querySelector('.step-label');
-            if (icon) icon.textContent = state === 'running' ? '~' : (state === 'done' ? 'OK' : (state === 'error' ? 'X' : 'o'));
-            if (lbl && label) lbl.textContent = label;
+        const result = await runStreamingJob({
+            url: '/api/git-push',
+            body: { message: 'Add portfolio: ' + projectNameStr, paths: paths },
+            btn: btn,
+            btnSpinnerLabel: 'Publishing...',
+            panel: el('publishStatus'),
+            titleEl: el('publishTitle'),
+            elapsedEl: el('publishElapsed'),
+            logEl: el('publishLog'),
+            stepEls: { add: el('step-add'), commit: el('step-commit'), push: el('step-push') },
+            runningTitle: 'Publishing to GitHub...',
+            doneTitle: 'Published',
+            failTitle: 'Publish failed'
+        });
+        btn.classList.remove('btn-primary');
+        btn.classList.add('btn-ghost');
+        if (result.ok) {
+            btn.innerHTML = 'Pushed -- Netlify is rebuilding';
+        } else {
+            btn.disabled = false;
+            btn.innerHTML = 'Retry push';
         }
+    }
 
+    // ----- sync from Notion -----
+    const syncBtn = el('syncBtn');
+    if (syncBtn) {
+        syncBtn.addEventListener('click', async () => {
+            if (!confirm('This will rewrite the portfolio sections of gallery.html and index.html using your Notion database. Local hand-edits to those sections will be replaced.\n\nContinue?')) return;
+
+            const panel    = el('syncStatus');
+            const titleEl  = el('syncTitle');
+            const elapsedEl= el('syncElapsed');
+            const logEl    = el('syncLog');
+            const resultEl = el('syncResult');
+            resultEl.style.display = 'none';
+            resultEl.innerHTML = '';
+
+            const r = await runStreamingJob({
+                url: '/api/sync-from-notion',
+                body: {},
+                btn: syncBtn,
+                btnSpinnerLabel: 'Syncing...',
+                panel: panel,
+                titleEl: titleEl,
+                elapsedEl: elapsedEl,
+                logEl: logEl,
+                stepEls: { read: el('sync-step-read'), gallery: el('sync-step-gallery'), index: el('sync-step-index') },
+                runningTitle: 'Syncing from Notion...',
+                doneTitle: 'Synced',
+                failTitle: 'Sync failed'
+            });
+
+            syncBtn.disabled = false;
+            syncBtn.innerHTML = 'Sync from Notion';
+
+            if (r.ok) {
+                const evt = r.event || {};
+                const names = (evt.projectNames || []).map(n => '<li>' + escapeHtml(n) + '</li>').join('');
+                resultEl.style.display = '';
+                resultEl.innerHTML =
+                    '<p>' + escapeHtml(evt.message || ('Synced ' + (evt.total || '?') + ' projects.')) + '</p>' +
+                    (names ? '<details><summary>' + (evt.total || '?') + ' projects</summary><ul style="margin-top:0.5rem">' + names + '</ul></details>' : '') +
+                    '<div class="row" style="margin-top:1rem">' +
+                        '<button type="button" id="syncCommitBtn" class="btn btn-primary">Commit and Push</button>' +
+                    '</div>' +
+                    '<pre id="syncCommitLog" style="display:none"></pre>';
+                el('syncCommitBtn').addEventListener('click', () => syncCommitPush(el('syncCommitBtn'), el('syncCommitLog')));
+            } else {
+                resultEl.style.display = '';
+                resultEl.innerHTML = '<p style="color:var(--red)"><strong>' + escapeHtml(r.error || 'Sync failed') + '</strong></p>';
+            }
+        });
+    }
+
+    async function syncCommitPush(btn, logEl) {
         btn.disabled = true;
-        btn.innerHTML = '<span class="spinner"></span>Publishing...';
-        panel.style.display = '';
-        title.textContent = 'Publishing to GitHub...';
+        btn.innerHTML = '<span class="spinner"></span>Pushing...';
+        logEl.style.display = 'block';
         logEl.textContent = '';
-
-        const startedAt = Date.now();
-        const ticker = setInterval(() => {
-            const s = Math.floor((Date.now() - startedAt) / 1000);
-            elapsedEl.textContent = s + 's';
-        }, 250);
-
-        function appendLog(line) {
-            logEl.textContent += line + '\n';
-            // auto-scroll
-            const det = logEl.closest('details');
-            if (det) logEl.scrollTop = logEl.scrollHeight;
-        }
-
         try {
             const r = await apiFetch('/api/git-push', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    message: 'Add portfolio: ' + projectNameStr,
-                    paths: paths
-                })
+                body: JSON.stringify({ message: 'Sync portfolio from Notion', paths: ['gallery.html', 'index.html'] })
             });
-
             if (!r.ok) {
                 let msg = 'HTTP ' + r.status;
                 try { msg = (await r.json()).error || msg; } catch (e) {}
                 throw new Error(msg);
             }
-            if (!r.body || !r.body.getReader) {
-                throw new Error('Browser does not support streaming responses.');
-            }
-
             const reader = r.body.getReader();
             const decoder = new TextDecoder();
             let buf = '';
             let pushedOK = false;
-            let finalError = null;
-
             while (true) {
                 const { value, done } = await reader.read();
                 if (done) break;
@@ -360,44 +444,20 @@
                 for (const block of events) {
                     for (const line of block.split('\n')) {
                         if (!line.startsWith('data: ')) continue;
-                        let evt;
-                        try { evt = JSON.parse(line.slice(6)); }
-                        catch (e) { continue; }
-                        if (evt.text) appendLog('  ' + evt.text);
-                        if (evt.output) appendLog(evt.output);
-                        if (evt.step && evt.status === 'running') setStep(evt.step, 'running', evt.label);
-                        if (evt.step && evt.status === 'done')    setStep(evt.step, 'done');
-                        if (evt.step && evt.status === 'error') {
-                            setStep(evt.step, 'error');
-                            finalError = (evt.output || evt.message || 'git ' + evt.step + ' failed');
-                        }
+                        let evt; try { evt = JSON.parse(line.slice(6)); } catch (e) { continue; }
+                        if (evt.text)   logEl.textContent += '  ' + evt.text + '\n';
+                        if (evt.output) logEl.textContent += evt.output + '\n';
                         if (!evt.step && evt.status === 'complete') pushedOK = true;
-                        if (!evt.step && evt.status === 'error')    finalError = evt.message || 'Publish failed';
                     }
                 }
             }
-
-            clearInterval(ticker);
-            if (pushedOK) {
-                title.textContent = 'Published';
-                btn.classList.remove('btn-primary');
-                btn.classList.add('btn-ghost');
-                btn.innerHTML = 'Pushed -- Netlify is rebuilding';
-            } else {
-                title.textContent = 'Publish failed';
-                btn.classList.remove('btn-primary');
-                btn.classList.add('btn-ghost');
-                btn.innerHTML = 'Push failed (see log)';
-                if (finalError) appendLog('\n[error] ' + finalError);
-            }
-        } catch (err) {
-            clearInterval(ticker);
-            title.textContent = 'Publish failed';
-            btn.disabled = false;
             btn.classList.remove('btn-primary');
             btn.classList.add('btn-ghost');
+            btn.innerHTML = pushedOK ? 'Pushed -- Netlify is rebuilding' : 'Push failed (see log)';
+        } catch (err) {
+            logEl.textContent += '[network] ' + (err.message || String(err)) + '\n';
+            btn.disabled = false;
             btn.innerHTML = 'Retry push';
-            appendLog('[network] ' + (err.message || String(err)));
         }
     }
 

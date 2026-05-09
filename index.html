@@ -723,6 +723,7 @@
         <div class="section-header reveal"><span class="section-label" data-i18n="portfolio.label">Portfolio</span><h2 class="section-title" data-i18n="portfolio.title">Selected Works</h2><p class="section-desc" data-i18n="portfolio.desc">Recent 3D prints from the workshop. Click any project to explore all photos.</p><p class="section-note" data-i18n="portfolio.note">All prints can be customised in different colours, materials, and sizes on request.</p></div>
 
         <div class="gallery-grid gallery-grid--featured">
+            <!-- LL_PORTFOLIO_INSERT_HTML_START — sync-from-Notion replaces everything between this and the END marker. -->
             <!-- Jeep Kit Card -->
             <div class="gallery-card reveal" data-category="miniatures" onclick="openLightbox('jeepkitcard')">
                 <div class="card-image">
@@ -827,6 +828,7 @@
                     <div class="card-credit">Design by <a href="https://makerworld.com/en/@Layerlama" target="_blank">Layerlama</a> via MakerWorld</div>
                 </div>
             </div>
+            <!-- LL_PORTFOLIO_INSERT_HTML — admin tool inserts new featured cards above this line. Do not remove. -->
         </div>
 
         <div class="view-all-wrapper reveal">
@@ -1149,6 +1151,7 @@
     <script>
         // Lightbox project data
         const projects = {
+            // LL_PORTFOLIO_INSERT_JS_START — sync-from-Notion replaces everything between this and the END marker.
             planter: {
                 title: 'Polygon Planter',
                 credit: 'Design by h3li0 via MakerWorld',
@@ -1204,6 +1207,7 @@
                 credit: 'Design by agepbiz via MakerWorld',
                 images: ['Images/Portfolio/Jeep_Kit_Card/Thumbnail.jpg','Images/Portfolio/Jeep_Kit_Card/2.jpg','Images/Portfolio/Jeep_Kit_Card/3.jpg','Images/Portfolio/Jeep_Kit_Card/4.jpg','Images/Portfolio/Jeep_Kit_Card/5.jpg','Images/Portfolio/Jeep_Kit_Card/Instructions.webp']
             }
+            // LL_PORTFOLIO_INSERT_JS — admin tool inserts new lightbox entries above this line. Do not remove.
         };
 
         let currentProject = null;

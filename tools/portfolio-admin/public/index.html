@@ -1,9 +1,13 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Layer Lama — Portfolio Admin</title>
+    <title>Layer Lama -- Portfolio Admin</title>
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="admin.css">
@@ -12,17 +16,45 @@
     <header class="topbar">
         <div class="topbar-left">
             <div class="nav-logo">
-                <img src="/site-logo" alt="Layer Lama logo" width="40" height="40">
+                <img src="/site-logo" alt="Layer Lama logo" class="logo-dark" width="40" height="40">
+                <img src="/site-logo?theme=light" alt="" aria-hidden="true" class="logo-light" width="40" height="40">
                 <span>Layer Lama</span>
             </div>
-            <p class="subtitle">Portfolio Admin <span class="status-dot" id="statusDot"></span> <span id="statusText">checking…</span></p>
+            <p class="subtitle">Portfolio Admin <span class="status-dot" id="statusDot"></span> <span id="statusText">checking...</span></p>
         </div>
         <div class="topbar-right">
-            <span class="hint">local-only · never deploy</span>
+            <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme" type="button">
+                <span class="toggle-icons"><span aria-hidden="true">&#9790;</span><span aria-hidden="true">&#9728;</span></span>
+            </button>
+            <span class="hint">local-only -- never deploy</span>
         </div>
     </header>
 
     <main class="wrap">
+        <!-- Notion sync panel -->
+        <section class="card sync-card">
+            <div class="sync-header">
+                <div>
+                    <h2>Notion sync</h2>
+                    <p class="muted" style="margin-bottom:0">Pulls all <strong>Published</strong> rows from the Notion <em>Portfolio Projects</em> database and rewrites <code>gallery.html</code> + <code>index.html</code> (the Featured rows).</p>
+                </div>
+                <button type="button" id="syncBtn" class="btn btn-primary">Sync from Notion</button>
+            </div>
+            <div class="publish-status" id="syncStatus" style="display:none">
+                <div class="publish-header">
+                    <strong id="syncTitle">Syncing from Notion...</strong>
+                    <span class="publish-elapsed" id="syncElapsed">0s</span>
+                </div>
+                <ol class="publish-steps">
+                    <li id="sync-step-read"><span class="step-icon">o</span><span class="step-label">Reading Notion database</span></li>
+                    <li id="sync-step-gallery"><span class="step-icon">o</span><span class="step-label">Updating gallery.html</span></li>
+                    <li id="sync-step-index"><span class="step-icon">o</span><span class="step-label">Updating index.html</span></li>
+                </ol>
+                <div id="syncResult" class="sync-result" style="display:none"></div>
+                <details class="publish-log"><summary>Show details</summary><pre id="syncLog"></pre></details>
+            </div>
+        </section>
+
         <section class="card">
             <h2>Add a new project</h2>
             <p class="muted">Saves images to <code>Images/Portfolio/&lt;Folder&gt;/</code>, injects a card into <code>gallery.html</code> (and <code>index.html</code> if Featured), and optionally writes a row to Notion.</p>
@@ -43,7 +75,7 @@
                     <label class="field">
                         <span class="label">Project Key <em>required</em></span>
                         <input type="text" name="projectKey" id="projectKey" required placeholder="dolphinplanter">
-                        <small class="hint">JS object key, lowercase a–z + 0–9</small>
+                        <small class="hint">JS object key, lowercase a-z + 0-9</small>
                     </label>
 
                     <fieldset class="field span-2 categories">
@@ -69,7 +101,7 @@
 
                     <label class="field span-2">
                         <span class="label">Card meta line <em>optional</em></span>
-                        <input type="text" name="cardMeta" id="cardMeta" placeholder="auto: PLA • Bambu Lab A1">
+                        <input type="text" name="cardMeta" id="cardMeta" placeholder="auto: PLA &middot; Bambu Lab A1">
                         <small class="hint">Leave blank to combine Material + Printer with a bullet</small>
                     </label>
 

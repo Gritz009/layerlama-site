@@ -1,17 +1,7 @@
 // Layer Lama -- Portfolio Admin (local-only)
 //
-// Security model:
-//   * Bound to 127.0.0.1 only (loopback) -- never reachable from the LAN.
-//   * Per-startup random ADMIN_TOKEN. Frontend reads it from ?t=... in the URL
-//     that the launcher auto-opens, persists to sessionStorage, sends on every
-//     /api/* call as X-Admin-Token. Other tabs/processes don't have it.
-//   * Middleware validates Host header (DNS rebinding defense) and Origin
-//     header on POST (CSRF defense).
-//   * Node HTTP server timeouts disabled so long git pushes don't drop.
-//   * SSE keep-alive heartbeat every 15s so proxies/firewalls don't drop the
-//     connection during a long push.
-//
-// NEVER deploy. Local-only. Reads secrets from .env.
+// Security: bound to 127.0.0.1, per-startup ADMIN_TOKEN, host/origin/token
+// middleware. NEVER deploy. Local-only. Reads secrets from .env.
 
 'use strict';
 
@@ -30,8 +20,10 @@ const PORTFOLIO_IMG_ROOT = path.join(ROOT, 'Images', 'Portfolio');
 const GALLERY_HTML = path.join(ROOT, 'gallery.html');
 const INDEX_HTML = path.join(ROOT, 'index.html');
 
-const HTML_MARKER = 'LL_PORTFOLIO_INSERT_HTML';
-const JS_MARKER = 'LL_PORTFOLIO_INSERT_JS';
+const HTML_MARKER_END = 'LL_PORTFOLIO_INSERT_HTML';
+const HTML_MARKER_START = 'LL_PORTFOLIO_INSERT_HTML_START';
+const JS_MARKER_END = 'LL_PORTFOLIO_INSERT_JS';
+const JS_MARKER_START = 'LL_PORTFOLIO_INSERT_JS_START';
 
 const PORT = parseInt(process.env.PORT, 10) || 3000;
 const HOST = '127.0.0.1';
@@ -39,12 +31,12 @@ const NOTION_TOKEN = process.env.NOTION_TOKEN || '';
 const NOTION_DB_ID = process.env.NOTION_PORTFOLIO_DB_ID || 'e3709cae-61b5-41e0-820d-507d5c63c304';
 const notion = NOTION_TOKEN ? new NotionClient({ auth: NOTION_TOKEN }) : null;
 
-// Per-startup admin token. Random 32-char hex (128 bits).
 const ADMIN_TOKEN = crypto.randomBytes(16).toString('hex');
 
 // ----- helpers -----
 const MIDDLE_DOT = ' ' + String.fromCharCode(0xB7) + ' ';
 const BULLET = ' ' + String.fromCharCode(0x2022) + ' ';
+const BULLET_HTML = ' &bull; ';
 
 function safeFolderName(s) { return String(s || '').trim().replace(/[^A-Za-z0-9_\-]/g, '_').replace(/_+/g, '_'); }
 function safeJsKey(s) { return String(s || '').toLowerCase().replace(/[^a-z0-9]/g, ''); }
@@ -82,7 +74,7 @@ const upload = multer({
     limits: { fileSize: 50 * 1024 * 1024 }
 });
 
-// ----- builders (HTML cards + JS lightbox entries) -----
+// ----- builders -----
 function buildGalleryCardHtml(p) {
     const { i18n, text } = categoryTagInfo(p.categories);
     const cat = primaryCategoryLower(p.categories);
@@ -143,7 +135,7 @@ function buildIndexJsEntry(p) {
 function injectAtMarker(content, marker, snippet, kind) {
     const lines = content.split('\n');
     const idx = lines.findIndex(l => l.includes(marker));
-    if (idx < 0) throw new Error('Marker ' + marker + ' not found -- site files may be out of sync with the admin tool.');
+    if (idx < 0) throw new Error('Marker ' + marker + ' not found.');
     if (kind === 'js') {
         let prev = idx - 1;
         while (prev >= 0 && lines[prev].trim() === '') prev--;
@@ -153,6 +145,15 @@ function injectAtMarker(content, marker, snippet, kind) {
     }
     lines.splice(idx, 0, snippet);
     return lines.join('\n');
+}
+function replaceBetweenMarkers(content, startMarker, endMarker, replacement) {
+    const lines = content.split('\n');
+    const startIdx = lines.findIndex(l => l.includes(startMarker));
+    const endIdx = lines.findIndex(l => l.includes(endMarker));
+    if (startIdx < 0) throw new Error('Start marker ' + startMarker + ' not found.');
+    if (endIdx < 0) throw new Error('End marker ' + endMarker + ' not found.');
+    if (endIdx <= startIdx) throw new Error('End marker before start marker for ' + startMarker);
+    return [].concat(lines.slice(0, startIdx + 1), [replacement], lines.slice(endIdx)).join('\n');
 }
 
 // ----- site logo -----
@@ -169,22 +170,87 @@ function getSiteLogo(variant) {
             const src = tag[0].match(/src="data:image\/png;base64,([A-Za-z0-9+/=]+)"/);
             if (src) { _logoCache[v] = Buffer.from(src[1], 'base64'); return _logoCache[v]; }
         }
-    } catch (e) { /* ignore */ }
+    } catch (e) {}
     return null;
 }
 
+// ----- Notion helpers -----
+async function listAllNotionProjects() {
+    if (!notion) throw new Error('Notion not configured. Set NOTION_TOKEN in .env.');
+    const all = [];
+    let cursor = undefined;
+    do {
+        const resp = await notion.databases.query({
+            database_id: NOTION_DB_ID,
+            page_size: 100,
+            start_cursor: cursor,
+            sorts: [{ property: 'Display Order', direction: 'ascending' }]
+        });
+        all.push.apply(all, resp.results);
+        cursor = resp.has_more ? resp.next_cursor : undefined;
+    } while (cursor);
+    return all;
+}
+function readRichText(prop) {
+    if (!prop) return '';
+    if (prop.rich_text) return prop.rich_text.map(function (t) { return t.plain_text || ''; }).join('');
+    if (prop.title) return prop.title.map(function (t) { return t.plain_text || ''; }).join('');
+    return '';
+}
+function notionPageToProject(page) {
+    const props = page.properties || {};
+    const projectName = readRichText(props['Project Name']);
+    const cats = (props['Category'] && props['Category'].multi_select) ? props['Category'].multi_select.map(function (o) { return o.name; }) : [];
+    const designer = readRichText(props['Designer']);
+    const designerUrl = (props['Designer URL'] && props['Designer URL'].url) || '';
+    const material = readRichText(props['Material']);
+    const printer = readRichText(props['Printer']);
+    const imageUrlsRaw = readRichText(props['Image URLs']);
+    const thumbUrl = (props['Thumbnail URL'] && props['Thumbnail URL'].url) || '';
+    const displayOrder = (props['Display Order'] && typeof props['Display Order'].number === 'number') ? props['Display Order'].number : 100;
+    const featured = !!(props['Featured'] && props['Featured'].checkbox);
+    const published = props['Published'] && typeof props['Published'].checkbox === 'boolean' ? props['Published'].checkbox : true;
+
+    const galleryImages = imageUrlsRaw.split(/\s*,\s*/).map(function (s) { return s.trim(); }).filter(Boolean);
+    const firstImage = galleryImages[0] || thumbUrl.replace(/^\//, '');
+    const folderMatch = firstImage.match(/Images\/Portfolio\/([^/]+)\//);
+    const folderName = folderMatch ? folderMatch[1] : safeFolderName(projectName);
+    const projectKey = safeJsKey(projectName);
+
+    let thumbnailFile = '';
+    if (thumbUrl) {
+        thumbnailFile = thumbUrl.split('/').pop() || '';
+    }
+    if (!thumbnailFile && firstImage) {
+        thumbnailFile = firstImage.split('/').pop() || 'Thumbnail.png';
+    }
+
+    const cardMeta = (material && printer) ? (material + BULLET_HTML.trim().replace('&bull;', String.fromCharCode(0x2022)) + ' ' + printer) :
+                     (material && printer ? (material + ' ' + String.fromCharCode(0x2022) + ' ' + printer) : (material || printer || ''));
+    // Use plain bullet; HTML escaper will leave it intact in the resulting HTML
+    const cardMetaClean = (material && printer) ? (material + ' ' + String.fromCharCode(0x2022) + ' ' + printer) : (material || printer || '');
+
+    return {
+        projectName: projectName,
+        folderName: folderName,
+        projectKey: projectKey,
+        categories: cats,
+        designer: designer,
+        designerUrl: designerUrl,
+        material: material,
+        printer: printer,
+        cardMeta: cardMetaClean,
+        displayOrder: displayOrder,
+        featured: featured,
+        published: published,
+        thumbnailFile: thumbnailFile || 'Thumbnail.png',
+        galleryImages: galleryImages
+    };
+}
+
 // ----- security middleware -----
-// Allowed Host headers. Reject anything else (DNS rebinding defense).
-const ALLOWED_HOSTS = new Set([
-    'localhost:' + PORT,
-    '127.0.0.1:' + PORT,
-    '[::1]:' + PORT
-]);
-const ALLOWED_ORIGINS = new Set([
-    'http://localhost:' + PORT,
-    'http://127.0.0.1:' + PORT,
-    'http://[::1]:' + PORT
-]);
+const ALLOWED_HOSTS = new Set(['localhost:' + PORT, '127.0.0.1:' + PORT, '[::1]:' + PORT]);
+const ALLOWED_ORIGINS = new Set(['http://localhost:' + PORT, 'http://127.0.0.1:' + PORT, 'http://[::1]:' + PORT]);
 
 function validateHost(req, res, next) {
     const host = (req.headers.host || '').toLowerCase();
@@ -193,10 +259,7 @@ function validateHost(req, res, next) {
     }
     next();
 }
-
 function validateOrigin(req, res, next) {
-    // POST/PUT/DELETE require an Origin or Referer that matches us. GET is fine
-    // without (browser doesn't always send Origin on GET).
     if (req.method === 'GET' || req.method === 'HEAD') return next();
     const origin = req.headers.origin || '';
     const referer = req.headers.referer || '';
@@ -205,19 +268,17 @@ function validateOrigin(req, res, next) {
             return res.status(403).json({ ok: false, error: 'Forbidden origin: ' + origin });
         }
     } else if (referer) {
-        const ok = Array.from(ALLOWED_ORIGINS).some(o => referer.toLowerCase().startsWith(o + '/') || referer.toLowerCase() === o);
+        const ok = Array.from(ALLOWED_ORIGINS).some(function (o) { return referer.toLowerCase().startsWith(o + '/') || referer.toLowerCase() === o; });
         if (!ok) return res.status(403).json({ ok: false, error: 'Forbidden referer.' });
     } else {
         return res.status(403).json({ ok: false, error: 'Origin header missing on state-changing request.' });
     }
     next();
 }
-
 function requireToken(req, res, next) {
     const headerTok = req.headers['x-admin-token'];
     const queryTok = req.query.t;
     const presented = headerTok || queryTok || '';
-    // Constant-time compare
     if (presented.length !== ADMIN_TOKEN.length ||
         !crypto.timingSafeEqual(Buffer.from(presented), Buffer.from(ADMIN_TOKEN))) {
         return res.status(401).json({ ok: false, error: 'Bad or missing access token. Open the URL printed in your terminal.' });
@@ -230,30 +291,40 @@ const app = express();
 app.disable('x-powered-by');
 app.use(express.json({ limit: '1mb' }));
 app.use(validateHost);
-
-// Static files (admin form HTML/CSS/JS) -- no token required because the
-// page itself is just static markup; it can't do anything without an API call.
 app.use(express.static(PUBLIC_DIR));
 
-// Site logo route -- no token required (image only, read from project root).
-app.get('/site-logo', (req, res) => {
+// Favicon: serve the same icons as the live site so the admin tab matches.
+function siteAssetRoute(filename) {
+    return function (req, res) {
+        const p = path.join(ROOT, filename);
+        if (fs.existsSync(p)) return res.sendFile(p);
+        res.status(404).end();
+    };
+}
+app.get('/favicon.ico', siteAssetRoute('favicon.ico'));
+app.get('/favicon-16.png', siteAssetRoute('favicon-16.png'));
+app.get('/favicon-32.png', siteAssetRoute('favicon-32.png'));
+app.get('/apple-touch-icon.png', siteAssetRoute('icon-192.png'));
+
+// Site logo
+app.get('/site-logo', function (req, res) {
     const buf = getSiteLogo(req.query.theme);
     if (buf) {
         res.setHeader('Content-Type', 'image/png');
         res.setHeader('Cache-Control', 'public, max-age=86400');
         return res.send(buf);
     }
-    for (const fallback of ['icon-192.png', 'icon-512.png', 'favicon-32.png']) {
-        const p = path.join(ROOT, fallback);
+    for (const fb of ['icon-192.png', 'icon-512.png', 'favicon-32.png']) {
+        const p = path.join(ROOT, fb);
         if (fs.existsSync(p)) return res.sendFile(p);
     }
     res.status(404).end();
 });
 
-// All /api/* routes require origin + token.
+// /api/* requires origin + token
 app.use('/api', validateOrigin, requireToken);
 
-app.get('/api/health', (req, res) => {
+app.get('/api/health', function (req, res) {
     res.json({
         ok: true,
         notionConfigured: Boolean(NOTION_TOKEN),
@@ -264,16 +335,15 @@ app.get('/api/health', (req, res) => {
     });
 });
 
+// ----- create project -----
 app.post('/api/create-project', upload.fields([
     { name: 'thumbnail', maxCount: 1 },
     { name: 'gallery', maxCount: 30 }
-]), async (req, res) => {
+]), async function (req, res) {
     const stagedFiles = [];
     if (req.files && req.files.thumbnail) stagedFiles.push.apply(stagedFiles, req.files.thumbnail);
     if (req.files && req.files.gallery) stagedFiles.push.apply(stagedFiles, req.files.gallery);
-    function cleanupStaging() {
-        for (const f of stagedFiles) { try { fs.unlinkSync(f.path); } catch (e) {} }
-    }
+    function cleanupStaging() { for (const f of stagedFiles) { try { fs.unlinkSync(f.path); } catch (e) {} } }
     try {
         const b = req.body || {};
         const projectName = String(b.projectName || '').trim();
@@ -298,7 +368,7 @@ app.post('/api/create-project', upload.fields([
         if (!(req.files && req.files.gallery && req.files.gallery.length)) throw new Error('At least one gallery image is required.');
 
         const targetDir = path.join(PORTFOLIO_IMG_ROOT, folderName);
-        if (fs.existsSync(targetDir)) throw new Error('Folder Images/Portfolio/' + folderName + ' already exists. Pick a different folder name.');
+        if (fs.existsSync(targetDir)) throw new Error('Folder Images/Portfolio/' + folderName + ' already exists.');
         fs.mkdirSync(targetDir, { recursive: true });
 
         const thumbFile = req.files.thumbnail[0];
@@ -325,15 +395,15 @@ app.post('/api/create-project', upload.fields([
         };
 
         let galleryContent = fs.readFileSync(GALLERY_HTML, 'utf8');
-        galleryContent = injectAtMarker(galleryContent, HTML_MARKER, buildGalleryCardHtml(project), 'html');
-        galleryContent = injectAtMarker(galleryContent, JS_MARKER, buildGalleryJsEntry(project) + ',', 'js');
+        galleryContent = injectAtMarker(galleryContent, HTML_MARKER_END, buildGalleryCardHtml(project), 'html');
+        galleryContent = injectAtMarker(galleryContent, JS_MARKER_END, buildGalleryJsEntry(project) + ',', 'js');
         fs.writeFileSync(GALLERY_HTML, galleryContent, 'utf8');
 
         const filesChanged = ['Images/Portfolio/' + folderName, 'gallery.html'];
         if (featured) {
             let indexContent = fs.readFileSync(INDEX_HTML, 'utf8');
-            indexContent = injectAtMarker(indexContent, HTML_MARKER, buildIndexCardHtml(project), 'html');
-            indexContent = injectAtMarker(indexContent, JS_MARKER, buildIndexJsEntry(project) + ',', 'js');
+            indexContent = injectAtMarker(indexContent, HTML_MARKER_END, buildIndexCardHtml(project), 'html');
+            indexContent = injectAtMarker(indexContent, JS_MARKER_END, buildIndexJsEntry(project) + ',', 'js');
             fs.writeFileSync(INDEX_HTML, indexContent, 'utf8');
             filesChanged.push('index.html');
         }
@@ -341,7 +411,7 @@ app.post('/api/create-project', upload.fields([
         let notionUrl = null, notionWarning = null;
         if (writeNotion) {
             if (!notion) {
-                notionWarning = 'Notion not configured -- set NOTION_TOKEN in .env to mirror to the Portfolio Projects DB.';
+                notionWarning = 'Notion not configured -- set NOTION_TOKEN in .env.';
             } else {
                 try {
                     const resp = await notion.pages.create({
@@ -377,8 +447,6 @@ app.post('/api/create-project', upload.fields([
 });
 
 // ----- streaming git push -----
-// Server-Sent Events: each event is one line of git progress.
-// Disables socket timeout so a 10-minute push doesn't drop.
 function spawnGitStreamed(args, onLine) {
     return new Promise(function (resolve) {
         const proc = spawn('git', args, { cwd: ROOT, windowsHide: true });
@@ -393,13 +461,11 @@ function spawnGitStreamed(args, onLine) {
         }
         proc.stdout.on('data', consume);
         proc.stderr.on('data', consume);
-        proc.on('error', (err) => resolve({ ok: false, code: -1, output: lines.join('\n') + '\n[spawn error] ' + err.message }));
-        proc.on('close', (code) => resolve({ ok: code === 0, code, output: lines.join('\n') }));
+        proc.on('error', function (err) { resolve({ ok: false, code: -1, output: lines.join('\n') + '\n[spawn error] ' + err.message }); });
+        proc.on('close', function (code) { resolve({ ok: code === 0, code: code, output: lines.join('\n') }); });
     });
 }
-
-app.post('/api/git-push', async (req, res) => {
-    // SSE setup
+app.post('/api/git-push', async function (req, res) {
     res.writeHead(200, {
         'Content-Type': 'text/event-stream',
         'Cache-Control': 'no-cache, no-transform',
@@ -407,88 +473,104 @@ app.post('/api/git-push', async (req, res) => {
         'X-Accel-Buffering': 'no'
     });
     res.flushHeaders();
-    if (req.socket) {
-        req.socket.setTimeout(0);
-        req.socket.setKeepAlive(true);
-        req.socket.setNoDelay(true);
-    }
-
-    function emit(obj) { res.write('data: ' + JSON.stringify(obj) + '\n\n'); }
+    if (req.socket) { req.socket.setTimeout(0); req.socket.setKeepAlive(true); req.socket.setNoDelay(true); }
+    function emit(o) { res.write('data: ' + JSON.stringify(o) + '\n\n'); }
     const heartbeat = setInterval(function () { res.write(': ping\n\n'); }, 15000);
-
-    function endResponse() {
-        clearInterval(heartbeat);
-        try { res.end(); } catch (e) {}
-    }
-
+    function endResponse() { clearInterval(heartbeat); try { res.end(); } catch (e) {} }
     try {
         const message = String((req.body && req.body.message) || '').trim() || 'Add new portfolio project';
         const paths = Array.isArray(req.body && req.body.paths) ? req.body.paths : [];
         const safePaths = paths.filter(function (p) {
-            return typeof p === 'string'
-                && !p.includes('..')
-                && (p === 'gallery.html' || p === 'index.html' || p.startsWith('Images/Portfolio/'));
+            return typeof p === 'string' && !p.includes('..') && (p === 'gallery.html' || p === 'index.html' || p.startsWith('Images/Portfolio/'));
         });
-        if (!safePaths.length) {
-            emit({ status: 'error', message: 'No safe paths to commit.' });
-            return endResponse();
-        }
-
-        emit({ status: 'started', paths: safePaths, message });
-
-        // 1. git add
+        if (!safePaths.length) { emit({ status: 'error', message: 'No safe paths to commit.' }); return endResponse(); }
+        emit({ status: 'started', paths: safePaths, message: message });
         emit({ step: 'add', status: 'running', label: 'Staging files' });
-        const add = await spawnGitStreamed(['add', '--'].concat(safePaths), function (line) {
-            emit({ step: 'add', status: 'progress', text: line });
-        });
-        if (!add.ok) {
-            emit({ step: 'add', status: 'error', code: add.code, output: add.output });
-            return endResponse();
-        }
+        const add = await spawnGitStreamed(['add', '--'].concat(safePaths), function (line) { emit({ step: 'add', status: 'progress', text: line }); });
+        if (!add.ok) { emit({ step: 'add', status: 'error', code: add.code, output: add.output }); return endResponse(); }
         emit({ step: 'add', status: 'done' });
 
-        // 2. git commit
         emit({ step: 'commit', status: 'running', label: 'Creating commit' });
-        const commit = await spawnGitStreamed(['commit', '-m', message], function (line) {
-            emit({ step: 'commit', status: 'progress', text: line });
-        });
+        const commit = await spawnGitStreamed(['commit', '-m', message], function (line) { emit({ step: 'commit', status: 'progress', text: line }); });
         const nothingToCommit = /nothing to commit|nothing added to commit/i.test(commit.output);
-        if (!commit.ok && !nothingToCommit) {
-            emit({ step: 'commit', status: 'error', code: commit.code, output: commit.output });
-            return endResponse();
-        }
+        if (!commit.ok && !nothingToCommit) { emit({ step: 'commit', status: 'error', code: commit.code, output: commit.output }); return endResponse(); }
         emit({ step: 'commit', status: 'done', skipped: nothingToCommit });
 
-        // 3. git push (long step)
         emit({ step: 'push', status: 'running', label: 'Pushing to remote' });
-        const push = await spawnGitStreamed(['push', '--progress'], function (line) {
-            emit({ step: 'push', status: 'progress', text: line });
-        });
-        if (!push.ok) {
-            emit({ step: 'push', status: 'error', code: push.code, output: push.output });
-            return endResponse();
-        }
+        const push = await spawnGitStreamed(['push', '--progress'], function (line) { emit({ step: 'push', status: 'progress', text: line }); });
+        if (!push.ok) { emit({ step: 'push', status: 'error', code: push.code, output: push.output }); return endResponse(); }
         emit({ step: 'push', status: 'done' });
 
         emit({ status: 'complete', message: 'Pushed to remote. Netlify is now rebuilding.' });
     } catch (err) {
         console.error('[git-push]', err);
         emit({ status: 'error', message: err.message || String(err) });
-    } finally {
-        endResponse();
-    }
+    } finally { endResponse(); }
 });
 
-// JSON error handler -- catches multer errors and any unhandled middleware
-// error so the frontend sees JSON instead of Express's HTML 500 page.
+// ----- sync from Notion (regenerates site portfolio from Notion DB) -----
+app.post('/api/sync-from-notion', async function (req, res) {
+    res.writeHead(200, {
+        'Content-Type': 'text/event-stream',
+        'Cache-Control': 'no-cache, no-transform',
+        'Connection': 'keep-alive',
+        'X-Accel-Buffering': 'no'
+    });
+    res.flushHeaders();
+    if (req.socket) { req.socket.setTimeout(0); req.socket.setKeepAlive(true); }
+    function emit(o) { res.write('data: ' + JSON.stringify(o) + '\n\n'); }
+    const heartbeat = setInterval(function () { res.write(': ping\n\n'); }, 15000);
+    function endResponse() { clearInterval(heartbeat); try { res.end(); } catch (e) {} }
+
+    try {
+        if (!notion) { emit({ status: 'error', message: 'Notion not configured -- set NOTION_TOKEN in .env.' }); return endResponse(); }
+
+        emit({ status: 'started' });
+
+        emit({ step: 'read', status: 'running', label: 'Reading Notion database' });
+        const allPages = await listAllNotionProjects();
+        emit({ step: 'read', status: 'progress', text: 'Fetched ' + allPages.length + ' rows' });
+        const all = allPages.map(notionPageToProject).filter(function (p) { return p.published && p.projectName; });
+        all.sort(function (a, b) { return (a.displayOrder || 0) - (b.displayOrder || 0); });
+        emit({ step: 'read', status: 'done', total: all.length });
+
+        emit({ step: 'gallery', status: 'running', label: 'Updating gallery.html (' + all.length + ' projects)' });
+        const galleryHtmlBlock = all.map(buildGalleryCardHtml).join('\n\n');
+        const galleryJsBlock = all.map(buildGalleryJsEntry).join(',\n');
+        let gallery = fs.readFileSync(GALLERY_HTML, 'utf8');
+        gallery = replaceBetweenMarkers(gallery, HTML_MARKER_START, HTML_MARKER_END, galleryHtmlBlock);
+        gallery = replaceBetweenMarkers(gallery, JS_MARKER_START, JS_MARKER_END, galleryJsBlock);
+        fs.writeFileSync(GALLERY_HTML, gallery, 'utf8');
+        emit({ step: 'gallery', status: 'done' });
+
+        const featured = all.filter(function (p) { return p.featured; });
+        emit({ step: 'index', status: 'running', label: 'Updating index.html (' + featured.length + ' featured)' });
+        const indexHtmlBlock = featured.map(buildIndexCardHtml).join('\n\n');
+        const indexJsBlock = featured.map(buildIndexJsEntry).join(',\n');
+        let indexContent = fs.readFileSync(INDEX_HTML, 'utf8');
+        indexContent = replaceBetweenMarkers(indexContent, HTML_MARKER_START, HTML_MARKER_END, indexHtmlBlock);
+        indexContent = replaceBetweenMarkers(indexContent, JS_MARKER_START, JS_MARKER_END, indexJsBlock);
+        fs.writeFileSync(INDEX_HTML, indexContent, 'utf8');
+        emit({ step: 'index', status: 'done' });
+
+        emit({
+            status: 'complete',
+            total: all.length,
+            featuredCount: featured.length,
+            message: 'Synced ' + all.length + ' projects (' + featured.length + ' featured) from Notion. Commit and push to deploy.',
+            projectNames: all.map(function (p) { return p.projectName; })
+        });
+    } catch (err) {
+        console.error('[sync-from-notion]', err);
+        emit({ status: 'error', message: err.message || String(err) });
+    } finally { endResponse(); }
+});
+
+// JSON error handler
 app.use(function (err, req, res, next) {
     console.error('[server error]', err);
-    if (err && err.code === 'LIMIT_FILE_SIZE') {
-        return res.status(413).json({ ok: false, error: 'A file is too large. Per-file limit is 50 MB.' });
-    }
-    if (err && err.code === 'LIMIT_UNEXPECTED_FILE') {
-        return res.status(400).json({ ok: false, error: 'Unexpected file field: ' + err.field });
-    }
+    if (err && err.code === 'LIMIT_FILE_SIZE') return res.status(413).json({ ok: false, error: 'A file is too large. Per-file limit is 50 MB.' });
+    if (err && err.code === 'LIMIT_UNEXPECTED_FILE') return res.status(400).json({ ok: false, error: 'Unexpected file field: ' + err.field });
     res.status(err && err.status ? err.status : 500).json({ ok: false, error: (err && err.message) || 'Server error' });
 });
 
@@ -508,7 +590,6 @@ const server = app.listen(PORT, HOST, function () {
     console.log('  |  Stop:   Ctrl+C                                          |');
     console.log('  +----------------------------------------------------------+');
     console.log('');
-
     if (process.env.NO_BROWSER === '1') return;
     setTimeout(function () {
         try {
@@ -518,8 +599,6 @@ const server = app.listen(PORT, HOST, function () {
         } catch (e) {}
     }, 400);
 });
-
-// Disable Node HTTP server timeouts so long pushes don't drop.
 server.headersTimeout = 0;
 server.requestTimeout = 0;
 server.keepAliveTimeout = 0;

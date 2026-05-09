@@ -546,3 +546,61 @@ input[type="file"]:hover { border-color: var(--orange); color: var(--text); }
     white-space: pre-wrap;
     word-break: break-word;
 }
+
+/* ===== sync (Notion -> site) panel ===== */
+.sync-card {
+    margin-bottom: 1.5rem;
+    border-left: 4px solid var(--orange);
+}
+.sync-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-bottom: 0.85rem;
+}
+.sync-header h2 {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.25rem;
+    font-weight: 800;
+    margin: 0 0 0.3rem;
+}
+.sync-header > div { flex: 1 1 280px; }
+.sync-header .btn { flex-shrink: 0; }
+.sync-result {
+    margin-top: 1rem;
+    padding: 0.85rem 1rem;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 0.88rem;
+}
+.sync-result p { margin: 0 0 0.4rem; }
+.sync-result details { margin-top: 0.5rem; }
+.sync-result summary {
+    cursor: pointer;
+    font-size: 0.78rem;
+    color: var(--text-muted);
+}
+.sync-result summary:hover { color: var(--orange); }
+.sync-result ul {
+    margin: 0.5rem 0 0 1.2rem;
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 0.78rem;
+    color: var(--text-muted);
+}
+.sync-result pre {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 0.6rem 0.9rem;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-top: 0.6rem;
+    max-height: 200px;
+    overflow: auto;
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
