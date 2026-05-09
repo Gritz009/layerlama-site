@@ -50,15 +50,20 @@ function jsString(s) {
     return "'" + String(s == null ? '' : s).replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/\r?\n/g, ' ') + "'";
 }
 function categoryTagInfo(categories) {
+    if (!categories || !categories.length) return { i18n: 'tag.functional', text: 'Functional' };
     const set = new Set(categories);
-    if (set.has('Artistic') && set.has('Functional')) return { i18n: 'tag.artistic_functional', text: 'Artistic' + MIDDLE_DOT + 'Functional' };
-    if (set.has('Artistic') && set.has('Miniatures')) return { i18n: 'tag.artistic_miniatures', text: 'Artistic' + MIDDLE_DOT + 'Miniatures' };
-    if (set.has('Prototypes')) return { i18n: 'tag.prototyping', text: 'Prototyping' };
-    if (set.has('Functional')) return { i18n: 'tag.functional', text: 'Functional' };
-    if (set.has('Artistic')) return { i18n: 'tag.artistic', text: 'Artistic' };
-    if (set.has('Miniatures')) return { i18n: 'tag.artistic_miniatures', text: 'Miniatures' };
-    if (set.has('Educational')) return { i18n: 'tag.educational', text: 'Educational' };
-    return { i18n: 'tag.functional', text: 'Functional' };
+    // Display text: any number of selected categories joined by " . ".
+    // The site uses "Prototyping" (gerund) as the display for the "Prototypes" category.
+    const displayParts = categories.map(function (c) { return c === 'Prototypes' ? 'Prototyping' : c; });
+    const text = displayParts.join(' . ');
+    // i18n key: prefer specific combos already in the site's i18n table; fall
+    // back to 'tag.combined' for any new combo (English text still renders).
+    let i18n = 'tag.combined';
+    if (categories.length === 2 && set.has('Artistic') && set.has('Functional')) i18n = 'tag.artistic_functional';
+    else if (categories.length === 2 && set.has('Artistic') && set.has('Miniatures')) i18n = 'tag.artistic_miniatures';
+    else if (categories.length === 1 && set.has('Prototypes')) i18n = 'tag.prototyping';
+    else if (categories.length === 1) i18n = 'tag.' + categories[0].toLowerCase();
+    return { i18n: i18n, text: text };
 }
 function primaryCategoryLower(categories) {
     const order = ['Functional', 'Artistic', 'Miniatures', 'Prototypes', 'Educational'];
@@ -499,7 +504,7 @@ app.post('/api/git-push', async function (req, res) {
 
         emit({ step: 'commit', status: 'running', label: 'Creating commit' });
         const commit = await spawnGitStreamed(['commit', '-m', message], function (line) { emit({ step: 'commit', status: 'progress', text: line }); });
-        const nothingToCommit = /nothing to commit|nothing added to commit/i.test(commit.output);
+        const nothingToCommit = /nothing to commit|nothing added to commit|no changes added to commit/i.test(commit.output);
         if (!commit.ok && !nothingToCommit) { emit({ step: 'commit', status: 'error', code: commit.code, output: commit.output }); return endResponse(); }
         emit({ step: 'commit', status: 'done', skipped: nothingToCommit });
 
@@ -508,7 +513,17 @@ app.post('/api/git-push', async function (req, res) {
         if (!push.ok) { emit({ step: 'push', status: 'error', code: push.code, output: push.output }); return endResponse(); }
         emit({ step: 'push', status: 'done' });
 
-        emit({ status: 'complete', message: 'Pushed to remote. Netlify is now rebuilding.' });
+        // Was this a real change or a no-op? If commit was skipped AND push had
+        // nothing new, tell the frontend so it doesn't watch Netlify forever.
+        const upToDate = /everything up-to-date/i.test(push.output);
+        const noChanges = nothingToCommit && upToDate;
+        emit({
+            status: 'complete',
+            noChanges: noChanges,
+            message: noChanges
+                ? 'Already in sync. No changes to deploy -- Netlify did not need to rebuild.'
+                : 'Pushed to remote. Netlify is now rebuilding.'
+        });
     } catch (err) {
         console.error('[git-push]', err);
         emit({ status: 'error', message: err.message || String(err) });
