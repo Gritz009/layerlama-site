@@ -4,6 +4,32 @@
 (() => {
     'use strict';
 
+    // ----- token bootstrap -----
+    // Server prints URL like http://localhost:3000/?t=<32hex>. We grab the
+    // token from the URL on first load, persist to sessionStorage so reloads
+    // work, and scrub it from the URL bar so it doesn't end up in history.
+    const ADMIN_TOKEN = (function () {
+        const params = new URLSearchParams(location.search);
+        const fromUrl = params.get('t');
+        if (fromUrl) {
+            sessionStorage.setItem('ll_admin_token', fromUrl);
+            params.delete('t');
+            const clean = location.pathname + (params.toString() ? ('?' + params.toString()) : '') + location.hash;
+            history.replaceState({}, '', clean);
+            return fromUrl;
+        }
+        return sessionStorage.getItem('ll_admin_token') || '';
+    })();
+
+    // Wrap fetch to always inject X-Admin-Token on /api/*.
+    const rawFetch = window.fetch.bind(window);
+    function apiFetch(url, opts) {
+        opts = opts || {};
+        const headers = new Headers(opts.headers || {});
+        headers.set('X-Admin-Token', ADMIN_TOKEN);
+        return rawFetch(url, Object.assign({}, opts, { headers }));
+    }
+
     // ----- theme toggle (uses the same ll-theme localStorage key as the public site) -----
     (function setupTheme() {
         const root = document.documentElement;
@@ -39,9 +65,21 @@
 
     // ----- status -----
     async function checkHealth() {
+        if (!ADMIN_TOKEN) {
+            statusDot.className = 'status-dot offline';
+            statusText.textContent = 'no access token';
+            statusText.title = 'Open this page via the URL printed in your terminal (the one with ?t=...).';
+            return;
+        }
         try {
-            const r = await fetch('/api/health').then(x => x.json());
-            if (r.notionConfigured) {
+            const r = await apiFetch('/api/health');
+            if (r.status === 401) {
+                statusDot.className = 'status-dot offline';
+                statusText.textContent = 'token rejected -- restart the launcher';
+                return;
+            }
+            const data = await r.json();
+            if (data.notionConfigured) {
                 statusDot.className = 'status-dot online';
                 statusText.textContent = 'connected, Notion ready';
             } else {
@@ -51,7 +89,7 @@
                 writeNotion.disabled = true;
                 writeNotion.parentElement.title = 'Add NOTION_TOKEN to .env to enable Notion mirroring.';
             }
-        } catch {
+        } catch (e) {
             statusDot.className = 'status-dot offline';
             statusText.textContent = 'server offline';
         }
@@ -80,14 +118,14 @@
         if (cardMeta.dataset.touched === 'true') return;
         const m = material.value.trim();
         const p = printer.value.trim();
-        const bullet = String.fromCharCode(0x2022); // U+2022 BULLET
+        const bullet = String.fromCharCode(0x2022);
         cardMeta.value = (m && p) ? (m + ' ' + bullet + ' ' + p) : (m || p);
     }
     cardMeta.addEventListener('input', () => { cardMeta.dataset.touched = 'true'; });
     material.addEventListener('input', rebuildMeta);
     printer.addEventListener('input', rebuildMeta);
 
-    // ----- thumbnail preview (single, replace on change) -----
+    // ----- thumbnail preview -----
     thumbnail.addEventListener('change', () => {
         thumbPrev.innerHTML = '';
         const f = thumbnail.files && thumbnail.files[0];
@@ -100,11 +138,7 @@
     });
 
     // ----- gallery preview (accumulates, with per-image remove) -----
-    // Track our own File[] list. The native <input type="file" multiple>
-    // replaces its FileList every time the user picks files, so we keep our
-    // own array and sync it back to the input via DataTransfer.
     let galleryFiles = [];
-
     function syncGalleryInput() {
         const dt = new DataTransfer();
         for (const f of galleryFiles) dt.items.add(f);
@@ -137,7 +171,6 @@
     }
     gallery.addEventListener('change', () => {
         const incoming = Array.from(gallery.files || []);
-        // Skip duplicates by name+size (cheap dedup)
         for (const f of incoming) {
             const dup = galleryFiles.some(g => g.name === f.name && g.size === f.size);
             if (!dup) galleryFiles.push(f);
@@ -186,7 +219,7 @@
         submitBtn.innerHTML = '<span class="spinner"></span>Adding...';
 
         try {
-            const r = await fetch('/api/create-project', { method: 'POST', body: fd });
+            const r = await apiFetch('/api/create-project', { method: 'POST', body: fd });
             let data;
             try { data = await r.json(); }
             catch (jsonErr) {
@@ -225,44 +258,24 @@
                         '<button type="button" id="commitBtn" class="btn btn-primary">Commit and Push</button>' +
                         '<button type="button" id="newBtn" class="btn btn-ghost">Add another</button>' +
                     '</div>' +
-                    '<pre id="gitOut" style="display:none"></pre>'
+                    // Multi-step publish status panel (hidden until publish starts)
+                    '<div class="publish-status" id="publishStatus" style="display:none">' +
+                        '<div class="publish-header">' +
+                            '<strong id="publishTitle">Publishing...</strong>' +
+                            '<span class="publish-elapsed" id="publishElapsed">0s</span>' +
+                        '</div>' +
+                        '<ol class="publish-steps">' +
+                            '<li id="step-add"><span class="step-icon">o</span><span class="step-label">Staging files</span></li>' +
+                            '<li id="step-commit"><span class="step-icon">o</span><span class="step-label">Creating commit</span></li>' +
+                            '<li id="step-push"><span class="step-icon">o</span><span class="step-label">Pushing to remote</span></li>' +
+                        '</ol>' +
+                        '<details class="publish-log"><summary>Show git output</summary><pre id="publishLog"></pre></details>' +
+                    '</div>'
             });
 
             const commitBtn = el('commitBtn');
             const newBtn    = el('newBtn');
-            const gitOut    = el('gitOut');
-
-            commitBtn.addEventListener('click', async () => {
-                commitBtn.disabled = true;
-                commitBtn.innerHTML = '<span class="spinner"></span>Pushing...';
-                try {
-                    const r2 = await fetch('/api/git-push', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            message: 'Add portfolio: ' + project.projectName,
-                            paths: pushPaths
-                        })
-                    });
-                    const data2 = await r2.json();
-                    gitOut.style.display = 'block';
-                    gitOut.textContent = (data2.log || []).map(s =>
-                        '-- ' + s.step + ' (exit ' + s.code + ') --\n' + (s.stdout || '') + (s.stderr ? '\n[stderr]\n' + s.stderr : '')
-                    ).join('\n\n');
-                    if (data2.ok) {
-                        commitBtn.innerHTML = 'Pushed - Netlify is rebuilding';
-                    } else {
-                        commitBtn.innerHTML = 'Push failed (see log)';
-                        commitBtn.classList.remove('btn-primary');
-                        commitBtn.classList.add('btn-ghost');
-                    }
-                } catch (err) {
-                    gitOut.style.display = 'block';
-                    gitOut.textContent = 'Network error: ' + (err.message || err);
-                    commitBtn.innerHTML = 'Push failed';
-                }
-            });
-
+            commitBtn.addEventListener('click', () => publish(project.projectName, pushPaths, commitBtn));
             newBtn.addEventListener('click', () => resetBtn.click());
 
         } catch (err) {
@@ -272,6 +285,121 @@
             submitBtn.textContent = 'Add Project';
         }
     });
+
+    // ----- publish (SSE consumer) -----
+    async function publish(projectNameStr, paths, btn) {
+        const panel  = el('publishStatus');
+        const title  = el('publishTitle');
+        const elapsedEl = el('publishElapsed');
+        const logEl  = el('publishLog');
+        const stepEls = {
+            add:    el('step-add'),
+            commit: el('step-commit'),
+            push:   el('step-push')
+        };
+        function setStep(step, state, label) {
+            const li = stepEls[step];
+            if (!li) return;
+            li.className = 'state-' + state;
+            const icon = li.querySelector('.step-icon');
+            const lbl = li.querySelector('.step-label');
+            if (icon) icon.textContent = state === 'running' ? '~' : (state === 'done' ? 'OK' : (state === 'error' ? 'X' : 'o'));
+            if (lbl && label) lbl.textContent = label;
+        }
+
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner"></span>Publishing...';
+        panel.style.display = '';
+        title.textContent = 'Publishing to GitHub...';
+        logEl.textContent = '';
+
+        const startedAt = Date.now();
+        const ticker = setInterval(() => {
+            const s = Math.floor((Date.now() - startedAt) / 1000);
+            elapsedEl.textContent = s + 's';
+        }, 250);
+
+        function appendLog(line) {
+            logEl.textContent += line + '\n';
+            // auto-scroll
+            const det = logEl.closest('details');
+            if (det) logEl.scrollTop = logEl.scrollHeight;
+        }
+
+        try {
+            const r = await apiFetch('/api/git-push', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    message: 'Add portfolio: ' + projectNameStr,
+                    paths: paths
+                })
+            });
+
+            if (!r.ok) {
+                let msg = 'HTTP ' + r.status;
+                try { msg = (await r.json()).error || msg; } catch (e) {}
+                throw new Error(msg);
+            }
+            if (!r.body || !r.body.getReader) {
+                throw new Error('Browser does not support streaming responses.');
+            }
+
+            const reader = r.body.getReader();
+            const decoder = new TextDecoder();
+            let buf = '';
+            let pushedOK = false;
+            let finalError = null;
+
+            while (true) {
+                const { value, done } = await reader.read();
+                if (done) break;
+                buf += decoder.decode(value, { stream: true });
+                const events = buf.split('\n\n');
+                buf = events.pop();
+                for (const block of events) {
+                    for (const line of block.split('\n')) {
+                        if (!line.startsWith('data: ')) continue;
+                        let evt;
+                        try { evt = JSON.parse(line.slice(6)); }
+                        catch (e) { continue; }
+                        if (evt.text) appendLog('  ' + evt.text);
+                        if (evt.output) appendLog(evt.output);
+                        if (evt.step && evt.status === 'running') setStep(evt.step, 'running', evt.label);
+                        if (evt.step && evt.status === 'done')    setStep(evt.step, 'done');
+                        if (evt.step && evt.status === 'error') {
+                            setStep(evt.step, 'error');
+                            finalError = (evt.output || evt.message || 'git ' + evt.step + ' failed');
+                        }
+                        if (!evt.step && evt.status === 'complete') pushedOK = true;
+                        if (!evt.step && evt.status === 'error')    finalError = evt.message || 'Publish failed';
+                    }
+                }
+            }
+
+            clearInterval(ticker);
+            if (pushedOK) {
+                title.textContent = 'Published';
+                btn.classList.remove('btn-primary');
+                btn.classList.add('btn-ghost');
+                btn.innerHTML = 'Pushed -- Netlify is rebuilding';
+            } else {
+                title.textContent = 'Publish failed';
+                btn.classList.remove('btn-primary');
+                btn.classList.add('btn-ghost');
+                btn.innerHTML = 'Push failed (see log)';
+                if (finalError) appendLog('\n[error] ' + finalError);
+            }
+        } catch (err) {
+            clearInterval(ticker);
+            title.textContent = 'Publish failed';
+            btn.disabled = false;
+            btn.classList.remove('btn-primary');
+            btn.classList.add('btn-ghost');
+            btn.innerHTML = 'Retry push';
+            appendLog('[network] ' + (err.message || String(err)));
+        }
+    }
 
     function escapeHtml(s) {
         return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');

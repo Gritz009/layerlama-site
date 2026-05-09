@@ -1,6 +1,16 @@
 // Layer Lama -- Portfolio Admin (local-only)
-// Express server: serves admin form, saves images, injects markup into
-// gallery.html (and index.html if Featured), optional Notion mirror, git push.
+//
+// Security model:
+//   * Bound to 127.0.0.1 only (loopback) -- never reachable from the LAN.
+//   * Per-startup random ADMIN_TOKEN. Frontend reads it from ?t=... in the URL
+//     that the launcher auto-opens, persists to sessionStorage, sends on every
+//     /api/* call as X-Admin-Token. Other tabs/processes don't have it.
+//   * Middleware validates Host header (DNS rebinding defense) and Origin
+//     header on POST (CSRF defense).
+//   * Node HTTP server timeouts disabled so long git pushes don't drop.
+//   * SSE keep-alive heartbeat every 15s so proxies/firewalls don't drop the
+//     connection during a long push.
+//
 // NEVER deploy. Local-only. Reads secrets from .env.
 
 'use strict';
@@ -10,7 +20,8 @@ const express = require('express');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
-const { execFile, exec } = require('child_process');
+const crypto = require('crypto');
+const { execFile, exec, spawn } = require('child_process');
 const { Client: NotionClient } = require('@notionhq/client');
 
 const ROOT = path.resolve(__dirname, '..', '..');
@@ -23,14 +34,15 @@ const HTML_MARKER = 'LL_PORTFOLIO_INSERT_HTML';
 const JS_MARKER = 'LL_PORTFOLIO_INSERT_JS';
 
 const PORT = parseInt(process.env.PORT, 10) || 3000;
+const HOST = '127.0.0.1';
 const NOTION_TOKEN = process.env.NOTION_TOKEN || '';
 const NOTION_DB_ID = process.env.NOTION_PORTFOLIO_DB_ID || 'e3709cae-61b5-41e0-820d-507d5c63c304';
 const notion = NOTION_TOKEN ? new NotionClient({ auth: NOTION_TOKEN }) : null;
 
+// Per-startup admin token. Random 32-char hex (128 bits).
+const ADMIN_TOKEN = crypto.randomBytes(16).toString('hex');
+
 // ----- helpers -----
-// Middle dot (U+00B7) and bullet (U+2022) built via String.fromCharCode so the
-// source file stays pure ASCII (some editors/saves were truncating files with
-// inline non-ASCII characters in this codebase).
 const MIDDLE_DOT = ' ' + String.fromCharCode(0xB7) + ' ';
 const BULLET = ' ' + String.fromCharCode(0x2022) + ' ';
 
@@ -70,7 +82,7 @@ const upload = multer({
     limits: { fileSize: 50 * 1024 * 1024 }
 });
 
-// ----- builders -----
+// ----- builders (HTML cards + JS lightbox entries) -----
 function buildGalleryCardHtml(p) {
     const { i18n, text } = categoryTagInfo(p.categories);
     const cat = primaryCategoryLower(p.categories);
@@ -143,7 +155,7 @@ function injectAtMarker(content, marker, snippet, kind) {
     return lines.join('\n');
 }
 
-// ----- site logo (dark + light) -----
+// ----- site logo -----
 const _logoCache = { dark: null, light: null };
 function getSiteLogo(variant) {
     const v = variant === 'light' ? 'light' : 'dark';
@@ -161,11 +173,69 @@ function getSiteLogo(variant) {
     return null;
 }
 
-// ----- routes -----
+// ----- security middleware -----
+// Allowed Host headers. Reject anything else (DNS rebinding defense).
+const ALLOWED_HOSTS = new Set([
+    'localhost:' + PORT,
+    '127.0.0.1:' + PORT,
+    '[::1]:' + PORT
+]);
+const ALLOWED_ORIGINS = new Set([
+    'http://localhost:' + PORT,
+    'http://127.0.0.1:' + PORT,
+    'http://[::1]:' + PORT
+]);
+
+function validateHost(req, res, next) {
+    const host = (req.headers.host || '').toLowerCase();
+    if (!ALLOWED_HOSTS.has(host)) {
+        return res.status(403).json({ ok: false, error: 'Forbidden host: ' + host });
+    }
+    next();
+}
+
+function validateOrigin(req, res, next) {
+    // POST/PUT/DELETE require an Origin or Referer that matches us. GET is fine
+    // without (browser doesn't always send Origin on GET).
+    if (req.method === 'GET' || req.method === 'HEAD') return next();
+    const origin = req.headers.origin || '';
+    const referer = req.headers.referer || '';
+    if (origin) {
+        if (!ALLOWED_ORIGINS.has(origin.toLowerCase())) {
+            return res.status(403).json({ ok: false, error: 'Forbidden origin: ' + origin });
+        }
+    } else if (referer) {
+        const ok = Array.from(ALLOWED_ORIGINS).some(o => referer.toLowerCase().startsWith(o + '/') || referer.toLowerCase() === o);
+        if (!ok) return res.status(403).json({ ok: false, error: 'Forbidden referer.' });
+    } else {
+        return res.status(403).json({ ok: false, error: 'Origin header missing on state-changing request.' });
+    }
+    next();
+}
+
+function requireToken(req, res, next) {
+    const headerTok = req.headers['x-admin-token'];
+    const queryTok = req.query.t;
+    const presented = headerTok || queryTok || '';
+    // Constant-time compare
+    if (presented.length !== ADMIN_TOKEN.length ||
+        !crypto.timingSafeEqual(Buffer.from(presented), Buffer.from(ADMIN_TOKEN))) {
+        return res.status(401).json({ ok: false, error: 'Bad or missing access token. Open the URL printed in your terminal.' });
+    }
+    next();
+}
+
+// ----- app -----
 const app = express();
-app.use(express.json());
+app.disable('x-powered-by');
+app.use(express.json({ limit: '1mb' }));
+app.use(validateHost);
+
+// Static files (admin form HTML/CSS/JS) -- no token required because the
+// page itself is just static markup; it can't do anything without an API call.
 app.use(express.static(PUBLIC_DIR));
 
+// Site logo route -- no token required (image only, read from project root).
 app.get('/site-logo', (req, res) => {
     const buf = getSiteLogo(req.query.theme);
     if (buf) {
@@ -179,6 +249,9 @@ app.get('/site-logo', (req, res) => {
     }
     res.status(404).end();
 });
+
+// All /api/* routes require origin + token.
+app.use('/api', validateOrigin, requireToken);
 
 app.get('/api/health', (req, res) => {
     res.json({
@@ -244,10 +317,11 @@ app.post('/api/create-project', upload.fields([
         const galleryImagePaths = ['Images/Portfolio/' + folderName + '/' + thumbName].concat(galleryNames.map(function (n) { return 'Images/Portfolio/' + folderName + '/' + n; }));
 
         const project = {
-            projectName: projectName, folderName: folderName, projectKey: projectKey, categories: categories,
-            designer: designer, designerUrl: designerUrl, material: material, printer: printer, cardMeta: cardMeta,
-            displayOrder: displayOrder, featured: featured, published: published,
-            thumbnailFile: thumbName, galleryImages: galleryImagePaths
+            projectName, folderName, projectKey, categories,
+            designer, designerUrl, material, printer, cardMeta,
+            displayOrder, featured, published,
+            thumbnailFile: thumbName,
+            galleryImages: galleryImagePaths
         };
 
         let galleryContent = fs.readFileSync(GALLERY_HTML, 'utf8');
@@ -294,7 +368,7 @@ app.post('/api/create-project', upload.fields([
             }
         }
 
-        res.json({ ok: true, project: project, filesChanged: filesChanged, notionUrl: notionUrl, notionWarning: notionWarning });
+        res.json({ ok: true, project, filesChanged, notionUrl, notionWarning });
     } catch (err) {
         console.error('[create-project]', err);
         cleanupStaging();
@@ -302,9 +376,111 @@ app.post('/api/create-project', upload.fields([
     }
 });
 
-// JSON error handler -- catches multer errors (file too large, bad fields)
-// and any other unhandled middleware error so the frontend sees JSON instead
-// of Express's default HTML 500 page.
+// ----- streaming git push -----
+// Server-Sent Events: each event is one line of git progress.
+// Disables socket timeout so a 10-minute push doesn't drop.
+function spawnGitStreamed(args, onLine) {
+    return new Promise(function (resolve) {
+        const proc = spawn('git', args, { cwd: ROOT, windowsHide: true });
+        const lines = [];
+        function consume(buf) {
+            const text = buf.toString();
+            for (const part of text.split(/\r?\n/)) {
+                if (part === '') continue;
+                lines.push(part);
+                try { onLine(part); } catch (e) {}
+            }
+        }
+        proc.stdout.on('data', consume);
+        proc.stderr.on('data', consume);
+        proc.on('error', (err) => resolve({ ok: false, code: -1, output: lines.join('\n') + '\n[spawn error] ' + err.message }));
+        proc.on('close', (code) => resolve({ ok: code === 0, code, output: lines.join('\n') }));
+    });
+}
+
+app.post('/api/git-push', async (req, res) => {
+    // SSE setup
+    res.writeHead(200, {
+        'Content-Type': 'text/event-stream',
+        'Cache-Control': 'no-cache, no-transform',
+        'Connection': 'keep-alive',
+        'X-Accel-Buffering': 'no'
+    });
+    res.flushHeaders();
+    if (req.socket) {
+        req.socket.setTimeout(0);
+        req.socket.setKeepAlive(true);
+        req.socket.setNoDelay(true);
+    }
+
+    function emit(obj) { res.write('data: ' + JSON.stringify(obj) + '\n\n'); }
+    const heartbeat = setInterval(function () { res.write(': ping\n\n'); }, 15000);
+
+    function endResponse() {
+        clearInterval(heartbeat);
+        try { res.end(); } catch (e) {}
+    }
+
+    try {
+        const message = String((req.body && req.body.message) || '').trim() || 'Add new portfolio project';
+        const paths = Array.isArray(req.body && req.body.paths) ? req.body.paths : [];
+        const safePaths = paths.filter(function (p) {
+            return typeof p === 'string'
+                && !p.includes('..')
+                && (p === 'gallery.html' || p === 'index.html' || p.startsWith('Images/Portfolio/'));
+        });
+        if (!safePaths.length) {
+            emit({ status: 'error', message: 'No safe paths to commit.' });
+            return endResponse();
+        }
+
+        emit({ status: 'started', paths: safePaths, message });
+
+        // 1. git add
+        emit({ step: 'add', status: 'running', label: 'Staging files' });
+        const add = await spawnGitStreamed(['add', '--'].concat(safePaths), function (line) {
+            emit({ step: 'add', status: 'progress', text: line });
+        });
+        if (!add.ok) {
+            emit({ step: 'add', status: 'error', code: add.code, output: add.output });
+            return endResponse();
+        }
+        emit({ step: 'add', status: 'done' });
+
+        // 2. git commit
+        emit({ step: 'commit', status: 'running', label: 'Creating commit' });
+        const commit = await spawnGitStreamed(['commit', '-m', message], function (line) {
+            emit({ step: 'commit', status: 'progress', text: line });
+        });
+        const nothingToCommit = /nothing to commit|nothing added to commit/i.test(commit.output);
+        if (!commit.ok && !nothingToCommit) {
+            emit({ step: 'commit', status: 'error', code: commit.code, output: commit.output });
+            return endResponse();
+        }
+        emit({ step: 'commit', status: 'done', skipped: nothingToCommit });
+
+        // 3. git push (long step)
+        emit({ step: 'push', status: 'running', label: 'Pushing to remote' });
+        const push = await spawnGitStreamed(['push', '--progress'], function (line) {
+            emit({ step: 'push', status: 'progress', text: line });
+        });
+        if (!push.ok) {
+            emit({ step: 'push', status: 'error', code: push.code, output: push.output });
+            return endResponse();
+        }
+        emit({ step: 'push', status: 'done' });
+
+        emit({ status: 'complete', message: 'Pushed to remote. Netlify is now rebuilding.' });
+    } catch (err) {
+        console.error('[git-push]', err);
+        emit({ status: 'error', message: err.message || String(err) });
+    } finally {
+        endResponse();
+    }
+});
+
+// JSON error handler -- catches multer errors and any unhandled middleware
+// error so the frontend sees JSON instead of Express's HTML 500 page.
 app.use(function (err, req, res, next) {
     console.error('[server error]', err);
     if (err && err.code === 'LIMIT_FILE_SIZE') {
@@ -316,55 +492,23 @@ app.use(function (err, req, res, next) {
     res.status(err && err.status ? err.status : 500).json({ ok: false, error: (err && err.message) || 'Server error' });
 });
 
-function runGit(args, cwd) {
-    return new Promise(function (resolve) {
-        execFile('git', args, { cwd: cwd, windowsHide: true }, function (err, stdout, stderr) {
-            resolve({ ok: !err, code: err && err.code != null ? err.code : 0, stdout: stdout ? stdout.toString() : '', stderr: stderr ? stderr.toString() : '' });
-        });
-    });
-}
-
-app.post('/api/git-push', async (req, res) => {
-    try {
-        const message = String((req.body && req.body.message) || '').trim() || 'Add new portfolio project';
-        const paths = Array.isArray(req.body && req.body.paths) ? req.body.paths : ['.'];
-        const safePaths = paths.filter(function (p) {
-            return typeof p === 'string' && !p.includes('..') && (p === 'gallery.html' || p === 'index.html' || p.startsWith('Images/Portfolio/'));
-        });
-        if (!safePaths.length) return res.status(400).json({ ok: false, error: 'No safe paths to commit.' });
-
-        const log = [];
-        const add = await runGit(['add', '--'].concat(safePaths), ROOT);
-        log.push(Object.assign({ step: 'add' }, add));
-        if (!add.ok) return res.status(500).json({ ok: false, error: 'git add failed', log: log });
-
-        const commit = await runGit(['commit', '-m', message], ROOT);
-        log.push(Object.assign({ step: 'commit' }, commit));
-        if (!commit.ok && !/nothing to commit/i.test(commit.stdout + commit.stderr)) {
-            return res.status(500).json({ ok: false, error: 'git commit failed', log: log });
-        }
-
-        const push = await runGit(['push'], ROOT);
-        log.push(Object.assign({ step: 'push' }, push));
-        if (!push.ok) return res.status(500).json({ ok: false, error: 'git push failed', log: log });
-
-        res.json({ ok: true, log: log });
-    } catch (err) {
-        console.error('[git-push]', err);
-        res.status(500).json({ ok: false, error: err.message || String(err) });
-    }
-});
-
-app.listen(PORT, function () {
-    const url = 'http://localhost:' + PORT;
+// ----- listen -----
+const server = app.listen(PORT, HOST, function () {
+    const url = 'http://localhost:' + PORT + '/?t=' + ADMIN_TOKEN;
     console.log('');
     console.log('  +----------------------------------------------------------+');
     console.log('  |  Layer Lama -- Portfolio Admin                           |');
-    console.log('  |  ' + (url + '                                                          ').slice(0, 56) + '|');
+    console.log('  |  bound to 127.0.0.1 only -- not reachable from LAN       |');
+    console.log('  |                                                          |');
+    console.log('  |  open this URL (token included):                         |');
+    console.log('  |  ' + url.slice(0, 56).padEnd(56, ' ') + (url.length > 56 ? '+' : '|'));
+    if (url.length > 56) console.log('  |  ' + url.slice(56).padEnd(56, ' ') + '|');
+    console.log('  |                                                          |');
     console.log('  |  Notion: ' + (NOTION_TOKEN ? 'configured                                      ' : 'NOT configured -- set NOTION_TOKEN in .env      ') + '|');
     console.log('  |  Stop:   Ctrl+C                                          |');
     console.log('  +----------------------------------------------------------+');
     console.log('');
+
     if (process.env.NO_BROWSER === '1') return;
     setTimeout(function () {
         try {
@@ -374,3 +518,9 @@ app.listen(PORT, function () {
         } catch (e) {}
     }, 400);
 });
+
+// Disable Node HTTP server timeouts so long pushes don't drop.
+server.headersTimeout = 0;
+server.requestTimeout = 0;
+server.keepAliveTimeout = 0;
+server.timeout = 0;
