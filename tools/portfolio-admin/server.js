@@ -149,10 +149,14 @@ function injectAtMarker(content, marker, snippet, kind) {
 function replaceBetweenMarkers(content, startMarker, endMarker, replacement) {
     const lines = content.split('\n');
     const startIdx = lines.findIndex(l => l.includes(startMarker));
-    const endIdx = lines.findIndex(l => l.includes(endMarker));
     if (startIdx < 0) throw new Error('Start marker ' + startMarker + ' not found.');
-    if (endIdx < 0) throw new Error('End marker ' + endMarker + ' not found.');
-    if (endIdx <= startIdx) throw new Error('End marker before start marker for ' + startMarker);
+    // Search for endMarker AFTER the start, otherwise the start line itself
+    // (which contains endMarker as a substring) wins.
+    let endIdx = -1;
+    for (let i = startIdx + 1; i < lines.length; i++) {
+        if (lines[i].includes(endMarker)) { endIdx = i; break; }
+    }
+    if (endIdx < 0) throw new Error('End marker ' + endMarker + ' not found after start marker.');
     return [].concat(lines.slice(0, startIdx + 1), [replacement], lines.slice(endIdx)).join('\n');
 }
 
@@ -597,6 +601,13 @@ const server = app.listen(PORT, HOST, function () {
             else if (process.platform === 'darwin') exec('open "' + url + '"');
             else                                    exec('xdg-open "' + url + '"');
         } catch (e) {}
+    }, 400);
+});
+server.headersTimeout = 0;
+server.requestTimeout = 0;
+server.keepAliveTimeout = 0;
+server.timeout = 0;
+      } catch (e) {}
     }, 400);
 });
 server.headersTimeout = 0;
