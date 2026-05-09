@@ -1,12 +1,7 @@
 // Layer Lama -- Portfolio Admin (local-only)
-// Express server that:
-//   1. Serves the admin form at http://localhost:3000
-//   2. Saves uploaded images to ../../Images/Portfolio/<Folder>/
-//   3. Injects HTML cards + JS lightbox entries into ../../gallery.html and (if Featured) ../../index.html
-//   4. Optionally creates a Notion page in the Portfolio Projects DB
-//   5. Runs git add + commit + push on the changed files
-//
-// NEVER deploy this. It is local-only and reads secrets from .env.
+// Express server: serves admin form, saves images, injects markup into
+// gallery.html (and index.html if Featured), optional Notion mirror, git push.
+// NEVER deploy. Local-only. Reads secrets from .env.
 
 'use strict';
 
@@ -30,17 +25,17 @@ const JS_MARKER = 'LL_PORTFOLIO_INSERT_JS';
 const PORT = parseInt(process.env.PORT, 10) || 3000;
 const NOTION_TOKEN = process.env.NOTION_TOKEN || '';
 const NOTION_DB_ID = process.env.NOTION_PORTFOLIO_DB_ID || 'e3709cae-61b5-41e0-820d-507d5c63c304';
-
 const notion = NOTION_TOKEN ? new NotionClient({ auth: NOTION_TOKEN }) : null;
 
 // ----- helpers -----
+// Middle dot (U+00B7) and bullet (U+2022) built via String.fromCharCode so the
+// source file stays pure ASCII (some editors/saves were truncating files with
+// inline non-ASCII characters in this codebase).
+const MIDDLE_DOT = ' ' + String.fromCharCode(0xB7) + ' ';
+const BULLET = ' ' + String.fromCharCode(0x2022) + ' ';
 
-function safeFolderName(s) {
-    return String(s || '').trim().replace(/[^A-Za-z0-9_\-]/g, '_').replace(/_+/g, '_');
-}
-function safeJsKey(s) {
-    return String(s || '').toLowerCase().replace(/[^a-z0-9]/g, '');
-}
+function safeFolderName(s) { return String(s || '').trim().replace(/[^A-Za-z0-9_\-]/g, '_').replace(/_+/g, '_'); }
+function safeJsKey(s) { return String(s || '').toLowerCase().replace(/[^a-z0-9]/g, ''); }
 function htmlEscape(s) {
     return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 }
@@ -49,13 +44,13 @@ function jsString(s) {
 }
 function categoryTagInfo(categories) {
     const set = new Set(categories);
-    if (set.has('Artistic') && set.has('Functional'))   return { i18n: 'tag.artistic_functional',  text: 'Artistic · Functional' };
-    if (set.has('Artistic') && set.has('Miniatures'))   return { i18n: 'tag.artistic_miniatures',  text: 'Artistic · Miniatures' };
-    if (set.has('Prototypes'))                          return { i18n: 'tag.prototyping',          text: 'Prototyping' };
-    if (set.has('Functional'))                          return { i18n: 'tag.functional',           text: 'Functional' };
-    if (set.has('Artistic'))                            return { i18n: 'tag.artistic',             text: 'Artistic' };
-    if (set.has('Miniatures'))                          return { i18n: 'tag.artistic_miniatures',  text: 'Miniatures' };
-    if (set.has('Educational'))                         return { i18n: 'tag.educational',          text: 'Educational' };
+    if (set.has('Artistic') && set.has('Functional')) return { i18n: 'tag.artistic_functional', text: 'Artistic' + MIDDLE_DOT + 'Functional' };
+    if (set.has('Artistic') && set.has('Miniatures')) return { i18n: 'tag.artistic_miniatures', text: 'Artistic' + MIDDLE_DOT + 'Miniatures' };
+    if (set.has('Prototypes')) return { i18n: 'tag.prototyping', text: 'Prototyping' };
+    if (set.has('Functional')) return { i18n: 'tag.functional', text: 'Functional' };
+    if (set.has('Artistic')) return { i18n: 'tag.artistic', text: 'Artistic' };
+    if (set.has('Miniatures')) return { i18n: 'tag.artistic_miniatures', text: 'Miniatures' };
+    if (set.has('Educational')) return { i18n: 'tag.educational', text: 'Educational' };
     return { i18n: 'tag.functional', text: 'Functional' };
 }
 function primaryCategoryLower(categories) {
@@ -65,7 +60,6 @@ function primaryCategoryLower(categories) {
 }
 
 // ----- multer staging -----
-
 const STAGING = path.join(__dirname, '.staging');
 fs.mkdirSync(STAGING, { recursive: true });
 const upload = multer({
@@ -73,11 +67,10 @@ const upload = multer({
         destination: (req, file, cb) => cb(null, STAGING),
         filename: (req, file, cb) => cb(null, Date.now() + '-' + Math.random().toString(36).slice(2, 8) + '-' + file.originalname.replace(/[^A-Za-z0-9._-]/g, '_'))
     }),
-    limits: { fileSize: 25 * 1024 * 1024 }
+    limits: { fileSize: 50 * 1024 * 1024 }
 });
 
-// ----- HTML/JS builders -----
-
+// ----- builders -----
 function buildGalleryCardHtml(p) {
     const { i18n, text } = categoryTagInfo(p.categories);
     const cat = primaryCategoryLower(p.categories);
@@ -98,7 +91,6 @@ function buildGalleryCardHtml(p) {
         '            </div>'
     ].join('\n');
 }
-
 function buildIndexCardHtml(p) {
     const { i18n, text } = categoryTagInfo(p.categories);
     const cat = primaryCategoryLower(p.categories);
@@ -120,13 +112,11 @@ function buildIndexCardHtml(p) {
         '            </div>'
     ].join('\n');
 }
-
 function buildGalleryJsEntry(p) {
     const credit = 'Design by ' + (p.designer || 'Layerlama') + ' via MakerWorld';
     const imgs = p.galleryImages.map(jsString).join(',');
     return '            ' + p.projectKey + ': { title: ' + jsString(p.projectName) + ', credit: ' + jsString(credit) + ', images: [' + imgs + '] }';
 }
-
 function buildIndexJsEntry(p) {
     const credit = 'Design by ' + (p.designer || 'Layerlama') + ' via MakerWorld';
     const imgs = p.galleryImages.map(jsString).join(',');
@@ -138,7 +128,6 @@ function buildIndexJsEntry(p) {
         '            }'
     ].join('\n');
 }
-
 function injectAtMarker(content, marker, snippet, kind) {
     const lines = content.split('\n');
     const idx = lines.findIndex(l => l.includes(marker));
@@ -154,31 +143,31 @@ function injectAtMarker(content, marker, snippet, kind) {
     return lines.join('\n');
 }
 
-// ----- site logo -----
-// Extract the dark logo PNG from index.html so the admin form shows the exact site logo.
-
-let _logoCache = null;
-function getSiteLogo() {
-    if (_logoCache) return _logoCache;
+// ----- site logo (dark + light) -----
+const _logoCache = { dark: null, light: null };
+function getSiteLogo(variant) {
+    const v = variant === 'light' ? 'light' : 'dark';
+    if (_logoCache[v]) return _logoCache[v];
     try {
         const html = fs.readFileSync(INDEX_HTML, 'utf8');
-        const tag = html.match(/<img[^>]*\bclass="logo-dark"[^>]*>/);
+        const className = v === 'light' ? 'logo-light' : 'logo-dark';
+        const re = new RegExp('<img[^>]*\\bclass="' + className + '"[^>]*>');
+        const tag = html.match(re);
         if (tag) {
             const src = tag[0].match(/src="data:image\/png;base64,([A-Za-z0-9+/=]+)"/);
-            if (src) { _logoCache = Buffer.from(src[1], 'base64'); return _logoCache; }
+            if (src) { _logoCache[v] = Buffer.from(src[1], 'base64'); return _logoCache[v]; }
         }
     } catch (e) { /* ignore */ }
     return null;
 }
 
 // ----- routes -----
-
 const app = express();
 app.use(express.json());
 app.use(express.static(PUBLIC_DIR));
 
 app.get('/site-logo', (req, res) => {
-    const buf = getSiteLogo();
+    const buf = getSiteLogo(req.query.theme);
     if (buf) {
         res.setHeader('Content-Type', 'image/png');
         res.setHeader('Cache-Control', 'public, max-age=86400');
@@ -209,13 +198,9 @@ app.post('/api/create-project', upload.fields([
     const stagedFiles = [];
     if (req.files && req.files.thumbnail) stagedFiles.push.apply(stagedFiles, req.files.thumbnail);
     if (req.files && req.files.gallery) stagedFiles.push.apply(stagedFiles, req.files.gallery);
-
     function cleanupStaging() {
-        for (const f of stagedFiles) {
-            try { fs.unlinkSync(f.path); } catch (e) { /* ignore */ }
-        }
+        for (const f of stagedFiles) { try { fs.unlinkSync(f.path); } catch (e) {} }
     }
-
     try {
         const b = req.body || {};
         const projectName = String(b.projectName || '').trim();
@@ -226,7 +211,7 @@ app.post('/api/create-project', upload.fields([
         const designerUrl = String(b.designerUrl || '').trim();
         const material    = String(b.material || '').trim();
         const printer     = String(b.printer || '').trim();
-        const cardMeta    = String(b.cardMeta || (material && printer ? (material + ' • ' + printer) : (material || printer))).trim();
+        const cardMeta    = String(b.cardMeta || (material && printer ? (material + BULLET + printer) : (material || printer))).trim();
         const displayOrder = Number(b.displayOrder || 100);
         const featured    = String(b.featured || 'false') === 'true';
         const published   = String(b.published || 'true') === 'true';
@@ -240,10 +225,7 @@ app.post('/api/create-project', upload.fields([
         if (!(req.files && req.files.gallery && req.files.gallery.length)) throw new Error('At least one gallery image is required.');
 
         const targetDir = path.join(PORTFOLIO_IMG_ROOT, folderName);
-        if (fs.existsSync(targetDir)) {
-            throw new Error('Folder Images/Portfolio/' + folderName + ' already exists. Pick a different folder name.');
-        }
-
+        if (fs.existsSync(targetDir)) throw new Error('Folder Images/Portfolio/' + folderName + ' already exists. Pick a different folder name.');
         fs.mkdirSync(targetDir, { recursive: true });
 
         const thumbFile = req.files.thumbnail[0];
@@ -259,15 +241,13 @@ app.post('/api/create-project', upload.fields([
             fs.renameSync(f.path, path.join(targetDir, name));
             galleryNames.push(name);
         });
-
         const galleryImagePaths = ['Images/Portfolio/' + folderName + '/' + thumbName].concat(galleryNames.map(function (n) { return 'Images/Portfolio/' + folderName + '/' + n; }));
 
         const project = {
             projectName: projectName, folderName: folderName, projectKey: projectKey, categories: categories,
             designer: designer, designerUrl: designerUrl, material: material, printer: printer, cardMeta: cardMeta,
             displayOrder: displayOrder, featured: featured, published: published,
-            thumbnailFile: thumbName,
-            galleryImages: galleryImagePaths
+            thumbnailFile: thumbName, galleryImages: galleryImagePaths
         };
 
         let galleryContent = fs.readFileSync(GALLERY_HTML, 'utf8');
@@ -294,7 +274,7 @@ app.post('/api/create-project', upload.fields([
                         parent: { database_id: NOTION_DB_ID },
                         properties: {
                             'Project Name': { title: [{ text: { content: projectName } }] },
-                            'Category':     { multi_select: categories.map(function (name) { return { name: name }; }) },
+                            'Category':     { multi_select: categories.map(function (n) { return { name: n }; }) },
                             'Designer':     designer ? { rich_text: [{ text: { content: designer } }] } : { rich_text: [] },
                             'Designer URL': designerUrl ? { url: designerUrl } : { url: null },
                             'Material':     material ? { rich_text: [{ text: { content: material } }] } : { rich_text: [] },
@@ -308,33 +288,38 @@ app.post('/api/create-project', upload.fields([
                     });
                     notionUrl = resp.url || null;
                 } catch (err) {
+                    console.error('[notion]', err);
                     notionWarning = 'Notion write failed: ' + (err.message || err);
                 }
             }
         }
 
-        res.json({
-            ok: true,
-            project: project,
-            filesChanged: filesChanged,
-            notionUrl: notionUrl,
-            notionWarning: notionWarning
-        });
+        res.json({ ok: true, project: project, filesChanged: filesChanged, notionUrl: notionUrl, notionWarning: notionWarning });
     } catch (err) {
+        console.error('[create-project]', err);
         cleanupStaging();
         res.status(400).json({ ok: false, error: err.message || String(err) });
     }
 });
 
+// JSON error handler -- catches multer errors (file too large, bad fields)
+// and any other unhandled middleware error so the frontend sees JSON instead
+// of Express's default HTML 500 page.
+app.use(function (err, req, res, next) {
+    console.error('[server error]', err);
+    if (err && err.code === 'LIMIT_FILE_SIZE') {
+        return res.status(413).json({ ok: false, error: 'A file is too large. Per-file limit is 50 MB.' });
+    }
+    if (err && err.code === 'LIMIT_UNEXPECTED_FILE') {
+        return res.status(400).json({ ok: false, error: 'Unexpected file field: ' + err.field });
+    }
+    res.status(err && err.status ? err.status : 500).json({ ok: false, error: (err && err.message) || 'Server error' });
+});
+
 function runGit(args, cwd) {
     return new Promise(function (resolve) {
         execFile('git', args, { cwd: cwd, windowsHide: true }, function (err, stdout, stderr) {
-            resolve({
-                ok: !err,
-                code: err && err.code != null ? err.code : 0,
-                stdout: stdout ? stdout.toString() : '',
-                stderr: stderr ? stderr.toString() : ''
-            });
+            resolve({ ok: !err, code: err && err.code != null ? err.code : 0, stdout: stdout ? stdout.toString() : '', stderr: stderr ? stderr.toString() : '' });
         });
     });
 }
@@ -343,15 +328,10 @@ app.post('/api/git-push', async (req, res) => {
     try {
         const message = String((req.body && req.body.message) || '').trim() || 'Add new portfolio project';
         const paths = Array.isArray(req.body && req.body.paths) ? req.body.paths : ['.'];
-
         const safePaths = paths.filter(function (p) {
-            return typeof p === 'string'
-                && !p.includes('..')
-                && (p === 'gallery.html' || p === 'index.html' || p.startsWith('Images/Portfolio/'));
+            return typeof p === 'string' && !p.includes('..') && (p === 'gallery.html' || p === 'index.html' || p.startsWith('Images/Portfolio/'));
         });
-        if (!safePaths.length) {
-            return res.status(400).json({ ok: false, error: 'No safe paths to commit.' });
-        }
+        if (!safePaths.length) return res.status(400).json({ ok: false, error: 'No safe paths to commit.' });
 
         const log = [];
         const add = await runGit(['add', '--'].concat(safePaths), ROOT);
@@ -370,6 +350,7 @@ app.post('/api/git-push', async (req, res) => {
 
         res.json({ ok: true, log: log });
     } catch (err) {
+        console.error('[git-push]', err);
         res.status(500).json({ ok: false, error: err.message || String(err) });
     }
 });
@@ -380,18 +361,16 @@ app.listen(PORT, function () {
     console.log('  +----------------------------------------------------------+');
     console.log('  |  Layer Lama -- Portfolio Admin                           |');
     console.log('  |  ' + (url + '                                                          ').slice(0, 56) + '|');
-    console.log('  |                                                          |');
     console.log('  |  Notion: ' + (NOTION_TOKEN ? 'configured                                      ' : 'NOT configured -- set NOTION_TOKEN in .env      ') + '|');
     console.log('  |  Stop:   Ctrl+C                                          |');
     console.log('  +----------------------------------------------------------+');
     console.log('');
-
     if (process.env.NO_BROWSER === '1') return;
     setTimeout(function () {
         try {
             if (process.platform === 'win32')      exec('start "" "' + url + '"');
             else if (process.platform === 'darwin') exec('open "' + url + '"');
             else                                    exec('xdg-open "' + url + '"');
-        } catch (e) { /* ignore */ }
+        } catch (e) {}
     }, 400);
 });

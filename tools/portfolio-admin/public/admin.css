@@ -1,4 +1,5 @@
 :root {
+    /* DARK THEME (default) */
     --orange: #E8812B;
     --orange-deep: #D06A10;
     --orange-hot: #FF9130;
@@ -11,7 +12,69 @@
     --text-muted: #8A8A8A;
     --green: #4ADE80;
     --red: #EF4444;
+    --nav-bg: rgba(6,6,6,0.92);
+    --toggle-bg: #2A2A2A;
+    --toggle-knob: #EDEDED;
     --accent-gradient: linear-gradient(135deg, #E8812B, #FF9130, #E03530);
+}
+
+/* LIGHT THEME — tokens copied from layerlama.com index.html */
+[data-theme="light"] {
+    --orange: #BE5E08;
+    --orange-deep: #A14E00;
+    --orange-hot: #E88B1E;
+    --bg: #F5F2EE;
+    --bg-card: #FFFFFF;
+    --bg-surface: #E8E2D8;
+    --border: #BFB6A8;
+    --border-strong: #A89E8C;
+    --text: #0E0D0B;
+    --text-muted: #524C44;
+    --green: #2F9E4F;
+    --red: #B91C1C;
+    --nav-bg: rgba(245, 242, 238, 0.92);
+    --toggle-bg: #BFB6A8;
+    --toggle-knob: #0E0D0B;
+    --accent-gradient: linear-gradient(135deg, #BE5E08, #D47A20, #A14E00);
+}
+
+/* Logo swap, same pattern as the public site */
+.logo-dark, .logo-light { transition: opacity 0.3s; }
+.logo-dark { display: block; }
+.logo-light { display: none; }
+[data-theme="light"] .logo-dark { display: none; }
+[data-theme="light"] .logo-light { display: block; }
+
+/* Theme toggle pill, copied 1:1 from the public site */
+.theme-toggle {
+    position: relative;
+    width: 52px; height: 28px;
+    border-radius: 100px;
+    background: var(--toggle-bg);
+    border: none;
+    cursor: pointer;
+    transition: background 0.3s;
+    flex-shrink: 0;
+}
+.theme-toggle::before {
+    content: '';
+    position: absolute;
+    top: 3px; left: 3px;
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    background: var(--toggle-knob);
+    transition: transform 0.3s, background 0.3s;
+}
+[data-theme="light"] .theme-toggle::before { transform: translateX(24px); }
+.toggle-icons {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%; height: 100%;
+    padding: 0 6px;
+    font-size: 0.7rem;
+    color: var(--text);
+    pointer-events: none;
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -24,6 +87,11 @@ body {
     -webkit-font-smoothing: antialiased;
 }
 
+/* page transitions for theme swap */
+body, .topbar, .card, input, .checkbox-row label, .btn-ghost {
+    transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+}
+
 /* topbar */
 .topbar {
     padding: 1.25rem 2rem;
@@ -31,11 +99,16 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background: rgba(6,6,6,0.92);
+    background: var(--nav-bg);
     backdrop-filter: blur(20px);
     position: sticky;
     top: 0;
     z-index: 10;
+}
+.topbar-right {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
 }
 .topbar-left { display: flex; flex-direction: column; gap: 0.15rem; }
 
@@ -240,12 +313,47 @@ input[type="file"]:hover { border-color: var(--orange); color: var(--text); }
     flex-wrap: wrap;
     margin-top: 0.4rem;
 }
-.thumb-preview img, .gallery-preview img {
+.thumb-preview img,
+.gallery-preview .preview-item img {
     width: 80px;
     height: 80px;
     object-fit: cover;
     border-radius: 6px;
     border: 1px solid var(--border-strong);
+    display: block;
+}
+/* gallery preview tile = thumbnail + remove (x) button corner */
+.gallery-preview .preview-item {
+    position: relative;
+    width: 80px;
+    height: 80px;
+}
+.preview-remove {
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border: 1px solid var(--border-strong);
+    background: var(--bg-card);
+    color: var(--text);
+    font-size: 0.7rem;
+    font-weight: 700;
+    line-height: 1;
+    cursor: pointer;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+}
+.preview-remove:hover {
+    background: var(--orange);
+    color: #fff;
+    border-color: var(--orange);
+    transform: scale(1.1);
 }
 
 /* buttons */
