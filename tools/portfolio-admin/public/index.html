@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Layer Lama — Portfolio Admin</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+    <header class="topbar">
+        <div class="topbar-left">
+            <div class="nav-logo">
+                <img src="/site-logo" alt="Layer Lama logo" width="40" height="40">
+                <span>Layer Lama</span>
+            </div>
+            <p class="subtitle">Portfolio Admin <span class="status-dot" id="statusDot"></span> <span id="statusText">checking…</span></p>
+        </div>
+        <div class="topbar-right">
+            <span class="hint">local-only · never deploy</span>
+        </div>
+    </header>
+
+    <main class="wrap">
+        <section class="card">
+            <h2>Add a new project</h2>
+            <p class="muted">Saves images to <code>Images/Portfolio/&lt;Folder&gt;/</code>, injects a card into <code>gallery.html</code> (and <code>index.html</code> if Featured), and optionally writes a row to Notion.</p>
+
+            <form id="form" autocomplete="off">
+                <div class="grid">
+                    <label class="field span-2">
+                        <span class="label">Project Name <em>required</em></span>
+                        <input type="text" name="projectName" id="projectName" required placeholder="e.g. Dolphin Planter">
+                    </label>
+
+                    <label class="field">
+                        <span class="label">Folder Name <em>required</em></span>
+                        <input type="text" name="folderName" id="folderName" required placeholder="Dolphin_Planter">
+                        <small class="hint">Used in <code>Images/Portfolio/&lt;X&gt;/</code></small>
+                    </label>
+
+                    <label class="field">
+                        <span class="label">Project Key <em>required</em></span>
+                        <input type="text" name="projectKey" id="projectKey" required placeholder="dolphinplanter">
+                        <small class="hint">JS object key, lowercase a–z + 0–9</small>
+                    </label>
+
+                    <fieldset class="field span-2 categories">
+                        <span class="label">Categories <em>at least one</em></span>
+                        <div class="checkbox-row">
+                            <label><input type="checkbox" name="categories" value="Functional"> Functional</label>
+                            <label><input type="checkbox" name="categories" value="Artistic"> Artistic</label>
+                            <label><input type="checkbox" name="categories" value="Miniatures"> Miniatures</label>
+                            <label><input type="checkbox" name="categories" value="Prototypes"> Prototypes</label>
+                            <label><input type="checkbox" name="categories" value="Educational"> Educational</label>
+                        </div>
+                    </fieldset>
+
+                    <label class="field">
+                        <span class="label">Material</span>
+                        <input type="text" name="material" id="material" placeholder="PLA">
+                    </label>
+
+                    <label class="field">
+                        <span class="label">Printer</span>
+                        <input type="text" name="printer" id="printer" placeholder="Bambu Lab A1">
+                    </label>
+
+                    <label class="field span-2">
+                        <span class="label">Card meta line <em>optional</em></span>
+                        <input type="text" name="cardMeta" id="cardMeta" placeholder="auto: PLA • Bambu Lab A1">
+                        <small class="hint">Leave blank to combine Material + Printer with a bullet</small>
+                    </label>
+
+                    <label class="field">
+                        <span class="label">Designer</span>
+                        <input type="text" name="designer" placeholder="Layerlama">
+                    </label>
+
+                    <label class="field">
+                        <span class="label">Designer URL</span>
+                        <input type="url" name="designerUrl" placeholder="https://makerworld.com/en/@Layerlama">
+                    </label>
+
+                    <label class="field">
+                        <span class="label">Display Order</span>
+                        <input type="number" name="displayOrder" value="100" min="0" step="1">
+                        <small class="hint">Lower = shown first</small>
+                    </label>
+
+                    <div class="field toggles">
+                        <label class="toggle"><input type="checkbox" name="featured" value="true"> <span>Featured (also add to homepage)</span></label>
+                        <label class="toggle"><input type="checkbox" name="published" value="true" checked> <span>Published</span></label>
+                        <label class="toggle"><input type="checkbox" name="writeNotion" value="true" checked id="writeNotion"> <span>Mirror to Notion</span></label>
+                    </div>
+
+                    <label class="field span-2">
+                        <span class="label">Thumbnail <em>required, 1 image</em></span>
+                        <input type="file" name="thumbnail" id="thumbnail" accept="image/*" required>
+                        <div class="thumb-preview" id="thumbPreview"></div>
+                    </label>
+
+                    <label class="field span-2">
+                        <span class="label">Gallery images <em>1 or more</em></span>
+                        <input type="file" name="gallery" id="gallery" accept="image/*" multiple required>
+                        <div class="gallery-preview" id="galleryPreview"></div>
+                    </label>
+                </div>
+
+                <div class="actions">
+                    <button type="submit" id="submitBtn" class="btn btn-primary">Add Project</button>
+                    <button type="button" id="resetBtn" class="btn btn-ghost">Reset Form</button>
+                </div>
+            </form>
+
+            <div id="result" class="result hidden"></div>
+        </section>
+    </main>
+
+    <script src="admin.js"></script>
+</body>
+</html>
