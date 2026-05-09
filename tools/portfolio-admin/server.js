@@ -31,6 +31,9 @@ const NOTION_TOKEN = process.env.NOTION_TOKEN || '';
 const NOTION_DB_ID = process.env.NOTION_PORTFOLIO_DB_ID || 'e3709cae-61b5-41e0-820d-507d5c63c304';
 const notion = NOTION_TOKEN ? new NotionClient({ auth: NOTION_TOKEN }) : null;
 
+const NETLIFY_TOKEN = process.env.NETLIFY_TOKEN || '';
+const NETLIFY_SITE_ID = process.env.NETLIFY_SITE_ID || '';
+
 const ADMIN_TOKEN = crypto.randomBytes(16).toString('hex');
 
 // ----- helpers -----
@@ -570,6 +573,57 @@ app.post('/api/sync-from-notion', async function (req, res) {
     } finally { endResponse(); }
 });
 
+// ----- Netlify build status (polled by frontend after git push) -----
+async function getLatestNetlifyDeploy() {
+    if (!NETLIFY_TOKEN || !NETLIFY_SITE_ID) return { configured: false };
+    const url = 'https://api.netlify.com/api/v1/sites/' + encodeURIComponent(NETLIFY_SITE_ID) + '/deploys?per_page=1';
+    const r = await fetch(url, {
+        headers: { 'Authorization': 'Bearer ' + NETLIFY_TOKEN, 'Accept': 'application/json' }
+    });
+    if (!r.ok) {
+        const t = await r.text().catch(function () { return ''; });
+        throw new Error('Netlify API ' + r.status + ': ' + t.slice(0, 200));
+    }
+    const arr = await r.json();
+    return { configured: true, deploy: (arr && arr[0]) ? arr[0] : null };
+}
+app.get('/api/netlify-status', async function (req, res) {
+    try {
+        const since = parseInt(req.query.since, 10) || 0;
+        const result = await getLatestNetlifyDeploy();
+        if (!result.configured) {
+            return res.json({ state: 'unconfigured', message: 'Add NETLIFY_TOKEN and NETLIFY_SITE_ID to .env to enable build tracking.' });
+        }
+        if (!result.deploy) return res.json({ state: 'no_deploys' });
+        const d = result.deploy;
+        const created = d.created_at ? new Date(d.created_at).getTime() : 0;
+        if (since && created < since) {
+            return res.json({ state: 'waiting', message: 'Push not yet picked up by Netlify.' });
+        }
+        const stateMap = {
+            'new': 'building', 'pending_review': 'building',
+            'enqueued': 'building', 'preparing': 'building',
+            'building': 'building', 'processing': 'building',
+            'uploading': 'building', 'prepared': 'building',
+            'ready': 'ready',
+            'error': 'error', 'rejected': 'error'
+        };
+        res.json({
+            state: stateMap[d.state] || 'building',
+            deployState: d.state,
+            deployId: d.id,
+            createdAt: d.created_at,
+            adminUrl: d.admin_url || null,
+            deployLogUrl: d.admin_url ? (d.admin_url + '/deploys/' + d.id) : null,
+            siteUrl: d.deploy_ssl_url || d.url || d.ssl_url || null,
+            errorMessage: d.error_message || null
+        });
+    } catch (err) {
+        console.error('[netlify-status]', err);
+        res.status(500).json({ state: 'error', error: err.message || String(err) });
+    }
+});
+
 // JSON error handler
 app.use(function (err, req, res, next) {
     console.error('[server error]', err);
@@ -601,13 +655,6 @@ const server = app.listen(PORT, HOST, function () {
             else if (process.platform === 'darwin') exec('open "' + url + '"');
             else                                    exec('xdg-open "' + url + '"');
         } catch (e) {}
-    }, 400);
-});
-server.headersTimeout = 0;
-server.requestTimeout = 0;
-server.keepAliveTimeout = 0;
-server.timeout = 0;
-      } catch (e) {}
     }, 400);
 });
 server.headersTimeout = 0;
