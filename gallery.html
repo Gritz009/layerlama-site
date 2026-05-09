@@ -271,6 +271,17 @@
         </div>
 
         <div class="gallery-grid">
+            <div class="gallery-card" data-category="functional" onclick="openLightbox('gumdispenser')">
+                <div class="card-image">
+                    <span class="card-tag" data-i18n="tag.prototyping">Prototyping</span>
+                    <img src="Images/Portfolio/Gum_Dispenser/Thumbnail.jpg" alt="Gum Dispenser">
+                </div>
+                <div class="card-body">
+                    <div class="card-title">Gum Dispenser</div>
+                    <div class="card-meta">PLA • Bambulab A1</div>
+                    <div class="card-credit">Design by <a href="https://makerworld.com/en/@MatthewGhost" target="_blank">MatthewGhost</a> via MakerWorld</div>
+                </div>
+            </div>
             <!-- LL_PORTFOLIO_INSERT_HTML_START — sync-from-Notion replaces everything between this and the END marker. -->
             <div class="gallery-card" data-category="miniatures" onclick="openLightbox('jeepkitcard')">
                 <div class="card-image">
@@ -515,6 +526,7 @@
 
         // Lightbox
         const projects = {
+            gumdispenser: { title: 'Gum Dispenser', credit: 'Design by MatthewGhost via MakerWorld', images: ['Images/Portfolio/Gum_Dispenser/Thumbnail.jpg','Images/Portfolio/Gum_Dispenser/1.jpg','Images/Portfolio/Gum_Dispenser/2.jpg','Images/Portfolio/Gum_Dispenser/3.jpg','Images/Portfolio/Gum_Dispenser/4.jpg'] },
             // LL_PORTFOLIO_INSERT_JS_START — sync-from-Notion replaces everything between this and the END marker.
             jeepkitcard: { title: 'Jeep Kit Card', credit: 'Design by agepbiz via MakerWorld', images: ['Images/Portfolio/Jeep_Kit_Card/Thumbnail.jpg','Images/Portfolio/Jeep_Kit_Card/2.jpg','Images/Portfolio/Jeep_Kit_Card/3.jpg','Images/Portfolio/Jeep_Kit_Card/4.jpg','Images/Portfolio/Jeep_Kit_Card/5.jpg','Images/Portfolio/Jeep_Kit_Card/Instructions.webp'] },
             polygonplanter: { title: 'Polygon Planter', credit: 'Design by h3li0 via MakerWorld', images: ['Images/Portfolio/Planter/2.png','Images/Portfolio/Planter/3.png','Images/Portfolio/Planter/4.png','Images/Portfolio/Planter/5.png'] },
