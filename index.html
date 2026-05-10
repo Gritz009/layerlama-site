@@ -471,15 +471,24 @@
         }
         .commission-banner-close:hover { border-color: var(--orange); color: var(--orange); transform: rotate(90deg); }
 
-        /* Intermediate desktop widths — thumbs + CTA + IG label squeeze the 1fr text column below the width of a single character, which combined with overflow-wrap:break-word makes the title wrap letter-by-letter. Compact the fixed-width elements so the title has room. */
-        @media (min-width: 769px) and (max-width: 1100px) {
-            .commission-banner-inner { gap: 1rem; padding: 1rem 1.5rem; }
+        /* Title safety net — keep words atomic so the title can never break letter-by-letter even if the column is squeezed below one character's width. */
+        .commission-banner-title { word-break: keep-all; overflow-wrap: normal; }
+
+        /* Intermediate desktop widths — the original 4-column grid (auto 1fr auto auto) collapses the 1fr text column when thumbs + CTA + IG (with full label) crowd the row, which combined with the global overflow-wrap:break-word would otherwise wrap the title letter-by-letter. Switch to a flex layout with wrap so the text can claim its own row instead of getting crushed. */
+        @media (min-width: 769px) and (max-width: 1280px) {
+            .commission-banner { max-height: 380px; }
+            .commission-banner-inner {
+                display: flex; flex-wrap: wrap; align-items: center;
+                gap: 1rem 1.25rem; padding: 1rem 1.5rem;
+            }
+            .commission-banner-thumbs { flex-shrink: 0; }
             .commission-banner-thumb { width: 84px; height: 84px; border-radius: 10px; }
             .commission-banner-thumb:nth-child(2) { transform: rotate(2deg) translateX(-7px); }
             .commission-banner-thumb:nth-child(3) { transform: rotate(-3deg) translateX(-14px); }
+            .commission-banner-text { flex: 1 1 260px; min-width: 0; }
             .commission-banner-cta { display: none; }
+            .commission-banner-ig { flex-shrink: 0; padding: 0.7rem 0.85rem; }
             .commission-banner-ig span { display: none; }
-            .commission-banner-ig { padding: 0.7rem 0.85rem; }
             .commission-banner-title { font-size: clamp(1.25rem, 2.4vw, 1.7rem); }
         }
 
