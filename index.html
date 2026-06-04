@@ -743,6 +743,18 @@
         <div class="section-header reveal"><span class="section-label" data-i18n="portfolio.label">Portfolio</span><h2 class="section-title" data-i18n="portfolio.title">Selected Works</h2><p class="section-desc" data-i18n="portfolio.desc">Recent 3D prints from the workshop. Click any project to explore all photos.</p><p class="section-note" data-i18n="portfolio.note">All prints can be customised in different colours, materials, and sizes on request.</p></div>
 
         <div class="gallery-grid gallery-grid--featured">
+            <!-- Costal_Ridge_Planter -->
+            <div class="gallery-card extra-8 reveal" data-category="functional" onclick="openLightbox('costalridgeplanter')">
+                <div class="card-image">
+                    <span class="card-tag" data-i18n="tag.artistic_functional">Functional . Artistic</span>
+                    <img src="Images/Portfolio/CostalRidgePlanter/Thumbnail.png" alt="Costal_Ridge_Planter" style="width:100%;height:100%;object-fit:cover;position:relative;z-index:1;">
+                </div>
+                <div class="card-body">
+                    <div class="card-title">Costal_Ridge_Planter</div>
+                    <div class="card-meta"><span>PLA , PETG • Bambu A1/A1 mini</span></div>
+                    <div class="card-credit">Design by <a href="https://makerworld.com/en/@Layerlama" target="_blank">Layerlama</a> via MakerWorld</div>
+                </div>
+            </div>
             <!-- LL_PORTFOLIO_INSERT_HTML_START — sync-from-Notion replaces everything between this and the END marker. -->
             <!-- Jeep Kit Card -->
             <div class="gallery-card extra-8 reveal" data-category="miniatures" onclick="openLightbox('jeepkitcard')">
@@ -1170,6 +1182,11 @@
     <script>
         // Lightbox project data
         const projects = {
+            costalridgeplanter: {
+                title: 'Costal_Ridge_Planter',
+                credit: 'Design by Layerlama via MakerWorld',
+                images: ['Images/Portfolio/CostalRidgePlanter/Thumbnail.png','Images/Portfolio/CostalRidgePlanter/1.png','Images/Portfolio/CostalRidgePlanter/2.png','Images/Portfolio/CostalRidgePlanter/3.png','Images/Portfolio/CostalRidgePlanter/4.png','Images/Portfolio/CostalRidgePlanter/5.png','Images/Portfolio/CostalRidgePlanter/6.png','Images/Portfolio/CostalRidgePlanter/7.png','Images/Portfolio/CostalRidgePlanter/8.png','Images/Portfolio/CostalRidgePlanter/9.png','Images/Portfolio/CostalRidgePlanter/10.png','Images/Portfolio/CostalRidgePlanter/11.png']
+            },
             // LL_PORTFOLIO_INSERT_JS_START — sync-from-Notion replaces everything between this and the END marker.
             jeepkitcard: {
                 title: 'Jeep Kit Card',
